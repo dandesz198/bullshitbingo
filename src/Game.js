@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Dimensions, Platform } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import * as GestureHandler from 'react-native-gesture-handler';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
@@ -22,7 +22,7 @@ export default class Game extends React.Component {
   _handleIndexChange = index => this.setState({ index });
 
   _renderHeader = (props) => {
-    return(<TabBar {...props}/>);
+    return(<TabBar style={{paddingTop: Platform.OS == 'ios' ? 15 : 0, backgroundColor: 'rgb(26, 188, 156)'}} {...props}/>);
   };
 
   _renderScene = ({ route }) => {
