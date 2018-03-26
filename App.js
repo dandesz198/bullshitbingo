@@ -16,6 +16,7 @@ export default class App extends React.Component {
         inputRange: [0, 1, 2, 3, 4, 5],
         outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)', 'rgb(52, 152, 219)', 'rgb(41, 128, 185)']
     });
+    
     return (
       <Animated.View style={[styles.container, {backgroundColor: bgColor}]}>
         <StatusBar
@@ -85,6 +86,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ecf0f1',
+    shadowColor: '#888',
+    shadowOffset: {width: 0, height: 2.5},
+    shadowOpacity: 0.7
   },
 
   join: {
