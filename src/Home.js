@@ -7,11 +7,16 @@ export default class Home extends React.Component {
     super(props);
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = { 
-        text: '', 
+        connectID: '', 
+        
         x: new Animated.Value(0),
-        games: ds.cloneWithRows(['Ki kap legközelebb intőt?', 'Mire fog legközelebb ragelni Dani?']),
+        games: ds.cloneWithRows(['Ki kap legközelebb intőt?', 'Kire fog legközelebb ragelni Dani?']),
         value: 0,
-        modalVisible: false
+        
+        //Data for the new match
+        newGameModalVisible: false,
+        newGameName: '',
+        newGameID: Math.floor(Math.random() * 899999 + 100000).toString()
     };
   }
 
@@ -22,8 +27,8 @@ export default class Home extends React.Component {
 
   render() {
     var bgColor = this.state.x.interpolate({
-        inputRange: [1, 2, 3, 4, 5, 6, 7],
-        outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)', 'rgb(52, 152, 219)', 'rgb(41, 128, 185)', 'rgb(155, 89, 182)']
+      inputRange: [1, 2, 3, 4, 5],
+      outputRange: ['rgb(22, 160, 133)', 'rgb(39, 174, 96)', 'rgb(41, 128, 185)', 'rgb(142, 68, 173)', 'rgb(211, 84, 0)']
     });
 
     return (
@@ -34,23 +39,45 @@ export default class Home extends React.Component {
         <Modal
           animationType="slide"
           transparent={false}
-          visible={this.state.modalVisible}>
-          <View style={{marginTop: 22}}>
-            <View>
-              <Text>Hello World!</Text>
-
-              <TouchableOpacity
-                onPress={() => {
-                  this.setState({modalVisible: false});
-                }}>
-                <Text>Hide Modal</Text>
-              </TouchableOpacity>
+          visible={this.state.newGameModalVisible}>
+          <View style={{flex: 1}}>
+            <Animated.View style={{padding: 20, backgroundColor: bgColor}}>
+                <Text style={[styles.heading, {fontSize: 32}]}>Create a new Bullshit Bingo match</Text>
+            </Animated.View>
+            <View style={{flex: 1, padding: 20}}>
+              <View style={{flexDirection: 'column'}}>
+                <Text style={styles.p}>The name of the match (public)</Text>
+                <TextInput
+                  style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 10, marginBottom: 20}]}
+                  placeholder="Match name"
+                  placeholderTextColor="#888"
+                  underlineColorAndroid='transparent'
+                  onChangeText={(newGameName) => this.setState({newGameName})}
+                  value={this.state.newGameName}
+                />
+              </View>
+              <View style={{flexDirection: 'column'}}>
+                <Text style={styles.p}>Your game pin:</Text>
+                <Text style={styles.h2}>{this.state.newGameID}</Text>
+              </View>
+              <View style={{flexDirection: 'row', height: 45, marginTop: 20}}>
+                <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
+                  <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{this.setState({newGameID: Math.floor(Math.random() * 899999 + 100000).toString()})}}>
+                    <Text style={[styles.join, {color: 'white'}]}>Create game</Text>
+                  </TouchableOpacity>
+                </Animated.View>
+                <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor}]}>
+                  <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{this.setState({newGameModalVisible: false})}}>
+                    <Text style={[styles.join, {color: 'white'}]}>Close</Text>
+                  </TouchableOpacity>
+                </Animated.View>
+              </View>
             </View>
           </View>
         </Modal>
         <Text style={styles.welcome}>Bullshit Bingo</Text>
         <ScrollView style={{flex: 1}}>
-          <TouchableOpacity style={[styles.button, {marginTop: 20, height: 50}]} onPress={()=>{this.setState({modalVisible: true})}}>
+          <TouchableOpacity style={[styles.button, {marginTop: 20, height: 45}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
             <Animated.Text style={[styles.join, {color: bgColor}]}>Create new game</Animated.Text>
           </TouchableOpacity>
           <Text style={styles.heading}>Join game</Text>
@@ -59,8 +86,10 @@ export default class Home extends React.Component {
               style={[styles.input, {flex: 1}]}
               placeholder="Game PIN"
               placeholderTextColor="#ecf0f1"
-              onChangeText={(text) => this.setState({text})}
-              value={this.state.text}
+              keyboardType="number-pad"
+              underlineColorAndroid='transparent'
+              onChangeText={(connectID) => this.setState({connectID})}
+              value={this.state.connectID}
             />
             <TouchableOpacity style={[styles.button, {flex: 1}]}>
               <Animated.Text style={[styles.join, {color: bgColor}]}>Join</Animated.Text>
@@ -70,7 +99,7 @@ export default class Home extends React.Component {
           <ListView
             dataSource={this.state.games}
             renderRow={(rowData) => 
-              <TouchableOpacity onPress={()=>{this.props.navigation.navigate('Game')}}>
+              <TouchableOpacity style={{borderColor: '#ecf0f1', borderBottomWidth: .5, padding: 2.5}} onPress={()=>{this.props.navigation.navigate('Game')}}>
                 <Text style={styles.gameList}>{rowData}</Text>
               </TouchableOpacity>
             }
@@ -83,7 +112,7 @@ export default class Home extends React.Component {
   //Animate to the next color
   changeColor() {
     var value = this.state.value;
-    if(value > 7) {
+    if(value > 5) {
       value = 0;
     } else {
       value += 1;
@@ -113,8 +142,8 @@ const styles = StyleSheet.create({
   },
 
   heading: {
-    fontSize: 25,
-    marginTop: 25,
+    fontSize: 30,
+    marginTop: 35,
     fontWeight: 'bold',
     color: '#ecf0f1'
   },
@@ -128,20 +157,20 @@ const styles = StyleSheet.create({
   input: {
     color: '#ecf0f1',
     padding: 5,
-    marginRight: 20,
-    height: 50,
+    marginRight: 25,
+    height: 45,
     fontSize: 18,
     borderColor: '#ecf0f1',
     borderBottomWidth: 2.5
   },
 
   button: {
-    height: 50,
+    height: 45,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ecf0f1',
-    shadowColor: '#888',
-    shadowOffset: {width: 0, height: 2.5},
+    shadowColor: '#999',
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.7
   },
 
@@ -152,8 +181,19 @@ const styles = StyleSheet.create({
 
   gameList: {
     color: 'white',
-    fontWeight: '200',
+    fontWeight: '300',
     fontSize: 20,
-    marginVertical: 7.5
+    marginVertical: 5
+  },
+
+  h2: {
+    color: '#444',
+    fontSize: 34,
+    fontWeight: '700'
+  },
+
+  p: {
+    color: '#666',
+    fontSize: 20
   }
 });

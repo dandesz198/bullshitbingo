@@ -30,8 +30,8 @@ export default class Game extends React.Component {
 
   _renderHeader = (props) => {
     var bgColor = this.state.x.interpolate({
-      inputRange: [1, 2, 3, 4, 5, 6, 7],
-      outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)', 'rgb(52, 152, 219)', 'rgb(41, 128, 185)', 'rgb(155, 89, 182)']
+      inputRange: [1, 2, 3, 4, 5],
+      outputRange: ['rgb(22, 160, 133)', 'rgb(39, 174, 96)', 'rgb(41, 128, 185)', 'rgb(142, 68, 173)', 'rgb(211, 84, 0)']
     });
     return(<TabBar style={{paddingTop: Platform.OS == 'ios' ? 15 : 0, backgroundColor: bgColor}} {...props}/>);
   };
@@ -73,7 +73,7 @@ export default class Game extends React.Component {
   //Animate to the next color
   changeColor() {
     var value = this.state.value;
-    if(value > 7) {
+    if(value > 5) {
       value = 0;
     } else {
       value += 1;
@@ -109,41 +109,23 @@ const styles = StyleSheet.create({
     color: '#ecf0f1'
   },
 
-  instructions: {
-    fontSize: 18,
-    textAlign: 'center',
-    color: '#ecf0f1'
-  },
-
   input: {
     color: '#ecf0f1',
     padding: 5,
-    marginRight: 20,
-    height: 50,
+    marginRight: 25,
+    height: 45,
     fontSize: 18,
     borderColor: '#ecf0f1',
     borderBottomWidth: 2.5
   },
 
   button: {
-    height: 50,
+    height: 45,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ecf0f1',
-    shadowColor: '#888',
-    shadowOffset: {width: 0, height: 2.5},
+    shadowColor: '#999',
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.7
   },
-
-  join: {
-    fontSize: 20,
-    textAlign: 'center'
-  },
-
-  gameList: {
-    color: 'white',
-    fontWeight: '200',
-    fontSize: 20,
-    marginVertical: 7.5
-  }
 });
