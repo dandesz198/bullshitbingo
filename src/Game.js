@@ -71,12 +71,12 @@ export default class Game extends React.Component {
 
   //Animate to the next color
   changeColor() {
-      Animated.timing(this.state.x, { toValue: Math.floor(Math.random() * 7), duration: 3500 }).start();
-      //Wait 3 sec before animating again
+      Animated.timing(this.state.x, { toValue: Math.floor(Math.random() * 7), duration: 5000 }).start();
+      //Wait 5 sec before animating again
       setTimeout(() => {
         //Continue the animation
         this.changeColor()
-      }, 3500);
+      }, 5000);
   }
 }
 
