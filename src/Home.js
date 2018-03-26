@@ -9,7 +9,7 @@ export default class Home extends React.Component {
     this.state = { 
         text: '', 
         x: new Animated.Value(0),
-        games: ds.cloneWithRows(['Ki kap legközelebb intőt?', 'Mire fog legközelebb ragelni Dani?']),
+        games: ds.cloneWithRows(['Ki kap legközelebb intőt?', 'Kire fog legközelebb ragelni Dani?']),
         value: 0,
         modalVisible: false
     };
@@ -22,8 +22,8 @@ export default class Home extends React.Component {
 
   render() {
     var bgColor = this.state.x.interpolate({
-        inputRange: [1, 2, 3, 4, 5, 6, 7],
-        outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)', 'rgb(52, 152, 219)', 'rgb(41, 128, 185)', 'rgb(155, 89, 182)']
+        inputRange: [1, 2, 3, 4, 5, 6],
+        outputRange: ['rgb(26, 188, 156)', 'rgb(46, 204, 113))', 'rgb(52, 152, 219)', 'rgb(155, 89, 182)', 'rgb(231, 76, 60)', 'rgb(230, 126, 34)']
     });
 
     return (
@@ -35,10 +35,15 @@ export default class Home extends React.Component {
           animationType="slide"
           transparent={false}
           visible={this.state.modalVisible}>
-          <View style={{marginTop: 22}}>
-            <View>
-              <Text>Hello World!</Text>
-
+          <View style={{flex: 1}}>
+            <Animated.View style={{padding: 20, backgroundColor: bgColor}}>
+                <Text style={styles.heading}>Create a new Bullshit Bingo match</Text>
+            </Animated.View>
+            <View style={{flex: 1, padding: 20}}>
+              <View style={{flexDirection: 'column'}}>
+                <Text style={styles.p}>Your game pin:</Text>
+                <Text style={styles.h2}>863 981</Text>
+              </View>
               <TouchableOpacity
                 onPress={() => {
                   this.setState({modalVisible: false});
@@ -84,7 +89,7 @@ export default class Home extends React.Component {
   //Animate to the next color
   changeColor() {
     var value = this.state.value;
-    if(value > 7) {
+    if(value > 6) {
       value = 0;
     } else {
       value += 1;
@@ -156,5 +161,16 @@ const styles = StyleSheet.create({
     fontWeight: '200',
     fontSize: 20,
     marginVertical: 7.5
+  },
+
+  h2: {
+    color: '#555',
+    fontSize: 34,
+    fontWeight: '700'
+  },
+
+  p: {
+    color: '#555',
+    fontSize: 20
   }
 });

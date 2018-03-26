@@ -30,8 +30,8 @@ export default class Game extends React.Component {
 
   _renderHeader = (props) => {
     var bgColor = this.state.x.interpolate({
-      inputRange: [1, 2, 3, 4, 5, 6, 7],
-      outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)', 'rgb(52, 152, 219)', 'rgb(41, 128, 185)', 'rgb(155, 89, 182)']
+      inputRange: [1, 2, 3, 4, 5, 6],
+      outputRange: ['rgb(26, 188, 156)', 'rgb(46, 204, 113))', 'rgb(52, 152, 219)', 'rgb(155, 89, 182)', 'rgb(231, 76, 60)', 'rgb(230, 126, 34)']
     });
     return(<TabBar style={{paddingTop: Platform.OS == 'ios' ? 15 : 0, backgroundColor: bgColor}} {...props}/>);
   };
@@ -73,7 +73,7 @@ export default class Game extends React.Component {
   //Animate to the next color
   changeColor() {
     var value = this.state.value;
-    if(value > 7) {
+    if(value > 6) {
       value = 0;
     } else {
       value += 1;
