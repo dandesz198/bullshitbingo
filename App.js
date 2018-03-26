@@ -19,8 +19,8 @@ export default class App extends React.Component {
 
   render() {
     var bgColor = this.state.x.interpolate({
-        inputRange: [1, 2, 3, 4, 5, 6],
-        outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)', 'rgb(52, 152, 219)', 'rgb(41, 128, 185)']
+        inputRange: [1, 2, 3, 4, 5, 6, 7],
+        outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)', 'rgb(52, 152, 219)', 'rgb(41, 128, 185)', 'rgb(155, 89, 182)']
     });
 
     return (
@@ -55,12 +55,12 @@ export default class App extends React.Component {
 
   //Animate to the next color
   changeColor() {
-      Animated.timing(this.state.x, { toValue: Math.floor(Math.random() * 6), duration: 3000 }).start();
+      Animated.timing(this.state.x, { toValue: Math.floor(Math.random() * 7), duration: 3500 }).start();
       //Wait 3 sec before animating again
       setTimeout(() => {
         //Continue the animation
         this.changeColor()
-      }, 3000);
+      }, 3500);
   }
 }
 
