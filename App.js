@@ -13,6 +13,7 @@ export default class App extends React.Component {
   }
 
   componentWillMount() {
+    //Starts the first loop in color changing
     this.changeColor();
   }
 
@@ -52,8 +53,10 @@ export default class App extends React.Component {
     );
   }
 
+  //Animate to the next color
   changeColor() {
-      Animated.timing(this.state.x, { toValue: Math.floor(Math.random() * 5), duration: 3000 }).start();
+      Animated.timing(this.state.x, { toValue: Math.floor(Math.random() * 6), duration: 3000 }).start();
+      //Wait 3 sec before animating again
       setTimeout(() => {
         this.changeColor()
       }, 3000);
@@ -69,14 +72,14 @@ const styles = StyleSheet.create({
 
   welcome: {
     fontSize: 40,
-    marginVertical: 20,
+    marginTop: 20,
     fontWeight: 'bold',
     color: '#ecf0f1'
   },
 
   heading: {
     fontSize: 25,
-    marginTop: 15,
+    marginTop: 25,
     fontWeight: 'bold',
     color: '#ecf0f1'
   },
@@ -116,6 +119,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '200',
     fontSize: 20,
-    marginVertical: 5
+    marginVertical: 7.5
   }
 });
