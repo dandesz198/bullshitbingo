@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView } from 'react-native';
+import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Modal } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
 export default class Home extends React.Component {
@@ -10,7 +10,8 @@ export default class Home extends React.Component {
         text: '', 
         x: new Animated.Value(0),
         games: ds.cloneWithRows(['Ki kap legközelebb intőt?', 'Mire fog legközelebb ragelni Dani?']),
-        value: 0
+        value: 0,
+        modalVisible: false
     };
   }
 
@@ -30,9 +31,29 @@ export default class Home extends React.Component {
         <StatusBar
           barStyle="light-content"
         />
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}>
+          <View style={{marginTop: 22}}>
+            <View>
+              <Text>Hello World!</Text>
+
+              <TouchableOpacity
+                onPress={() => {
+                  this.setState({modalVisible: false});
+                }}>
+                <Text>Hide Modal</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
         <Text style={styles.welcome}>Bullshit Bingo</Text>
         <ScrollView style={{flex: 1}}>
-          <Text style={styles.heading}>New game</Text>
+          <TouchableOpacity style={[styles.button, {marginTop: 20, height: 50}]} onPress={()=>{this.setState({modalVisible: true})}}>
+            <Animated.Text style={[styles.join, {color: bgColor}]}>Create new game</Animated.Text>
+          </TouchableOpacity>
+          <Text style={styles.heading}>Join game</Text>
           <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
             <TextInput
               style={[styles.input, {flex: 1}]}
