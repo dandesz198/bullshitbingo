@@ -59,6 +59,7 @@ export default class Home extends React.Component {
               style={[styles.input, {flex: 1}]}
               placeholder="Game PIN"
               placeholderTextColor="#ecf0f1"
+              underlineColorAndroid='transparent'
               onChangeText={(text) => this.setState({text})}
               value={this.state.text}
             />
