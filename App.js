@@ -58,6 +58,7 @@ export default class App extends React.Component {
       Animated.timing(this.state.x, { toValue: Math.floor(Math.random() * 6), duration: 3000 }).start();
       //Wait 3 sec before animating again
       setTimeout(() => {
+        //Continue the animation
         this.changeColor()
       }, 3000);
   }
