@@ -1,15 +1,23 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated } from 'react-native';
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { text: '' };
+    this.state = { text: '', x: new Animated.Value(0) };
+  }
+
+  componentWillMount() {
+    this.changeColor();
   }
 
   render() {
+    var bgColor = this.state.x.interpolate({
+        inputRange: [0, 1, 2, 3, 4, 5],
+        outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)', 'rgb(52, 152, 219)', 'rgb(41, 128, 185)']
+    });
     return (
-      <View style={styles.container}>
+      <Animated.View style={[styles.container, {backgroundColor: bgColor}]}>
         <StatusBar
           barStyle="light-content"
         />
@@ -24,11 +32,18 @@ export default class App extends React.Component {
             value={this.state.text}
           />
           <TouchableOpacity style={styles.button}>
-            <Text style={styles.join}>Join</Text>
+            <Animated.Text style={[styles.join, {color: bgColor}]}>Join</Animated.Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </Animated.View>
     );
+  }
+
+  changeColor() {
+      Animated.timing(this.state.x, { toValue: Math.floor(Math.random() * 5), duration: 3000 }).start();
+      setTimeout(() => {
+        this.changeColor()
+      }, 3000);
   }
 }
 
@@ -36,7 +51,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#1abc9c',
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -75,7 +89,6 @@ const styles = StyleSheet.create({
 
   join: {
     fontSize: 20,
-    textAlign: 'center',
-    color: '#1abc9c'
+    textAlign: 'center'
   }
 });
