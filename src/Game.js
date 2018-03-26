@@ -18,6 +18,7 @@ export default class Game extends React.Component {
       { key: '3', title: 'Members' },
     ],
     x: new Animated.Value(0),
+    value: 0
   };
 
   componentWillMount() {
@@ -71,12 +72,19 @@ export default class Game extends React.Component {
 
   //Animate to the next color
   changeColor() {
-      Animated.timing(this.state.x, { toValue: Math.floor(Math.random() * 7), duration: 5000 }).start();
-      //Wait 5 sec before animating again
-      setTimeout(() => {
-        //Continue the animation
-        this.changeColor()
-      }, 5000);
+    var value = this.state.value;
+    if(value > 7) {
+      value = 0;
+    } else {
+      value += 1;
+    }
+    this.setState({value: value});
+    Animated.timing(this.state.x, { toValue: value, duration: 3000 }).start();
+    //Wait 3 sec before animating again
+    setTimeout(() => {
+      //Continue the animation
+      this.changeColor()
+    }, 3000);
   }
 }
 
