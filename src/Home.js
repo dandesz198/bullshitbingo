@@ -22,8 +22,8 @@ export default class Home extends React.Component {
 
   render() {
     var bgColor = this.state.x.interpolate({
-        inputRange: [1, 2, 3, 4, 5, 6],
-        outputRange: ['rgb(22, 160, 133)', 'rgb(39, 174, 96)', 'rgb(41, 128, 185)', 'rgb(142, 68, 173)', 'rgb(211, 84, 0)', 'rgb(44, 62, 80)']
+      inputRange: [1, 2, 3, 4, 5],
+      outputRange: ['rgb(22, 160, 133)', 'rgb(39, 174, 96)', 'rgb(41, 128, 185)', 'rgb(142, 68, 173)', 'rgb(211, 84, 0)']
     });
 
     return (
@@ -96,7 +96,7 @@ export default class Home extends React.Component {
   //Animate to the next color
   changeColor() {
     var value = this.state.value;
-    if(value > 6) {
+    if(value > 5) {
       value = 0;
     } else {
       value += 1;
