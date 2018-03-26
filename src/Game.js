@@ -15,7 +15,7 @@ export default class Game extends React.Component {
     routes: [
       { key: '1', title: 'Bingo' },
       { key: '2', title: 'Chat' },
-      { key: '3', title: 'Résztvevők' },
+      { key: '3', title: 'Members' },
     ],
     x: new Animated.Value(0),
   };
