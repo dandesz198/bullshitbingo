@@ -7,11 +7,16 @@ export default class Home extends React.Component {
     super(props);
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = { 
-        text: '', 
+        connectID: '', 
+        
         x: new Animated.Value(0),
         games: ds.cloneWithRows(['Ki kap legközelebb intőt?', 'Kire fog legközelebb ragelni Dani?']),
         value: 0,
-        modalVisible: false
+        
+        //Data for the new match
+        newGameModalVisible: false,
+        newGameName: '',
+        newGameID: Math.floor(Math.random() * 899999 + 100000).toString()
     };
   }
 
@@ -34,24 +39,35 @@ export default class Home extends React.Component {
         <Modal
           animationType="slide"
           transparent={false}
-          visible={this.state.modalVisible}>
+          visible={this.state.newGameModalVisible}>
           <View style={{flex: 1}}>
             <Animated.View style={{padding: 20, backgroundColor: bgColor}}>
                 <Text style={[styles.heading, {fontSize: 32}]}>Create a new Bullshit Bingo match</Text>
             </Animated.View>
             <View style={{flex: 1, padding: 20}}>
               <View style={{flexDirection: 'column'}}>
+                <Text style={styles.p}>The name of the match (public)</Text>
+                <TextInput
+                  style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 10, marginBottom: 20}]}
+                  placeholder="Match name"
+                  placeholderTextColor="#888"
+                  underlineColorAndroid='transparent'
+                  onChangeText={(newGameName) => this.setState({newGameName})}
+                  value={this.state.newGameName}
+                />
+              </View>
+              <View style={{flexDirection: 'column'}}>
                 <Text style={styles.p}>Your game pin:</Text>
-                <Text style={styles.h2}>863 981</Text>
+                <Text style={styles.h2}>{this.state.newGameID}</Text>
               </View>
               <View style={{flexDirection: 'row', height: 45, marginTop: 20}}>
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
-                  <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{this.setState({modalVisible: false})}}>
+                  <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{this.setState({newGameID: Math.floor(Math.random() * 899999 + 100000).toString()})}}>
                     <Text style={[styles.join, {color: 'white'}]}>Create game</Text>
                   </TouchableOpacity>
                 </Animated.View>
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor}]}>
-                  <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{this.setState({modalVisible: false})}}>
+                  <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{this.setState({newGameModalVisible: false})}}>
                     <Text style={[styles.join, {color: 'white'}]}>Close</Text>
                   </TouchableOpacity>
                 </Animated.View>
@@ -61,7 +77,7 @@ export default class Home extends React.Component {
         </Modal>
         <Text style={styles.welcome}>Bullshit Bingo</Text>
         <ScrollView style={{flex: 1}}>
-          <TouchableOpacity style={[styles.button, {marginTop: 20, height: 45}]} onPress={()=>{this.setState({modalVisible: true})}}>
+          <TouchableOpacity style={[styles.button, {marginTop: 20, height: 45}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
             <Animated.Text style={[styles.join, {color: bgColor}]}>Create new game</Animated.Text>
           </TouchableOpacity>
           <Text style={styles.heading}>Join game</Text>
@@ -72,8 +88,8 @@ export default class Home extends React.Component {
               placeholderTextColor="#ecf0f1"
               keyboardType="number-pad"
               underlineColorAndroid='transparent'
-              onChangeText={(text) => this.setState({text})}
-              value={this.state.text}
+              onChangeText={(connectID) => this.setState({connectID})}
+              value={this.state.connectID}
             />
             <TouchableOpacity style={[styles.button, {flex: 1}]}>
               <Animated.Text style={[styles.join, {color: bgColor}]}>Join</Animated.Text>
@@ -171,13 +187,13 @@ const styles = StyleSheet.create({
   },
 
   h2: {
-    color: '#555',
+    color: '#444',
     fontSize: 34,
     fontWeight: '700'
   },
 
   p: {
-    color: '#555',
+    color: '#666',
     fontSize: 20
   }
 });
