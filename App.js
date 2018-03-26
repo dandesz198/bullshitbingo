@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated } from 'react-native';
+import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView } from 'react-native';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -13,29 +13,32 @@ export default class App extends React.Component {
 
   render() {
     var bgColor = this.state.x.interpolate({
-        inputRange: [0, 1, 2, 3, 4, 5],
+        inputRange: [1, 2, 3, 4, 5, 6],
         outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)', 'rgb(52, 152, 219)', 'rgb(41, 128, 185)']
     });
-    
+
     return (
       <Animated.View style={[styles.container, {backgroundColor: bgColor}]}>
         <StatusBar
           barStyle="light-content"
         />
         <Text style={styles.welcome}>Bullshit Bingo</Text>
-        <Text style={styles.instructions}>Type in the game's name or PIN to join and start playing.</Text>
-        <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-          <TextInput
-            style={styles.input}
-            placeholder="Game PIN"
-            placeholderTextColor="#ecf0f1"
-            onChangeText={(text) => this.setState({text})}
-            value={this.state.text}
-          />
-          <TouchableOpacity style={styles.button}>
-            <Animated.Text style={[styles.join, {color: bgColor}]}>Join</Animated.Text>
-          </TouchableOpacity>
-        </View>
+        <ScrollView style={{flex: 1}}>
+          <Text style={styles.heading}>New game</Text>
+          <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
+            <TextInput
+              style={[styles.input, {flex: 1}]}
+              placeholder="Game PIN"
+              placeholderTextColor="#ecf0f1"
+              onChangeText={(text) => this.setState({text})}
+              value={this.state.text}
+            />
+            <TouchableOpacity style={[styles.button, {flex: 1}]}>
+              <Animated.Text style={[styles.join, {color: bgColor}]}>Join</Animated.Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.heading}>Current games</Text>
+        </ScrollView>
       </Animated.View>
     );
   }
@@ -52,14 +55,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    alignItems: 'center',
     justifyContent: 'center'
   },
 
   welcome: {
-    fontSize: 30,
+    fontSize: 40,
+    marginVertical: 20,
     fontWeight: 'bold',
-    textAlign: 'center',
+    color: '#ecf0f1'
+  },
+
+  heading: {
+    fontSize: 25,
+    marginTop: 15,
+    fontWeight: 'bold',
     color: '#ecf0f1'
   },
 
@@ -72,8 +81,7 @@ const styles = StyleSheet.create({
   input: {
     color: '#ecf0f1',
     padding: 5,
-    margin: 20,
-    width: 200,
+    marginRight: 20,
     height: 50,
     fontSize: 18,
     borderColor: '#ecf0f1',
@@ -81,7 +89,6 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    width: 200,
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
