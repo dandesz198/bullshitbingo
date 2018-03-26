@@ -108,42 +108,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#ecf0f1'
   },
-
-  instructions: {
-    fontSize: 18,
-    textAlign: 'center',
-    color: '#ecf0f1'
-  },
-
+  
   input: {
     color: '#ecf0f1',
     padding: 5,
-    marginRight: 20,
-    height: 50,
+    marginRight: 25,
+    height: 45,
     fontSize: 18,
     borderColor: '#ecf0f1',
     borderBottomWidth: 2.5
   },
 
   button: {
-    height: 50,
+    height: 45,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ecf0f1',
-    shadowColor: '#888',
-    shadowOffset: {width: 0, height: 2.5},
+    shadowColor: '#999',
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.7
   },
-
-  join: {
-    fontSize: 20,
-    textAlign: 'center'
-  },
-
-  gameList: {
-    color: 'white',
-    fontWeight: '200',
-    fontSize: 20,
-    marginVertical: 7.5
-  }
 });
