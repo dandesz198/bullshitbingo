@@ -1,10 +1,15 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView } from 'react-native';
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { text: '', x: new Animated.Value(0) };
+    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    this.state = { 
+      text: '', 
+      x: new Animated.Value(0),
+      games: ds.cloneWithRows(['Ki kap legközelebb intőt?', 'Mire fog legközelebb ragelni Dani?']),
+     };
   }
 
   componentWillMount() {
@@ -38,6 +43,10 @@ export default class App extends React.Component {
             </TouchableOpacity>
           </View>
           <Text style={styles.heading}>Current games</Text>
+          <ListView
+            dataSource={this.state.games}
+            renderRow={(rowData) => <Text style={styles.gameList}>{rowData}</Text>}
+          />
         </ScrollView>
       </Animated.View>
     );
@@ -101,5 +110,12 @@ const styles = StyleSheet.create({
   join: {
     fontSize: 20,
     textAlign: 'center'
+  },
+
+  gameList: {
+    color: 'white',
+    fontWeight: '200',
+    fontSize: 20,
+    marginVertical: 5
   }
 });
