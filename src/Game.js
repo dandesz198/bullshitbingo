@@ -17,12 +17,22 @@ export default class Game extends React.Component {
       { key: '2', title: 'Chat' },
       { key: '3', title: 'Résztvevők' },
     ],
+    x: new Animated.Value(0),
   };
+
+  componentWillMount() {
+    //Starts the first loop in color changing
+    this.changeColor();
+  }
 
   _handleIndexChange = index => this.setState({ index });
 
   _renderHeader = (props) => {
-    return(<TabBar style={{paddingTop: Platform.OS == 'ios' ? 15 : 0, backgroundColor: 'rgb(26, 188, 156)'}} {...props}/>);
+    var bgColor = this.state.x.interpolate({
+      inputRange: [1, 2, 3, 4, 5, 6, 7],
+      outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)', 'rgb(52, 152, 219)', 'rgb(41, 128, 185)', 'rgb(155, 89, 182)']
+    });
+    return(<TabBar style={{paddingTop: Platform.OS == 'ios' ? 15 : 0, backgroundColor: bgColor}} {...props}/>);
   };
 
   _renderScene = ({ route }) => {
@@ -57,6 +67,16 @@ export default class Game extends React.Component {
         initialLayout={initialLayout}
       />
     );
+  }
+
+  //Animate to the next color
+  changeColor() {
+      Animated.timing(this.state.x, { toValue: Math.floor(Math.random() * 7), duration: 3500 }).start();
+      //Wait 3 sec before animating again
+      setTimeout(() => {
+        //Continue the animation
+        this.changeColor()
+      }, 3500);
   }
 }
 
