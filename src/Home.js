@@ -7,15 +7,11 @@ export default class Home extends React.Component {
     super(props);
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = { 
-      text: '', 
-      x: new Animated.Value(0),
-      games: ds.cloneWithRows(['Ki kap legközelebb intőt?', 'Mire fog legközelebb ragelni Dani?']),
-     };
+        text: '', 
+        x: new Animated.Value(0),
+        games: ds.cloneWithRows(['Ki kap legközelebb intőt?', 'Mire fog legközelebb ragelni Dani?']),
+    };
   }
-
-  static navigationOptions = {
-    title: 'Home'
-  };
 
   componentWillMount() {
     //Starts the first loop in color changing
@@ -52,7 +48,7 @@ export default class Home extends React.Component {
           <ListView
             dataSource={this.state.games}
             renderRow={(rowData) => 
-              <TouchableOpacity onPress={()=>{this.props.navigation.navigate('Home')}}>
+              <TouchableOpacity onPress={()=>{this.props.navigation.navigate('Game')}}>
                 <Text style={styles.gameList}>{rowData}</Text>
               </TouchableOpacity>
             }
