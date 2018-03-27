@@ -97,7 +97,7 @@ export default class Home extends React.Component {
           <ListView
             dataSource={this.state.games}
             renderRow={(rowData) => 
-              <TouchableOpacity style={{borderColor: '#ecf0f1', borderBottomWidth: .5, padding: 2.5}} onPress={()=>{this.props.navigation.navigate('Game')}}>
+              <TouchableOpacity style={{borderColor: '#ecf0f1', borderBottomWidth: .5, padding: 2.5}} onPress={()=>{this.props.navigation.navigate('Game', {gameName: rowData})}}>
                 <Text style={styles.gameList}>{rowData}</Text>
               </TouchableOpacity>
             }
