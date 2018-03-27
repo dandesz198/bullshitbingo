@@ -49,8 +49,6 @@ export default class Home extends React.Component {
                 <Text style={styles.p}>The name of the match (public)</Text>
                 <TextInput
                   style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 10, marginBottom: 20}]}
-                  placeholder="Match name"
-                  placeholderTextColor="#888"
                   underlineColorAndroid='transparent'
                   onChangeText={(newGameName) => this.setState({newGameName})}
                   value={this.state.newGameName}
