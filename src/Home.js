@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Modal } from 'react-native';
+import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Modal, Alert } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import * as firebase from 'firebase';
 
@@ -16,14 +16,9 @@ let config = {
 export default class Home extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { 
-        connectID: '', 
-        
+    this.state = {         
         x: new Animated.Value(0),
-        games: [{
-          name: 'Ki kap legközelebb intőt?',
-          id: '963663'
-        }],
+        games: [],
         value: 0,
         
         //Data for the new match
@@ -31,7 +26,12 @@ export default class Home extends React.Component {
         newGameName: '',
         newGameID: Math.floor(Math.random() * 899999 + 100000).toString(),
 
-        myName: 'dandesz198'
+        //Data for joining game
+        joinGameModalVisible: false,
+        joinGameName: '',
+        joingameId: '',
+
+        myName: ''
     };
   }
 
@@ -65,10 +65,17 @@ export default class Home extends React.Component {
               <View style={{flexDirection: 'column'}}>
                 <Text style={styles.p}>The name of the match (public)</Text>
                 <TextInput
-                  style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 10, marginBottom: 20}]}
+                  style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20}]}
                   underlineColorAndroid='transparent'
                   onChangeText={(newGameName) => this.setState({newGameName})}
                   value={this.state.newGameName}
+                />
+                <Text style={[styles.p, {marginTop: 10}]}>Your in-match name (public)</Text>
+                <TextInput
+                  style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20}]}
+                  underlineColorAndroid='transparent'
+                  onChangeText={(myName) => this.setState({myName})}
+                  value={this.state.myName}
                 />
               </View>
               <View style={{flexDirection: 'column'}}>
@@ -90,16 +97,51 @@ export default class Home extends React.Component {
                         }
                       ]
                     });
-                    this.setState({games: [{id: this.state.newGameID, name: this.state.newGameName}]});
-                    this.setState({newGameModalVisible: false});
-                    console.log(this.state.games)
+                    this.setState({games: this.state.games.push({id: this.state.newGameID, name: this.state.newGameName}), newGameModalVisible: false});
                     }}>
                     <Text style={[styles.join, {color: 'white'}]}>Create game</Text>
                   </TouchableOpacity>
                 </Animated.View>
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor}]}>
                   <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{this.setState({newGameModalVisible: false})}}>
-                    <Text style={[styles.join, {color: 'white'}]}>Close</Text>
+                    <Text style={[styles.join, {color: 'white'}]}>Cancel</Text>
+                  </TouchableOpacity>
+                </Animated.View>
+              </View>
+            </View>
+          </View>
+        </Modal>
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.joinGameModalVisible}>
+          <View style={{flex: 1}}>
+            <Animated.View style={{padding: 20, backgroundColor: bgColor}}>
+                <Text style={[styles.heading, {fontSize: 32}]}>Join {this.state.joinGameName}?</Text>
+            </Animated.View>
+            <View style={{flex: 1, padding: 20}}>
+              <View style={{flexDirection: 'column'}}>
+                <Text style={[styles.p, {marginTop: 10}]}>Your in-match name (public)</Text>
+                <TextInput
+                  style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20}]}
+                  underlineColorAndroid='transparent'
+                  onChangeText={(myName) => this.setState({myName})}
+                  value={this.state.myName}
+                />
+              </View>
+              <View style={{flexDirection: 'row', height: 45, marginTop: 20}}>
+                <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
+                  <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{
+                    this.setState({joinGameModalVisible: false, games: this.state.games.push({name: this.state.joinGameName, id: this.state.joingameId})});
+                    this.props.navigation.navigate('Game', {gameName: this.state.joinGameName, gameId: this.state.joingameId});
+                    console.log(this.state.games);
+                  }}>
+                    <Text style={[styles.join, {color: 'white'}]}>Join game</Text>
+                  </TouchableOpacity>
+                </Animated.View>
+                <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor}]}>
+                  <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{this.setState({joinGameModalVisible: false})}}>
+                    <Text style={[styles.join, {color: 'white'}]}>Cancel</Text>
                   </TouchableOpacity>
                 </Animated.View>
               </View>
@@ -119,10 +161,22 @@ export default class Home extends React.Component {
               placeholderTextColor="#ecf0f1"
               keyboardType="number-pad"
               underlineColorAndroid='transparent'
-              onChangeText={(connectID) => this.setState({connectID})}
-              value={this.state.connectID}
+              onChangeText={(joingameId) => this.setState({joingameId})}
+              value={this.state.joingameId}
             />
-            <TouchableOpacity style={[styles.button, {flex: 1}]}>
+            <TouchableOpacity onPress={()=>{
+              var thus = this;
+
+              firebase.database().ref('games/' + this.state.joingameId + '/name').once('value', function(snap) {
+                var newGameName = JSON.stringify(snap);
+
+                if(newGameName.length > 1) {
+                  thus.setState({joinGameName: newGameName, joinGameModalVisible: true});
+                } else {
+                  Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.")
+                }
+              });
+              }} style={[styles.button, {flex: 1}]}>
               <Animated.Text style={[styles.join, {color: bgColor}]}>Join</Animated.Text>
             </TouchableOpacity>
           </View>
