@@ -1,4 +1,5 @@
 import React from 'react';
+import { Platform } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import Home from './src/Home.js';
 import Game from './src/Game.js';

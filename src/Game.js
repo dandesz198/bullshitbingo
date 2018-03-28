@@ -3,6 +3,8 @@ import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animate
 import { StackNavigator } from 'react-navigation';
 import * as GestureHandler from 'react-native-gesture-handler';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
+import * as firebase from 'firebase';
+var Environment = require('./environment.js')
 
 const initialLayout = {
   height: 0,

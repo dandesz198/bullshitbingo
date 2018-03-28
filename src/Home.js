@@ -1,6 +1,17 @@
 import React from 'react';
 import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Modal } from 'react-native';
 import { StackNavigator } from 'react-navigation';
+import * as firebase from 'firebase';
+
+let Environment = require('./environment.js')
+let config = {
+  apiKey: Environment.apiKey,
+  authDomain: Environment.authDomain,
+  databaseURL: Environment.databaseURL,
+  projectId: Environment.projectId,
+  storageBucket: Environment.storageBucket,
+  messagingSenderId: Environment.messagingSenderId
+};
 
 export default class Home extends React.Component {
   constructor(props) {
@@ -22,6 +33,7 @@ export default class Home extends React.Component {
 
   componentWillMount() {
     //Starts the first loop in color changing
+    firebase.initializeApp(config);
     this.changeColor();
   }
 
