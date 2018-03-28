@@ -16,18 +16,22 @@ let config = {
 export default class Home extends React.Component {
   constructor(props) {
     super(props);
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = { 
         connectID: '', 
         
         x: new Animated.Value(0),
-        games: ds.cloneWithRows(['Ki kap legközelebb intőt?', 'Kire fog legközelebb ragelni Dani?']),
+        games: [{
+          name: 'New game',
+          id: '963663'
+        }],
         value: 0,
         
         //Data for the new match
         newGameModalVisible: false,
         newGameName: '',
-        newGameID: Math.floor(Math.random() * 899999 + 100000).toString()
+        newGameID: Math.floor(Math.random() * 899999 + 100000).toString(),
+
+        myName: 'dandesz198'
     };
   }
 
@@ -38,6 +42,7 @@ export default class Home extends React.Component {
   }
 
   render() {
+    let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     var bgColor = this.state.x.interpolate({
       inputRange: [1, 2, 3, 4, 5],
       outputRange: ['rgb(22, 160, 133)', 'rgb(39, 174, 96)', 'rgb(41, 128, 185)', 'rgb(142, 68, 173)', 'rgb(211, 84, 0)']
@@ -72,7 +77,23 @@ export default class Home extends React.Component {
               </View>
               <View style={{flexDirection: 'row', height: 45, marginTop: 20}}>
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
-                  <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{this.setState({newGameID: Math.floor(Math.random() * 899999 + 100000).toString()})}}>
+                  <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{
+                    this.setState({newGameID: Math.floor(Math.random() * 899999 + 100000).toString()});
+                    var randomNumberForAdmin = Math.floor(Math.random() * 899999 + 100000).toString();
+                    firebase.database().ref('games/'+this.state.newGameID).set({
+                      name: this.state.newGameName,
+                      members: [
+                        {
+                          'name': this.state.myName,
+                          'points': 0,
+                          'isAdmin': true
+                        }
+                      ]
+                    });
+                    this.setState({games: [{id: this.state.newGameID, name: this.state.newGameName}]});
+                    this.setState({newGameModalVisible: false});
+                    console.log(this.state.games)
+                    }}>
                     <Text style={[styles.join, {color: 'white'}]}>Create game</Text>
                   </TouchableOpacity>
                 </Animated.View>
@@ -107,10 +128,10 @@ export default class Home extends React.Component {
           </View>
           <Text style={styles.heading}>Current games</Text>
           <ListView
-            dataSource={this.state.games}
+            dataSource={ds.cloneWithRows(this.state.games)}
             renderRow={(rowData) => 
-              <TouchableOpacity style={{borderColor: '#ecf0f1', borderBottomWidth: .5, padding: 2.5}} onPress={()=>{this.props.navigation.navigate('Game', {gameName: rowData})}}>
-                <Text style={styles.gameList}>{rowData}</Text>
+              <TouchableOpacity style={{borderColor: '#ecf0f1', borderBottomWidth: .5, padding: 2.5}} onPress={()=>{this.props.navigation.navigate('Game', {gameName: rowData.name, gameId: rowData.id})}}>
+                <Text style={styles.gameList}>{rowData.name}</Text>
               </TouchableOpacity>
             }
           />

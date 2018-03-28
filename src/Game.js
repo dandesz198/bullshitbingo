@@ -18,12 +18,13 @@ export default class Game extends React.Component {
     index: 0,
     routes: [
       { key: '1', title: 'Bingo' },
-      { key: '2', title: 'Members' }
+      { key: '2', title: 'Match info' }
     ],
     x: new Animated.Value(0),
     value: 0,
 
     gameName: this.props.navigation.state.params.gameName,
+    gameId: this.props.navigation.state.params.gameId,
     gameCards: ds.cloneWithRows([
       {
         text: 'Horváth Ákos',
@@ -51,34 +52,7 @@ export default class Game extends React.Component {
       }
     ]),
 
-    gameMembers: [
-      {
-        name: 'dandesz198',
-        points: 69
-      },
-      {
-        name: 'asdfmovie',
-        points: 198
-      },
-      {
-        name: 'szalaysz',
-        points: 3
-      },
-      {
-        name: 'razor97',
-        points: 97
-      },
-      {
-        name: 'dibaczi',
-        points: 420
-      },
-      {
-        name: 'tamaskar',
-        points: 0
-      }
-    ],
-
-    gameMembersDs: ds.cloneWithRows([])
+    gameMembers: []
   };
 
   //Compare method for the players array
@@ -91,7 +65,18 @@ export default class Game extends React.Component {
   }
 
   componentWillMount() {
-    this.setState({gameMembersDs: ds.cloneWithRows(this.state.gameMembers.sort(function(a,b) {return (a.points < b.points) ? 1 : ((b.points < a.points) ? -1 : 0);} ))});
+    var thus = this;
+    var members = [];
+
+    firebase.database().ref('games/' + this.state.gameId + '/members/').orderByChild('points').once('value', function(snap) {
+        snap.forEach(function(item) {
+            var itemVal = item.val();
+            members.push(itemVal);
+        });
+    });
+
+    this.setState({gameMembers: members})
+
     //Starts the first loop in color changing
     this.changeColor();
   }
@@ -126,9 +111,15 @@ export default class Game extends React.Component {
       case '2':      
       return (
         <ScrollView style={styles.container}>
-          <Text style={[styles.heading, {color: '#555', fontSize: 30}]}>Members of the match</Text>
+          <Text style={[styles.heading, {color: '#555', fontSize: 30}]}>{this.state.gameName}</Text>
+          <View style={{flexDirection: 'column'}}>
+            <Text style={[styles.p, {marginTop: 5}]}>Game pin:</Text>
+            <Text style={styles.h2}>{this.state.gameId}</Text>
+            <Text style={[styles.p, {fontSize: 15}]}>Others will use this code to connect the game.</Text>
+          </View>
+          <Text style={[styles.heading, {color: '#555', fontSize: 30, marginTop: 20}]}>Members</Text>
           <ListView
-            dataSource={this.state.gameMembersDs}
+            dataSource={ds.cloneWithRows(this.state.gameMembers.sort(function(a,b) {return (a.points < b.points) ? 1 : ((b.points < a.points) ? -1 : 0);} ))}
             style={{marginTop: 10}}
             renderRow={(rowData) => 
             <View style={{flexDirection: 'row'}}>
@@ -236,4 +227,15 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     paddingVertical: 5
   },
+
+  h2: {
+    color: '#444',
+    fontSize: 34,
+    fontWeight: '700'
+  },
+
+  p: {
+    color: '#666',
+    fontSize: 20
+  }
 });
