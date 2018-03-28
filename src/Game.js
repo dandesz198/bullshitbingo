@@ -23,6 +23,8 @@ export default class Game extends React.Component {
     x: new Animated.Value(0),
     value: 0,
 
+    myName: 'dandesz198',
+
     gameName: this.props.navigation.state.params.gameName,
     gameId: this.props.navigation.state.params.gameId,
     gameCards: ds.cloneWithRows([
@@ -104,7 +106,7 @@ export default class Game extends React.Component {
           <ListView
             dataSource={this.state.gameCards}
             style={styles.membersList}
-            renderRow={(rowData) => <Text style={styles.membersListItem}>{rowData.text}</Text>}
+            renderRow={(rowData) => <Text style={[styles.membersListItem]}>{rowData.text}</Text>}
           />
         </ScrollView>
       );
@@ -120,11 +122,11 @@ export default class Game extends React.Component {
           <Text style={[styles.heading, {color: '#555', fontSize: 30, marginTop: 20}]}>Members</Text>
           <ListView
             dataSource={ds.cloneWithRows(this.state.gameMembers.sort(function(a,b) {return (a.points < b.points) ? 1 : ((b.points < a.points) ? -1 : 0);} ))}
-            style={{marginTop: 10}}
+            style={{marginTop: 10, margin: -20}}
             renderRow={(rowData) => 
-            <View style={{flexDirection: 'row'}}>
-              <Text style={styles.membersListItem}><Text style={[styles.membersListItem, {fontWeight: '700'}]}>{rowData.name}</Text> | {rowData.points} XP</Text>
-              <Animated.View style={{padding: 5, margin: 5, borderColor: bgColor, borderWidth: 1.5, borderRadius: 5, alignSelf: 'flex-end', marginRight: 0, marginLeft: 'auto'}}>
+            <Animated.View style={{flex: 1, paddingHorizontal: 20, height: 40, flexDirection: 'row', justifyContent: 'center', backgroundColor: this.state.myName == rowData.name ? bgColor : 'transparent'}}>
+              <Text style={[styles.membersListItem, {color: this.state.myName == rowData.name ? 'white' : '#555', marginTop: 7.5}]}><Text style={[styles.membersListItem, {fontWeight: '700', color: this.state.myName == rowData.name ? 'white' : '#555'}]}>{rowData.name}</Text> | {rowData.points} XP</Text>
+              <Animated.View style={{padding: 5, margin: 5, borderColor: this.state.myName == rowData.name ? 'white' : bgColor, borderWidth: 1.5, borderRadius: 5, alignSelf: 'flex-end', marginRight: 0, marginLeft: 'auto'}}>
                 <TouchableOpacity onPress={()=>{
                   Alert.alert(
                     'Are you sure?', 
@@ -135,10 +137,10 @@ export default class Game extends React.Component {
                     ],
                   );
                 }}>
-                  <Animated.Text style={{color: bgColor}}>Kick player</Animated.Text>
+                  <Animated.Text style={{color: this.state.myName == rowData.name ? 'white' : bgColor}}>Kick player</Animated.Text>
                 </TouchableOpacity>
               </Animated.View>
-            </View>
+            </Animated.View>
             }
           />
         </ScrollView>
@@ -224,8 +226,7 @@ const styles = StyleSheet.create({
   membersListItem: {
     fontSize: 20,
     color: '#555',
-    fontWeight: '500',
-    paddingVertical: 5
+    fontWeight: '500'
   },
 
   h2: {

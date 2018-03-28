@@ -21,7 +21,7 @@ export default class Home extends React.Component {
         
         x: new Animated.Value(0),
         games: [{
-          name: 'New game',
+          name: 'Ki kap legközelebb intőt?',
           id: '963663'
         }],
         value: 0,
