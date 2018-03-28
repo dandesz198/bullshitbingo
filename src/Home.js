@@ -82,11 +82,11 @@ export default class Home extends React.Component {
                     var randomNumberForAdmin = Math.floor(Math.random() * 899999 + 100000).toString();
                     firebase.database().ref('games/'+this.state.newGameID).set({
                       name: this.state.newGameName,
+                      master: this.state.myName,
                       members: [
                         {
                           'name': this.state.myName,
-                          'points': 0,
-                          'isAdmin': true
+                          'points': 0
                         }
                       ]
                     });

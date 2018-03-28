@@ -27,6 +27,8 @@ export default class Game extends React.Component {
 
     gameName: this.props.navigation.state.params.gameName,
     gameId: this.props.navigation.state.params.gameId,
+    gameMaster: '',
+
     gameCards: ds.cloneWithRows([
       {
         text: 'Horváth Ákos',
@@ -77,7 +79,13 @@ export default class Game extends React.Component {
         });
     });
 
-    this.setState({gameMembers: members})
+    this.setState({gameMembers: members});
+
+    firebase.database().ref('games/' + this.state.gameId + '/master').once('value', function(snap) {
+      var str = JSON.stringify(snap);
+      var finalstr = str.substring(1, str.length-1)
+      thus.setState({gameMaster: finalstr});
+    });
 
     //Starts the first loop in color changing
     this.changeColor();
@@ -118,6 +126,11 @@ export default class Game extends React.Component {
             <Text style={[styles.p, {marginTop: 5}]}>Game pin:</Text>
             <Text style={styles.h2}>{this.state.gameId}</Text>
             <Text style={[styles.p, {fontSize: 15}]}>Others will use this code to connect the game.</Text>
+          </View>
+          <View style={{flexDirection: 'column'}}>
+            <Text style={[styles.p, {marginTop: 15}]}>Game master:</Text>
+            <Text style={styles.h2}>{this.state.gameMaster}</Text>
+            <Text style={[styles.p, {fontSize: 15}]}>They can give points for the winners of the match.</Text>
           </View>
           <Text style={[styles.heading, {color: '#555', fontSize: 30, marginTop: 20}]}>Members</Text>
           <ListView
