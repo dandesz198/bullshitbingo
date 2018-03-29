@@ -30,23 +30,7 @@ export default class Game extends React.Component {
     gameId: this.props.navigation.state.params.gameId,
     gameMaster: '',
 
-    gameCards: [
-      {
-        text: 'Horváth Ákos',
-        creator: 'szalaysz',
-        voters: [ ]
-      }, 
-      {
-        text: 'Tamáska Roland',
-        creator: 'dandesz198',
-        voters: [ ]
-      },
-      {
-        text: 'A lánya',
-        creator: 'dibaczi',
-        voters: [ ]
-      }
-    ],
+    gameCards: [],
 
     gameMembers: [],
 
@@ -62,30 +46,31 @@ export default class Game extends React.Component {
     return 0;
   }
 
-  componentWillMount() {
+  async componentWillMount() {
     //Sync Firebase
-    this.syncDatabase();
+    await this.getData();
     //Starts the first loop in color changing
     this.changeColor();
   }
 
-  syncDatabase() {
+  getData() {
     var thus = this;
     var members = [];
 
-    firebase.database().ref('games/' + this.state.gameId + '/members/').orderByChild('points').once('value', function(snap) {
-        snap.forEach(function(item) {
-            var itemVal = item.val();
-            members.push(itemVal);
-        });
-    });
+    //Get data
+    firebase.database().ref('games/' + this.state.gameId+'/').once('value', function(snap) {
+      //Parse objects
+      var snapshot = snap.val();
 
-    this.setState({gameMembers: members});
+      var gameCards = [];
+      snapshot.cards.forEach(element => {
+        if(!element.voters) {
+          element.voters = [];
+        }
+        gameCards.push(element);
+      });
 
-    firebase.database().ref('games/' + this.state.gameId + '/master').once('value', function(snap) {
-      var str = JSON.stringify(snap);
-      var finalstr = str.substring(1, str.length-1)
-      thus.setState({gameMaster: finalstr});
+      thus.setState({gameMembers: Object.values(snapshot.members), gameMaster: snapshot.master, gameCards: gameCards});
     });
   }
 
@@ -144,7 +129,7 @@ export default class Game extends React.Component {
           style={styles.container} 
           decelerationRate={0}
           contentOffset={{x: 0, y: 125}}
-        >
+          >
           <View style={{width: Dimensions.get('window').width, backgroundColor: '#d8e1e3', margin: -20, marginBottom: 15, zIndex: 999}}>
             <TextInput
               style={{width: '100%', height: 75, padding: 10, marginBottom: 10, color: '#555', fontSize: 16}}
