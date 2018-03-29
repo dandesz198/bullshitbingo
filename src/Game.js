@@ -114,7 +114,6 @@ export default class Game extends React.Component {
       case '1':
       return (
         <ScrollView style={styles.container}>
-          <Text style={[styles.heading, {color: '#555', fontSize: 30}]}>{this.state.gameName}</Text>
           <ListView
             dataSource={this.state.gameCards}
             enableEmptySections={true}
