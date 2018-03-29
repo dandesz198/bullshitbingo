@@ -16,7 +16,10 @@ let config = {
 export default class Home extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {         
+    var ds = new ListView.DataSource({
+        rowHasChanged: (row1, row2) => row1 !== row2,
+    });
+    this.state = {
         x: new Animated.Value(0),
         games: [],
         value: 0,
