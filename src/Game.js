@@ -109,6 +109,14 @@ export default class Game extends React.Component {
     cards[cards.indexOf(cardToVoteOn)] = card;
 
     this.setState({gameCards: cards});
+
+    this.syncToFirebase();
+  }
+
+  syncToFirebase() {
+    firebase.database().ref('games/'+this.state.gameId+'/').update({
+      cards: this.state.gameCards
+    });
   }
 
   _handleIndexChange = index => this.setState({ index });
