@@ -74,7 +74,7 @@ export default class Home extends React.Component {
 
   deleteGame(name) {
     var games = this.state.games;
-    games.splice(games.indexOf(name), 2);
+    games.splice(games.indexOf(name), 1);
     this.setState({games: games});
     this.saveGames();
   }
