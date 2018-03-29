@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animate
 import { StackNavigator } from 'react-navigation';
 import * as GestureHandler from 'react-native-gesture-handler';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
+import Card from './Components/Card.js'
 
 const initialLayout = {
   height: 0,
@@ -46,6 +47,7 @@ export default class Game extends React.Component {
         case '2':
         return (
           <ScrollView style={{ flex: 1 }}>
+            <Card cardText={6} voteNumber={7} />
           </ScrollView>
         );
         case '3':      

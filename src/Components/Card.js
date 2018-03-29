@@ -1,11 +1,15 @@
 import React, { Component } from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet,Button } from 'react-native'
 
 class Card extends Component {
+    constructor(props) {
+        super(props)
+    }
     render() {
         return(
-            <View>
-                <Text>Hello</Text>
+            <View style={style.boxStyle}>
+                <Text>{this.props.cardText}</Text>
+                <Text>{this.props.voteNumber}</Text>
             </View>
         )
     }
@@ -15,8 +19,10 @@ const style = StyleSheet.create({
     boxStyle: {
 
     },
-    textStyle: {
+    cardText: {
 
     },
-    
+
 })
+
+export default Card;
