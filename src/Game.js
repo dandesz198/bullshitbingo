@@ -109,19 +109,38 @@ export default class Game extends React.Component {
     switch (route.key) {
       case '1':
       return (
-        <ScrollView style={styles.container}>
-          <TextInput
-            style={{width: '100%', color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20}}
-            underlineColorAndroid='transparent'
-            placeholder="Create a new card"
-            placeholderTextColor="#999"
-            onChangeText={(newGameName) => this.setState({newGameName})}
-            value={this.state.newGameName}
-          />
+        <ScrollView 
+          style={styles.container} 
+          decelerationRate={0}
+          contentOffset={{x: 0, y: 125}}
+        >
+          <View style={{width: Dimensions.get('window').width, backgroundColor: '#bdc3c7', margin: -20, marginBottom: 15}}>
+            <TextInput
+              style={{width: '100%', height: 75, padding: 10, marginBottom: 10, color: '#555', fontSize: 16}}
+              underlineColorAndroid='transparent'
+              placeholder="Create a new card"
+              placeholderTextColor="#666"
+              onChangeText={(newGameName) => this.setState({newGameName})}
+              value={this.state.newGameName}
+            />
+            <TouchableOpacity style={{
+              justifyContent: 'center',
+              width: 100,
+              height: 30,
+              backgroundColor: '#555',
+              borderRadius: 5,
+              marginLeft: 'auto',
+              marginRight: 15,
+              marginBottom: 10
+            }} onPress={()=>{}}>
+              <Text style={{color: 'white', textAlign: 'center', fontWeight: "bold"}}>Create</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={{padding: 1.25, textAlign: 'center', fontSize: 14, color: '#888'}}>Grab me to create a new card</Text>
           <ListView
             dataSource={ds.cloneWithRows(this.state.gameCards)}
             enableEmptySections={true}
-            style={styles.membersList}
+            style={[styles.membersList, {minHeight: Dimensions.get('window').height}]}
             renderRow={(rowData) => <Card matchName={this.state.gameName} cardText={rowData.text} voteCount={rowData.voters.length} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} bgColor={bgColor} isGameMaster={this.state.gameMaster == this.state.myName ? true : false} onPress={()=>{
               var cards = this.state.gameCards;
               var card = rowData;
