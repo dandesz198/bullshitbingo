@@ -40,6 +40,9 @@ export default class Home extends React.Component {
   }
 
   async componentWillMount() {
+    //Initialize Firebase
+    await firebase.initializeApp(config);
+
     //Get games from AsyncStorage
     try {
       const value = await AsyncStorage.getItem('@MySuperStore:games');
@@ -53,15 +56,18 @@ export default class Home extends React.Component {
           }
           
           //Check if match still exists
-          firebase.database().ref('games/' + element.id+'/members/').once('value', function(snap) {
-            var members = JSON.parse(snap);
+          firebase.database().ref('games/' + element.id+'/members/')
+          .once('value')
+          .then((snap) => {
+            if(snap) {
+              var members = JSON.parse([snap]);
 
-            //If match doesn't exist or player is kicked
-            if(members.length < 1 || members.indexOf(this.state.myName) == -1) {
-              array.splice(array.indexOf(element), 1)
+              //If match doesn't exist or player is kicked
+              if(members.length < 1 || members.indexOf(this.state.myName) == -1) {
+                array.splice(array.indexOf(element), 1)
+              }
             }
-          });
-
+          })
         });
         this.setState({games: array});
       }
@@ -82,8 +88,6 @@ export default class Home extends React.Component {
       console.log(error);
     }
 
-    //Initialize Firebase
-    firebase.initializeApp(config);
     //Starts the first loop in color changing
     this.changeColor();
   }
