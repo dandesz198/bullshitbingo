@@ -4,6 +4,7 @@ import { StackNavigator } from 'react-navigation';
 import * as firebase from 'firebase';
 
 let Environment = require('./environment.js')
+
 let config = {
   apiKey: Environment.apiKey,
   authDomain: Environment.authDomain,
