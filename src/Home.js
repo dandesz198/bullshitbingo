@@ -22,7 +22,7 @@ export default class Home extends React.Component {
     });
     this.state = {
         x: new Animated.Value(0),
-        games: [{name: 'nualla', pin: '7777777'}],
+        games: [],
         value: 0,
         
         //Data for the new match
