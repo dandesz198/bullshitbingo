@@ -22,7 +22,7 @@ class Card extends Component {
                     <TouchableOpacity style={style.buttonStyle} onPress={() => this.setState({text: this.state.text == 'Vote' ? 'Voted' : 'Vote'})}>
                         <Text style={style.buttonText}>{this.state.text}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[style.secondButton, this.state.pressed ? style.buttonStylePressed :style.buttonStyle]} onPress={() => this.setState({pressed: !this.state.pressed})}>
+                    <TouchableOpacity style={[style.buttonStyle, style.secondButton, this.state.pressed ? style.buttonStylePressed :style.buttonStyle]} onPress={() => this.setState({pressed: !this.state.pressed})}>
                         <Text style={style.buttonText}>Bingo</Text>
                     </TouchableOpacity>
                 </View>
@@ -40,9 +40,19 @@ const style = StyleSheet.create({
         backgroundColor : "#0000", // invisible color
         marginVertical: 12.5,
         marginHorizontal: 2.5,
+        elevation: 1,
         zIndex: 999,
         display: 'flex',
     }, 
+
+    /*UPPERBOX*/
+
+    textBoxStyle: {
+        padding: 10,
+        backgroundColor: '#E5E7E9'
+    },
+
+    /*UPPERBOX TEXT*/
 
     roomNameText: {
         fontSize: 20,
@@ -55,10 +65,7 @@ const style = StyleSheet.create({
         fontWeight: '600'
     },
 
-    textBoxStyle: {
-        padding: 10,
-        backgroundColor: '#ecf0f1'
-    },
+    /*LOWERBOX*/ 
 
     buttonBoxStyle: {
         backgroundColor: '#bdc3c7',
@@ -70,7 +77,6 @@ const style = StyleSheet.create({
 
     buttonStyle: {
         backgroundColor: "#555",
-        fontSize: 20,
         paddingTop: 5,
         paddingBottom: 5,
         paddingLeft: 30,
@@ -81,21 +87,19 @@ const style = StyleSheet.create({
 
     buttonStylePressed: {
         backgroundColor: "green",
-        paddingTop: 5,
-        paddingBottom: 5,
-        paddingLeft: 30,
-        paddingRight: 30,
-        borderRadius: 5
     },
 
     secondButton: {
         marginLeft: 10,
     },
 
+    /*LOWERBOX TEXT*/
+
     buttonText: {
         color: "#fff",
         fontWeight: "bold",
-        textAlign: 'center'
+        textAlign: 'center',
+        fontSize: 15,
     }
 })
 
