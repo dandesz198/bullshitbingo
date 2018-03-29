@@ -79,12 +79,10 @@ const style = StyleSheet.create({
 
     buttonStyle: {
         backgroundColor: "#555",
-        paddingTop: 5,
-        paddingBottom: 5,
-        paddingLeft: 30,
-        paddingRight: 30,
         borderRadius: 5,
-        width: 100
+        justifyContent: 'center',
+        width: 100,
+        height: 30
     },
 
     buttonStylePressed: {
