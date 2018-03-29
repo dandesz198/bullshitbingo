@@ -46,9 +46,20 @@ export default class Home extends React.Component {
         // We have data
         var array = JSON.parse(value);
         array.forEach(element => {
+          //Remove the " from the start and end of the string
           if(element.name[0] == '"') {
             element.name = element.name.slice(1, -1);
           }
+          
+          //Check if match still exists
+          firebase.database().ref('games/' + element.id+'/members/').once('value', function(snap) {
+            var members = JSON.parse(snap);
+
+            //If match doesn't exist or player is kicked
+            if(members.length > 1 || members.indexOf(this.state.myName) == -1) {
+              array.splice(array.indexOf(element), 1)
+            }
+          });
         });
         this.setState({games: array});
       }
@@ -148,6 +159,7 @@ export default class Home extends React.Component {
                       name: this.state.newGameName,
                       master: this.state.myName
                     });
+
                     firebase.database().ref('games/'+this.state.newGameID+'/members/'+this.state.myName).set({
                       'name': this.state.myName,
                       'points': 0
