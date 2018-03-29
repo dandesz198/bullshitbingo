@@ -46,7 +46,9 @@ export default class Home extends React.Component {
         // We have data
         var array = JSON.parse(value);
         array.forEach(element => {
-          element.name = element.name.slice(1, -1);
+          if(element.name[0] == '"') {
+            element.name = element.name.slice(1, -1);
+          }
         });
         this.setState({games: array});
       }
@@ -54,6 +56,18 @@ export default class Home extends React.Component {
       // Error retrieving data
       console.log(error);
     }
+
+    try {
+      const value = await AsyncStorage.getItem('@MySuperStore:name');
+      if (value !== null){
+        // We have data
+        this.setState({myName: value});
+      }
+    } catch (error) {
+      // Error retrieving data
+      console.log(error);
+    }
+
     firebase.initializeApp(config);
     this.changeColor();
   }
@@ -68,6 +82,13 @@ export default class Home extends React.Component {
   async saveGames() {
     try {
       await AsyncStorage.setItem('@MySuperStore:games', JSON.stringify(this.state.games));
+    } catch (error) {
+      // Error saving data
+      console.log(error);
+    }
+
+    try {
+      await AsyncStorage.setItem('@MySuperStore:name', this.state.myName);
     } catch (error) {
       // Error saving data
       console.log(error);
@@ -225,6 +246,7 @@ export default class Home extends React.Component {
                 var newGameName = JSON.stringify(snap);
 
                 if(newGameName.length > 1 && newGameName != "null") {
+                  newGameName = newGameName.slice(1, -1);
                   thus.setState({joinGameName: newGameName, joinGameModalVisible: true});
                 } else {
                   Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.")
@@ -239,7 +261,7 @@ export default class Home extends React.Component {
             dataSource={ds.cloneWithRows(this.state.games)}
             enableEmptySections={true}
             renderRow={(rowData) => 
-              <TouchableOpacity style={{borderColor: '#ecf0f1', borderBottomWidth: .5, padding: 2.5}} onPress={()=>{this.props.navigation.navigate('Game', {gameName: rowData.name, gameId: rowData.id})}}>
+              <TouchableOpacity style={{borderColor: '#ecf0f1', borderBottomWidth: .5, padding: 2.5}} onPress={()=>{this.props.navigation.navigate('Game', {gameName: rowData.name, gameId: rowData.id, myName: this.state.myName})}}>
                 <Text style={styles.gameList}>{rowData.name}</Text>
               </TouchableOpacity>
             }
