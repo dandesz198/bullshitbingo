@@ -17,6 +17,7 @@ class Card extends Component {
                 <View style={style.textBoxStyle}>
                     <Text style={style.roomNameText}>{this.props.matchName}</Text>
                     <Text style={style.nameText}>{this.props.cardText}</Text>
+                    <Text style={style.roomNameText}>by {this.props.creatorName}</Text>
                 </View>
                 <View style={style.buttonBoxStyle}>
                     <Animated.View style={{width: 100, height: 30, borderRadius: 5, backgroundColor: this.props.voted ? this.props.bgColor : '#555'}}>

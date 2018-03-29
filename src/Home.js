@@ -40,7 +40,7 @@ export default class Home extends React.Component {
   }
 
   async componentWillMount() {
-    //Save games to AsyncStorage
+    //Get games from AsyncStorage
     try {
       const value = await AsyncStorage.getItem('@MySuperStore:games');
       if (value !== null){
@@ -57,7 +57,7 @@ export default class Home extends React.Component {
             var members = JSON.parse(snap);
 
             //If match doesn't exist or player is kicked
-            if(members.length > 1 || members.indexOf(this.state.myName) == -1) {
+            if(members.length < 1 || members.indexOf(this.state.myName) == -1) {
               array.splice(array.indexOf(element), 1)
             }
           });
@@ -69,7 +69,7 @@ export default class Home extends React.Component {
       console.log(error);
     }
 
-    //Save name to AsyncStorage
+    //Get name from AsyncStorage
     try {
       const value = await AsyncStorage.getItem('@MySuperStore:name');
       if (value !== null){
