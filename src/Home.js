@@ -104,7 +104,7 @@ export default class Home extends React.Component {
                     var games = this.state.games;
                     games.push({id: this.state.newGameID, name: this.state.newGameName})
                     this.setState({games: games, newGameModalVisible: false});
-                    this.props.navigation.navigate('Game', {gameName: this.state.newGameName, gameId: this.state.newGameID})
+                    this.props.navigation.navigate('Game', {gameName: this.state.newGameName, gameId: this.state.newGameID, myName: this.state.myName})
                     }}>
                     <Text style={[styles.join, {color: 'white'}]}>Create match</Text>
                   </TouchableOpacity>
@@ -140,7 +140,7 @@ export default class Home extends React.Component {
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
                   <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{
                     this.setState({joinGameModalVisible: false, games: this.state.games.push({name: this.state.joinGameName, id: this.state.joingameId})});
-                    this.props.navigation.navigate('Game', {gameName: this.state.joinGameName, gameId: this.state.joingameId});
+                    this.props.navigation.navigate('Game', {gameName: this.state.joinGameName, gameId: this.state.joingameId, myName: this.state.myName});
                     console.log(this.state.games);
                   }}>
                     <Text style={[styles.join, {color: 'white'}]}>Join match</Text>

@@ -22,7 +22,7 @@ export default class Game extends React.Component {
     x: new Animated.Value(0),
     value: 0,
 
-    myName: 'dandesz198',
+    myName: this.props.navigation.state.params.myName,
 
     gameName: this.props.navigation.state.params.gameName,
     gameId: this.props.navigation.state.params.gameId,
