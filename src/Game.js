@@ -24,20 +24,19 @@ export default class Game extends React.Component {
     x: new Animated.Value(0),
     value: 0,
 
-    myName: this.props.navigation.state.params.myName,
+    //myName: this.props.navigation.state.params.myName,
+
+    myName: 'dandesz198',
 
     gameName: this.props.navigation.state.params.gameName,
     gameId: this.props.navigation.state.params.gameId,
     gameMaster: '',
 
-    gameCards: ds.cloneWithRows([
+    gameCards: [
       {
         text: 'Horváth Ákos',
         creator: 'szalaysz',
-        voters: [
-          'asdfmovie',
-          'szalaysz'
-        ]
+        voters: [ ]
       }, 
       {
         text: 'Tamáska Roland',
@@ -51,11 +50,10 @@ export default class Game extends React.Component {
         text: 'A lánya',
         creator: 'dibaczi',
         voters: [
-          'dibaczi',
-          'tamaskar'
+          'dibaczi'
         ]
       }
-    ]),
+    ],
 
     gameMembers: []
   };
@@ -115,10 +113,20 @@ export default class Game extends React.Component {
       return (
         <ScrollView style={styles.container}>
           <ListView
-            dataSource={this.state.gameCards}
+            dataSource={ds.cloneWithRows(this.state.gameCards)}
             enableEmptySections={true}
             style={styles.membersList}
-            renderRow={(rowData) => <Card matchName={this.state.gameName} cardText={rowData.text}/>}
+            renderRow={(rowData) => <Card matchName={this.state.gameName} cardText={rowData.text} voteCount={rowData.voters.length} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} onPress={()=>{
+              var cards = this.state.gameCards;
+              var card = rowData;
+              if(rowData.voters.indexOf(this.state.myName) > -1) {
+                card.voters.splice(card.voters.indexOf(this.state.myName), 1);
+              } else {
+                card.voters.push(this.state.myName);
+              }
+              cards[cards.indexOf(rowData)] = card;
+              this.setState({gameCards: cards});
+            }}/>}
           />
         </ScrollView>
       );

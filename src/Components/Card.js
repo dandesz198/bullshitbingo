@@ -19,13 +19,14 @@ class Card extends Component {
                     <Text style={style.nameText}>{this.props.cardText}</Text>
                 </View>
                 <View style={style.buttonBoxStyle}>
-                    <TouchableOpacity style={style.buttonStyle} onPress={() => this.setState({text: this.state.text == 'Vote' ? 'Voted' : 'Vote'})}>
+                    <TouchableOpacity style={[this.props.voted ? [style.buttonStyle, style.buttonStylePressed] : style.buttonStyle]} onPress={() => this.props.onPress()}>
                         <Text style={style.buttonText}>{this.state.text}</Text>
                     </TouchableOpacity>
+
                     <TouchableOpacity style={[style.buttonStyle, style.secondButton, this.state.pressed ? style.buttonStylePressed :style.buttonStyle]} onPress={() => this.setState({pressed: !this.state.pressed})}>
                         <Text style={style.buttonText}>Bingo</Text>
                     </TouchableOpacity>
-                    <Text style={style.voteNumberStyle}>10 votes</Text>
+                    <Text style={style.voteNumberStyle}>{this.props.voteCount} votes</Text>
                 </View>
             </View>
         )
