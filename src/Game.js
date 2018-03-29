@@ -113,6 +113,7 @@ export default class Game extends React.Component {
           <Text style={[styles.heading, {color: '#555', fontSize: 30}]}>{this.state.gameName}</Text>
           <ListView
             dataSource={this.state.gameCards}
+            enableEmptySections={true}
             style={styles.membersList}
             renderRow={(rowData) => <Text style={[styles.membersListItem]}>{rowData.text}</Text>}
           />
@@ -135,6 +136,7 @@ export default class Game extends React.Component {
           <Text style={[styles.heading, {color: '#555', fontSize: 30, marginTop: 20}]}>Members</Text>
           <ListView
             dataSource={ds.cloneWithRows(this.state.gameMembers.sort(function(a,b) {return (a.points < b.points) ? 1 : ((b.points < a.points) ? -1 : 0);} ))}
+            enableEmptySections={true}
             style={{marginTop: 10, margin: -20}}
             renderRow={(rowData) => 
             <Animated.View style={{flex: 1, paddingHorizontal: 20, height: 40, flexDirection: 'row', justifyContent: 'center', backgroundColor: this.state.myName == rowData.name ? bgColor : 'transparent'}}>

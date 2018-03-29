@@ -186,6 +186,7 @@ export default class Home extends React.Component {
           <Text style={styles.heading}>Current games</Text>
           <ListView
             dataSource={ds.cloneWithRows(this.state.games)}
+            enableEmptySections={true}
             renderRow={(rowData) => 
               <TouchableOpacity style={{borderColor: '#ecf0f1', borderBottomWidth: .5, padding: 2.5}} onPress={()=>{this.props.navigation.navigate('Game', {gameName: rowData.name, gameId: rowData.id})}}>
                 <Text style={styles.gameList}>{rowData.name}</Text>
