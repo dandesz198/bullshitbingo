@@ -110,6 +110,14 @@ export default class Game extends React.Component {
       case '1':
       return (
         <ScrollView style={styles.container}>
+          <TextInput
+            style={{width: '100%', color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20}}
+            underlineColorAndroid='transparent'
+            placeholder="Create a new card"
+            placeholderTextColor="#999"
+            onChangeText={(newGameName) => this.setState({newGameName})}
+            value={this.state.newGameName}
+          />
           <ListView
             dataSource={ds.cloneWithRows(this.state.gameCards)}
             enableEmptySections={true}

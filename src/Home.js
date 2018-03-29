@@ -62,7 +62,7 @@ export default class Home extends React.Component {
     var games = this.state.games;
     games.splice(games.indexOf(name), 2);
     this.setState({games: games});
-    saveGames();
+    this.saveGames();
   }
 
   async saveGames() {
@@ -140,7 +140,7 @@ export default class Home extends React.Component {
 
                     this.props.navigation.navigate('Game', {gameName: this.state.newGameName, gameId: this.state.newGameID, myName: this.state.myName})
 
-                    saveGames();
+                    this.saveGames();
 
                     }}>
                     <Text style={[styles.join, {color: 'white'}]}>Create match</Text>
@@ -184,11 +184,11 @@ export default class Home extends React.Component {
 
                     var games = this.state.games;
                     games.push({name: this.state.joinGameName, id: this.state.joingameId});
-                    this.setState({joinGameModalVisible: false, games: games});
-
-                    saveGames();
+                    this.setState({joinGameModalVisible: false, games: games, joingameId: ''});
 
                     this.props.navigation.navigate('Game', {gameName: this.state.joinGameName, gameId: this.state.joingameId, myName: this.state.myName});
+
+                    this.saveGames();
                   }}>
                     <Text style={[styles.join, {color: 'white'}]}>Join match</Text>
                   </TouchableOpacity>
