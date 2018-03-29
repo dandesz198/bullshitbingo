@@ -25,6 +25,7 @@ class Card extends Component {
                     <TouchableOpacity style={[style.buttonStyle, style.secondButton, this.state.pressed ? style.buttonStylePressed :style.buttonStyle]} onPress={() => this.setState({pressed: !this.state.pressed})}>
                         <Text style={style.buttonText}>Bingo</Text>
                     </TouchableOpacity>
+                    <Text style={style.voteNumberStyle}>10 votes</Text>
                 </View>
             </View>
         )
@@ -70,7 +71,8 @@ const style = StyleSheet.create({
     buttonBoxStyle: {
         backgroundColor: '#bdc3c7',
         display: "flex",
-        alignItems: 'flex-start',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
         flexDirection: 'row',
         padding: 10
     },
@@ -100,6 +102,15 @@ const style = StyleSheet.create({
         fontWeight: "bold",
         textAlign: 'center',
         fontSize: 15,
+    },
+    voteNumberStyle: {
+        alignSelf: 'center',
+        paddingLeft: 15,
+        paddingRight: 15,
+        color: '#7B7D7D',
+        fontSize: 15,
+        textAlign: 'right',
+        flex: 1,
     }
 })
 
