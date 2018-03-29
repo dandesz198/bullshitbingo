@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Dimensions, Platform, Alert } from 'react-native';
-import { StackNavigator } from 'react-navigation';
+import { StackNavigator, NavigationActions } from 'react-navigation';
 import * as GestureHandler from 'react-native-gesture-handler';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import * as firebase from 'firebase';
@@ -123,12 +123,12 @@ export default class Game extends React.Component {
         <ScrollView style={styles.container}>
           <Text style={[styles.heading, {color: '#555', fontSize: 30}]}>{this.state.gameName}</Text>
           <View style={{flexDirection: 'column'}}>
-            <Text style={[styles.p, {marginTop: 5}]}>Game pin:</Text>
+            <Text style={[styles.p, {marginTop: 5}]}>Match PIN:</Text>
             <Text style={styles.h2}>{this.state.gameId}</Text>
-            <Text style={[styles.p, {fontSize: 15}]}>Others will use this code to connect the game.</Text>
+            <Text style={[styles.p, {fontSize: 15}]}>Others will use this code to connect to this match.</Text>
           </View>
           <View style={{flexDirection: 'column'}}>
-            <Text style={[styles.p, {marginTop: 15}]}>Game master:</Text>
+            <Text style={[styles.p, {marginTop: 15}]}>Match master:</Text>
             <Text style={styles.h2}>{this.state.gameMaster}</Text>
             <Text style={[styles.p, {fontSize: 15}]}>They can give points for the winners of the match.</Text>
           </View>
@@ -142,16 +142,36 @@ export default class Game extends React.Component {
               <Text style={[styles.membersListItem, {color: this.state.myName == rowData.name ? 'white' : '#555', marginTop: 7.5}]}><Text style={[styles.membersListItem, {fontWeight: '700', color: this.state.myName == rowData.name ? 'white' : '#555'}]}>{rowData.name}</Text> | {rowData.points} XP</Text>
               <Animated.View style={{padding: 5, margin: 5, borderColor: this.state.myName == rowData.name ? 'white' : bgColor, borderWidth: 1.5, borderRadius: 5, alignSelf: 'flex-end', marginRight: 0, marginLeft: 'auto'}}>
                 <TouchableOpacity onPress={()=>{
+                  var thus = this;
                   Alert.alert(
                     'Are you sure?', 
-                    'Do you *really* want to kick '+rowData.name+'? They can still rejoin the game.',
+                    this.state.myName == rowData.name ? 'Do you *really* want to quit the match '+this.state.gameName+'? You can still rejoin the match later.' : 'Do you *really* want to kick '+rowData.name+'? They can still rejoin the match.',
                     [ 
                       {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
-                      {text: 'Yes', onPress: () => console.log('User kicked'), style: 'destructive'}
+                      {text: 'Yes', onPress: () => {
+                        if(this.state.myName == this.state.gameMaster) {
+                          //But you are the match master - quitting will delete the match
+                          Alert.alert(
+                            'Are you sure?', 
+                            'You are the match master. If you quit, the match will be deleted.',
+                            [ 
+                              {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
+                              {text: 'Yes, I want to delete the match', onPress: () => {
+                                //Delete match
+                                firebase.database().ref('games/' + this.state.gameId).remove();
+                                thus.props.navigation.dispatch(NavigationActions.back())
+                              }, style: 'destructive'}
+                            ],
+                          );
+                        }
+                        else {
+                          //Quit match
+                        }
+                      }, style: 'destructive'}
                     ],
                   );
                 }}>
-                  <Animated.Text style={{color: this.state.myName == rowData.name ? 'white' : bgColor}}>Kick player</Animated.Text>
+                  <Animated.Text style={{color: this.state.myName == rowData.name ? 'white' : bgColor}}>{this.state.myName == rowData.name ? 'Quit match' : 'Kick player'}</Animated.Text>
                 </TouchableOpacity>
               </Animated.View>
             </Animated.View>

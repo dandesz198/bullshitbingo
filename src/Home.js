@@ -22,7 +22,7 @@ export default class Home extends React.Component {
     });
     this.state = {
         x: new Animated.Value(0),
-        games: [],
+        games: [{name: 'nualla', pin: '7777777'}],
         value: 0,
         
         //Data for the new match
@@ -83,7 +83,7 @@ export default class Home extends React.Component {
                 />
               </View>
               <View style={{flexDirection: 'column'}}>
-                <Text style={styles.p}>Your game pin:</Text>
+                <Text style={styles.p}>Match PIN:</Text>
                 <Text style={styles.h2}>{this.state.newGameID}</Text>
               </View>
               <View style={{flexDirection: 'row', height: 45, marginTop: 20}}>
@@ -101,9 +101,12 @@ export default class Home extends React.Component {
                         }
                       ]
                     });
-                    this.setState({games: this.state.games.push({id: this.state.newGameID, name: this.state.newGameName}), newGameModalVisible: false});
+                    var games = this.state.games;
+                    games.push({id: this.state.newGameID, name: this.state.newGameName})
+                    this.setState({games: games, newGameModalVisible: false});
+                    this.props.navigation.navigate('Game', {gameName: this.state.newGameName, gameId: this.state.newGameID})
                     }}>
-                    <Text style={[styles.join, {color: 'white'}]}>Create game</Text>
+                    <Text style={[styles.join, {color: 'white'}]}>Create match</Text>
                   </TouchableOpacity>
                 </Animated.View>
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor}]}>
@@ -140,7 +143,7 @@ export default class Home extends React.Component {
                     this.props.navigation.navigate('Game', {gameName: this.state.joinGameName, gameId: this.state.joingameId});
                     console.log(this.state.games);
                   }}>
-                    <Text style={[styles.join, {color: 'white'}]}>Join game</Text>
+                    <Text style={[styles.join, {color: 'white'}]}>Join match</Text>
                   </TouchableOpacity>
                 </Animated.View>
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor}]}>
@@ -155,13 +158,13 @@ export default class Home extends React.Component {
         <Text style={styles.welcome}>Bullshit Bingo</Text>
         <ScrollView style={{flex: 1}}>
           <TouchableOpacity style={[styles.button, {marginTop: 20, height: 45}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
-            <Animated.Text style={[styles.join, {color: bgColor}]}>Create new game</Animated.Text>
+            <Animated.Text style={[styles.join, {color: bgColor}]}>Create new match</Animated.Text>
           </TouchableOpacity>
-          <Text style={styles.heading}>Join game</Text>
+          <Text style={styles.heading}>Join match</Text>
           <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
             <TextInput
               style={[styles.input, {flex: 1}]}
-              placeholder="Game PIN"
+              placeholder="Match PIN"
               placeholderTextColor="#ecf0f1"
               keyboardType="number-pad"
               underlineColorAndroid='transparent'
@@ -174,7 +177,7 @@ export default class Home extends React.Component {
               firebase.database().ref('games/' + this.state.joingameId + '/name').once('value', function(snap) {
                 var newGameName = JSON.stringify(snap);
 
-                if(newGameName.length > 1) {
+                if(newGameName.length > 1 && newGameName != "null") {
                   thus.setState({joinGameName: newGameName, joinGameModalVisible: true});
                 } else {
                   Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.")
@@ -184,7 +187,7 @@ export default class Home extends React.Component {
               <Animated.Text style={[styles.join, {color: bgColor}]}>Join</Animated.Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.heading}>Current games</Text>
+          <Text style={styles.heading}>Current matches</Text>
           <ListView
             dataSource={ds.cloneWithRows(this.state.games)}
             enableEmptySections={true}
