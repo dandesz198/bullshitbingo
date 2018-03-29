@@ -9,6 +9,7 @@ class Card extends Component {
             pressed: false,
         }
     }
+
     render() {
         return(
             <View style={style.boxStyle}>
@@ -41,17 +42,21 @@ const style = StyleSheet.create({
         zIndex:999,
         display: 'flex',
     }, 
+    
     roomNameText: {
         color: '#95a5a6'
     },
+
     nameText: {
         color: '#555',
         fontSize: 30,
     },
+
     textBoxStyle: {
         padding: 10,
         backgroundColor: '#ecf0f1'
     },
+
     buttonBoxStyle: {
         backgroundColor: '#bdc3c7',
         display: "flex",
@@ -59,6 +64,7 @@ const style = StyleSheet.create({
         flexDirection: 'row',
         padding: 10,
     },
+
     buttonStyle: {
         backgroundColor: "#555",
         paddingTop: 5,
@@ -67,6 +73,7 @@ const style = StyleSheet.create({
         paddingRight: 30,
         borderRadius: 5
     },
+
     buttonStylePressed: {
         backgroundColor: "green",
         paddingTop: 5,
@@ -75,9 +82,11 @@ const style = StyleSheet.create({
         paddingRight: 30,
         borderRadius: 5
     },
+
     secondButton: {
         marginLeft: 10,
     },
+
     buttonText: {
         color: "#fff",
         fontWeight: "bold",
