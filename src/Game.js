@@ -116,7 +116,7 @@ export default class Game extends React.Component {
             dataSource={ds.cloneWithRows(this.state.gameCards)}
             enableEmptySections={true}
             style={styles.membersList}
-            renderRow={(rowData) => <Card matchName={this.state.gameName} cardText={rowData.text} voteCount={rowData.voters.length} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} onPress={()=>{
+            renderRow={(rowData) => <Card matchName={this.state.gameName} cardText={rowData.text} voteCount={rowData.voters.length} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} bgColor={bgColor} onPress={()=>{
               var cards = this.state.gameCards;
               var card = rowData;
               if(rowData.voters.indexOf(this.state.myName) > -1) {

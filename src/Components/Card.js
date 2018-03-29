@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import * as firebase from 'firebase';
 
 class Card extends Component {
@@ -19,9 +19,11 @@ class Card extends Component {
                     <Text style={style.nameText}>{this.props.cardText}</Text>
                 </View>
                 <View style={style.buttonBoxStyle}>
-                    <TouchableOpacity style={[this.props.voted ? [style.buttonStyle, style.buttonStylePressed] : style.buttonStyle]} onPress={() => this.props.onPress()}>
-                        <Text style={style.buttonText}>{this.state.text}</Text>
-                    </TouchableOpacity>
+                    <Animated.View style={{width: 100, height: 30, borderRadius: 5, backgroundColor: this.props.voted ? this.props.bgColor : '#555'}}>
+                        <TouchableOpacity style={[style.buttonStyle, {backgroundColor: 'transparent'}]} onPress={() => this.props.onPress()}>
+                            <Text style={[style.buttonText]}>{this.state.text}</Text>
+                        </TouchableOpacity>
+                    </Animated.View>
 
                     <TouchableOpacity style={[style.buttonStyle, style.secondButton, this.state.pressed ? style.buttonStylePressed :style.buttonStyle]} onPress={() => this.setState({pressed: !this.state.pressed})}>
                         <Text style={style.buttonText}>Bingo</Text>
@@ -79,15 +81,11 @@ const style = StyleSheet.create({
     },
 
     buttonStyle: {
-        backgroundColor: "#555",
-        borderRadius: 5,
         justifyContent: 'center',
         width: 100,
-        height: 30
-    },
-
-    buttonStylePressed: {
-        backgroundColor: "green",
+        height: 30,
+        backgroundColor: '#555',
+        borderRadius: 5
     },
 
     secondButton: {
