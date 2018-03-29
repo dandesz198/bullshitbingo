@@ -99,15 +99,14 @@ export default class Home extends React.Component {
                   <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{
                     this.setState({newGameID: Math.floor(Math.random() * 899999 + 100000).toString()});
                     var randomNumberForAdmin = Math.floor(Math.random() * 899999 + 100000).toString();
+                    var myName = this.state.myName;
                     firebase.database().ref('games/'+this.state.newGameID).set({
                       name: this.state.newGameName,
-                      master: this.state.myName,
-                      members: [
-                        {
-                          'name': this.state.myName,
-                          'points': 0
-                        }
-                      ]
+                      master: this.state.myName
+                    });
+                    firebase.database().ref('games/'+this.state.newGameID+'/members/'+this.state.myName).set({
+                      'name': this.state.myName,
+                      'points': 0
                     });
                     var games = this.state.games;
                     games.push({id: this.state.newGameID, name: this.state.newGameName})
@@ -147,6 +146,10 @@ export default class Home extends React.Component {
               <View style={{flexDirection: 'row', height: 45, marginTop: 20}}>
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
                   <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{
+                    firebase.database().ref('games/'+this.state.newGameID+'/members/'+this.state.myName).set({
+                      'name': this.state.myName,
+                      'points': 0
+                    });
                     this.setState({joinGameModalVisible: false, games: this.state.games.push({name: this.state.joinGameName, id: this.state.joingameId})});
                     this.props.navigation.navigate('Game', {gameName: this.state.joinGameName, gameId: this.state.joingameId, myName: this.state.myName});
                     console.log(this.state.games);
