@@ -4,6 +4,7 @@ import { StackNavigator, NavigationActions } from 'react-navigation';
 import * as GestureHandler from 'react-native-gesture-handler';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import * as firebase from 'firebase';
+import Home from './Home.js';
 
 const initialLayout = {
   height: 0,
@@ -68,6 +69,12 @@ export default class Game extends React.Component {
   }
 
   componentWillMount() {
+    this.syncDatabase();
+    //Starts the first loop in color changing
+    this.changeColor();
+  }
+
+  syncDatabase() {
     var thus = this;
     var members = [];
 
@@ -85,9 +92,6 @@ export default class Game extends React.Component {
       var finalstr = str.substring(1, str.length-1)
       thus.setState({gameMaster: finalstr});
     });
-
-    //Starts the first loop in color changing
-    this.changeColor();
   }
 
   _handleIndexChange = index => this.setState({ index });
@@ -140,7 +144,7 @@ export default class Game extends React.Component {
             renderRow={(rowData) => 
             <Animated.View style={{flex: 1, paddingHorizontal: 20, height: 40, flexDirection: 'row', justifyContent: 'center', backgroundColor: this.state.myName == rowData.name ? bgColor : 'transparent'}}>
               <Text style={[styles.membersListItem, {color: this.state.myName == rowData.name ? 'white' : '#555', marginTop: 7.5}]}><Text style={[styles.membersListItem, {fontWeight: '700', color: this.state.myName == rowData.name ? 'white' : '#555'}]}>{rowData.name}</Text> | {rowData.points} XP</Text>
-              <Animated.View style={{padding: 5, margin: 5, borderColor: this.state.myName == rowData.name ? 'white' : bgColor, borderWidth: 1.5, borderRadius: 5, alignSelf: 'flex-end', marginRight: 0, marginLeft: 'auto'}}>
+              <Animated.View style={{display: this.state.myName != this.state.gameMaster && this.state.myName != rowData.name ? 'none' : 'flex', padding: 5, margin: 5, borderColor: this.state.myName == rowData.name ? 'white' : bgColor, borderWidth: 1.5, borderRadius: 5, alignSelf: 'flex-end', marginRight: 0, marginLeft: 'auto'}}>
                 <TouchableOpacity onPress={()=>{
                   var thus = this;
                   Alert.alert(
@@ -149,24 +153,49 @@ export default class Game extends React.Component {
                     [ 
                       {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
                       {text: 'Yes', onPress: () => {
+                        //Determine if the player is the match master
                         if(this.state.myName == this.state.gameMaster) {
-                          //But you are the match master - quitting will delete the match
-                          Alert.alert(
-                            'Are you sure?', 
-                            'You are the match master. If you quit, the match will be deleted.',
-                            [ 
-                              {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
-                              {text: 'Yes, I want to delete the match', onPress: () => {
-                                //Delete match
-                                firebase.database().ref('games/' + this.state.gameId).remove();
-                                thus.props.navigation.dispatch(NavigationActions.back())
-                              }, style: 'destructive'}
-                            ],
-                          );
+                          //If match master AND kicking itself
+                          if(this.state.myName == rowData.name) {
+                            //But you are the match master - quitting will delete the match
+                            Alert.alert(
+                              'Are you sure?', 
+                              'You are the match master. If you quit, the match will be deleted.',
+                              [ 
+                                {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
+                                {text: 'Yes, I want to delete the match', onPress: () => {
+                                  //Delete match
+                                  firebase.database().ref('games/' + this.state.gameId).remove();
+                                  this.deleteGame(this.state.gameName);
+                                  thus.props.navigation.dispatch(NavigationActions.back())
+                                }, style: 'destructive'}
+                              ],
+                            );
+                          }
+                          else {
+                            //Since it's not kicking itself, they can kick the player 
+                            firebase.database().ref('games/' + this.state.gameId + '/members/'+rowData.name).remove();
+                          }
+                          
                         }
                         else {
-                          //Quit match
+                          if(rowData.name == this.state.myName) {
+                            //Quit game
+                            firebase.database().ref('games/' + this.state.gameId + '/members/'+rowData.name).remove();
+                            this.deleteGame(this.state.gameName);
+                            thus.props.navigation.dispatch(NavigationActions.back())
+                          } else {
+                            //Can't kick others
+                            Alert.alert(
+                              'Error', 
+                              "You aren't the match master. You can't kick other players.",
+                              [ 
+                                {text: 'Ok', onPress: () => console.log('Cancel'), style: 'cancel'},
+                              ],
+                            );
+                          }
                         }
+                        thus.syncDatabase();
                       }, style: 'destructive'}
                     ],
                   );

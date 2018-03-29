@@ -45,6 +45,14 @@ export default class Home extends React.Component {
     this.changeColor();
   }
 
+  deleteGame(name) {
+    console.log('/ * * * * * * * * * * /')
+    console.log(this.state)
+    var games = this.state.games;
+    games.splice(games.indexOf(name), 2);
+    this.setState({games: games});
+  }
+
   render() {
     let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     var bgColor = this.state.x.interpolate({
