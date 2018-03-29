@@ -25,7 +25,7 @@ class Card extends Component {
                         </TouchableOpacity>
                     </Animated.View>
 
-                    <TouchableOpacity style={[style.buttonStyle, style.secondButton, this.state.pressed ? style.buttonStylePressed :style.buttonStyle]} onPress={() => this.setState({pressed: !this.state.pressed})}>
+                    <TouchableOpacity style={[style.buttonStyle, style.secondButton, this.state.pressed ? style.buttonStylePressed : style.buttonStyle, {display: this.props.isGameMaster ? 'flex' :  'none'}]} onPress={() => this.setState({pressed: !this.state.pressed})}>
                         <Text style={style.buttonText}>Bingo</Text>
                     </TouchableOpacity>
                     <Text style={style.voteNumberStyle}>{this.props.voteCount} votes</Text>

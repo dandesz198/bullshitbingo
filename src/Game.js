@@ -24,9 +24,7 @@ export default class Game extends React.Component {
     x: new Animated.Value(0),
     value: 0,
 
-    //myName: this.props.navigation.state.params.myName,
-
-    myName: 'dandesz198',
+    myName: this.props.navigation.state.params.myName,
 
     gameName: this.props.navigation.state.params.gameName,
     gameId: this.props.navigation.state.params.gameId,
@@ -116,7 +114,7 @@ export default class Game extends React.Component {
             dataSource={ds.cloneWithRows(this.state.gameCards)}
             enableEmptySections={true}
             style={styles.membersList}
-            renderRow={(rowData) => <Card matchName={this.state.gameName} cardText={rowData.text} voteCount={rowData.voters.length} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} bgColor={bgColor} onPress={()=>{
+            renderRow={(rowData) => <Card matchName={this.state.gameName} cardText={rowData.text} voteCount={rowData.voters.length} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} bgColor={bgColor} isGameMaster={this.state.gameMaster == this.state.myName ? true : false} onPress={()=>{
               var cards = this.state.gameCards;
               var card = rowData;
               if(rowData.voters.indexOf(this.state.myName) > -1) {
