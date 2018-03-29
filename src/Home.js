@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Modal, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Modal, Alert, AsyncStorage } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import * as firebase from 'firebase';
 
@@ -39,18 +39,33 @@ export default class Home extends React.Component {
     };
   }
 
-  componentWillMount() {
-    //Starts the first loop in color changing
+  async componentWillMount() {
+    console.log('i try')
+    try {
+      const value = await AsyncStorage.getItem('@MySuperStore:games');
+      if (value !== null){
+        // We have data
+        this.setState({games: JSON.parse(value)});
+      }
+    } catch (error) {
+      // Error retrieving data
+      console.log(error);
+    }
     firebase.initializeApp(config);
     this.changeColor();
   }
 
-  deleteGame(name) {
-    console.log('/ * * * * * * * * * * /')
-    console.log(this.state)
+  async deleteGame(name) {
     var games = this.state.games;
     games.splice(games.indexOf(name), 2);
     this.setState({games: games});
+    console.log('i try')
+    try {
+      await AsyncStorage.setItem('@MySuperStore:games', JSON.stringify(games));
+    } catch (error) {
+      // Error saving data
+      console.log(error);
+    }
   }
 
   render() {
@@ -145,12 +160,22 @@ export default class Home extends React.Component {
               </View>
               <View style={{flexDirection: 'row', height: 45, marginTop: 20}}>
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
-                  <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{
-                    firebase.database().ref('games/'+this.state.newGameID+'/members/'+this.state.myName).set({
+                  <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={async()=>{
+                    firebase.database().ref('games/'+this.state.joingameId+'/members/'+this.state.myName).set({
                       'name': this.state.myName,
                       'points': 0
                     });
-                    this.setState({joinGameModalVisible: false, games: this.state.games.push({name: this.state.joinGameName, id: this.state.joingameId})});
+
+                    var games = this.state.games;
+                    games.push({name: this.state.joinGameName, id: this.state.joingameId});
+                    this.setState({joinGameModalVisible: false, games: games});
+
+                    try {
+                      await AsyncStorage.setItem('@MySuperStore:games', JSON.stringify(games));
+                    } catch (error) {
+                      // Error saving data
+                      console.log(error);
+                    }
                     this.props.navigation.navigate('Game', {gameName: this.state.joinGameName, gameId: this.state.joingameId, myName: this.state.myName});
                     console.log(this.state.games);
                   }}>
