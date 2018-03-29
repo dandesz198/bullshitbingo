@@ -5,6 +5,7 @@ import * as GestureHandler from 'react-native-gesture-handler';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import * as firebase from 'firebase';
 import Home from './Home.js';
+import Card from './Components/Card.js';
 
 const initialLayout = {
   height: 0,
@@ -118,7 +119,7 @@ export default class Game extends React.Component {
             dataSource={this.state.gameCards}
             enableEmptySections={true}
             style={styles.membersList}
-            renderRow={(rowData) => <Text style={[styles.membersListItem]}>{rowData.text}</Text>}
+            renderRow={(rowData) => <Card matchName={this.state.gameName} cardText={rowData.text}/>}
           />
         </ScrollView>
       );
