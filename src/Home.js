@@ -40,7 +40,6 @@ export default class Home extends React.Component {
   }
 
   async componentWillMount() {
-    console.log('i try')
     try {
       const value = await AsyncStorage.getItem('@MySuperStore:games');
       if (value !== null){
@@ -59,13 +58,16 @@ export default class Home extends React.Component {
     this.changeColor();
   }
 
-  async deleteGame(name) {
+  deleteGame(name) {
     var games = this.state.games;
     games.splice(games.indexOf(name), 2);
     this.setState({games: games});
-    console.log('i try')
+    saveGames();
+  }
+
+  async saveGames() {
     try {
-      await AsyncStorage.setItem('@MySuperStore:games', JSON.stringify(games));
+      await AsyncStorage.setItem('@MySuperStore:games', JSON.stringify(this.state.games));
     } catch (error) {
       // Error saving data
       console.log(error);
@@ -116,9 +118,11 @@ export default class Home extends React.Component {
               <View style={{flexDirection: 'row', height: 45, marginTop: 20}}>
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
                   <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{
+
                     this.setState({newGameID: Math.floor(Math.random() * 899999 + 100000).toString()});
                     var randomNumberForAdmin = Math.floor(Math.random() * 899999 + 100000).toString();
                     var myName = this.state.myName;
+
                     firebase.database().ref('games/'+this.state.newGameID).set({
                       name: this.state.newGameName,
                       master: this.state.myName
@@ -127,10 +131,17 @@ export default class Home extends React.Component {
                       'name': this.state.myName,
                       'points': 0
                     });
+
                     var games = this.state.games;
-                    games.push({id: this.state.newGameID, name: this.state.newGameName})
+
+                    games.push({id: this.state.newGameID, name: this.state.newGameName});
+
                     this.setState({games: games, newGameModalVisible: false});
+
                     this.props.navigation.navigate('Game', {gameName: this.state.newGameName, gameId: this.state.newGameID, myName: this.state.myName})
+
+                    saveGames();
+
                     }}>
                     <Text style={[styles.join, {color: 'white'}]}>Create match</Text>
                   </TouchableOpacity>
@@ -165,6 +176,7 @@ export default class Home extends React.Component {
               <View style={{flexDirection: 'row', height: 45, marginTop: 20}}>
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
                   <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={async()=>{
+
                     firebase.database().ref('games/'+this.state.joingameId+'/members/'+this.state.myName).set({
                       'name': this.state.myName,
                       'points': 0
@@ -174,14 +186,9 @@ export default class Home extends React.Component {
                     games.push({name: this.state.joinGameName, id: this.state.joingameId});
                     this.setState({joinGameModalVisible: false, games: games});
 
-                    try {
-                      await AsyncStorage.setItem('@MySuperStore:games', JSON.stringify(games));
-                    } catch (error) {
-                      // Error saving data
-                      console.log(error);
-                    }
+                    saveGames();
+
                     this.props.navigation.navigate('Game', {gameName: this.state.joinGameName, gameId: this.state.joingameId, myName: this.state.myName});
-                    console.log(this.state.games);
                   }}>
                     <Text style={[styles.join, {color: 'white'}]}>Join match</Text>
                   </TouchableOpacity>
