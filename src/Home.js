@@ -45,7 +45,11 @@ export default class Home extends React.Component {
       const value = await AsyncStorage.getItem('@MySuperStore:games');
       if (value !== null){
         // We have data
-        this.setState({games: JSON.parse(value)});
+        var array = JSON.parse(value);
+        array.forEach(element => {
+          element.name = element.name.slice(1, -1);
+        });
+        this.setState({games: array});
       }
     } catch (error) {
       // Error retrieving data
