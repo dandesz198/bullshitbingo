@@ -53,7 +53,9 @@ export default class Game extends React.Component {
       }
     ],
 
-    gameMembers: []
+    gameMembers: [],
+
+    newCardText: ''
   };
 
   //Compare method for the players array
@@ -114,14 +116,14 @@ export default class Game extends React.Component {
           decelerationRate={0}
           contentOffset={{x: 0, y: 125}}
         >
-          <View style={{width: Dimensions.get('window').width, backgroundColor: '#bdc3c7', margin: -20, marginBottom: 15}}>
+          <View style={{width: Dimensions.get('window').width, backgroundColor: '#d8e1e3', margin: -20, marginBottom: 15}}>
             <TextInput
               style={{width: '100%', height: 75, padding: 10, marginBottom: 10, color: '#555', fontSize: 16}}
               underlineColorAndroid='transparent'
               placeholder="Create a new card"
               placeholderTextColor="#666"
-              onChangeText={(newGameName) => this.setState({newGameName})}
-              value={this.state.newGameName}
+              onChangeText={(newCardText) => this.setState({newCardText})}
+              value={this.state.newCardText}
             />
             <TouchableOpacity style={{
               justifyContent: 'center',
@@ -132,7 +134,11 @@ export default class Game extends React.Component {
               marginLeft: 'auto',
               marginRight: 15,
               marginBottom: 10
-            }} onPress={()=>{}}>
+            }} onPress={()=>{
+              var gameCards = this.state.gameCards;
+              gameCards.unshift({text: this.state.newCardText, creator: this.state.myName, voters: [this.state.myName]})
+              this.setState({newCardText: '', gameCards: gameCards});
+            }}>
               <Text style={{color: 'white', textAlign: 'center', fontWeight: "bold"}}>Create</Text>
             </TouchableOpacity>
           </View>
