@@ -40,6 +40,7 @@ export default class Home extends React.Component {
   }
 
   async componentWillMount() {
+    //Save games to AsyncStorage
     try {
       const value = await AsyncStorage.getItem('@MySuperStore:games');
       if (value !== null){
@@ -68,6 +69,7 @@ export default class Home extends React.Component {
       console.log(error);
     }
 
+    //Save name to AsyncStorage
     try {
       const value = await AsyncStorage.getItem('@MySuperStore:name');
       if (value !== null){
@@ -79,7 +81,9 @@ export default class Home extends React.Component {
       console.log(error);
     }
 
+    //Initialize Firebase
     firebase.initializeApp(config);
+    //Starts the first loop in color changing
     this.changeColor();
   }
 
@@ -91,6 +95,7 @@ export default class Home extends React.Component {
   }
 
   async saveGames() {
+    //Save games to AsyncStorage
     try {
       await AsyncStorage.setItem('@MySuperStore:games', JSON.stringify(this.state.games));
     } catch (error) {
@@ -98,6 +103,7 @@ export default class Home extends React.Component {
       console.log(error);
     }
 
+    //Save name to AsyncStorage
     try {
       await AsyncStorage.setItem('@MySuperStore:name', this.state.myName);
     } catch (error) {
@@ -151,30 +157,31 @@ export default class Home extends React.Component {
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
                   <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{
 
+                    //Create game ID
                     this.setState({newGameID: Math.floor(Math.random() * 899999 + 100000).toString()});
-                    var randomNumberForAdmin = Math.floor(Math.random() * 899999 + 100000).toString();
-                    var myName = this.state.myName;
-
+                    
+                    //Upload the game itself to Firebase
                     firebase.database().ref('games/'+this.state.newGameID).set({
                       name: this.state.newGameName,
                       master: this.state.myName
                     });
 
+                    //Upload the user to Firebase
                     firebase.database().ref('games/'+this.state.newGameID+'/members/'+this.state.myName).set({
                       'name': this.state.myName,
                       'points': 0
                     });
 
+                    //Add the new game to the Games array (renderen in 'Current matches' section)
                     var games = this.state.games;
-
                     games.push({id: this.state.newGameID, name: this.state.newGameName});
-
                     this.setState({games: games, newGameModalVisible: false});
 
+                    //Navigate to the new game's screen
                     this.props.navigation.navigate('Game', {gameName: this.state.newGameName, gameId: this.state.newGameID, myName: this.state.myName})
 
+                    //Save the new game to AsyncStorage
                     this.saveGames();
-
                     }}>
                     <Text style={[styles.join, {color: 'white'}]}>Create match</Text>
                   </TouchableOpacity>
@@ -210,17 +217,21 @@ export default class Home extends React.Component {
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
                   <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={async()=>{
 
+                    //Add the user to Firebase
                     firebase.database().ref('games/'+this.state.joingameId+'/members/'+this.state.myName).set({
                       'name': this.state.myName,
                       'points': 0
                     });
 
+                    //Add the new game to the games array (rendered in the 'Current matches' section in Home.js)
                     var games = this.state.games;
                     games.push({name: this.state.joinGameName, id: this.state.joingameId});
                     this.setState({joinGameModalVisible: false, games: games, joingameId: ''});
 
+                    //Navigate to the game
                     this.props.navigation.navigate('Game', {gameName: this.state.joinGameName, gameId: this.state.joingameId, myName: this.state.myName});
 
+                    //Save to AsyncStorage
                     this.saveGames();
                   }}>
                     <Text style={[styles.join, {color: 'white'}]}>Join match</Text>
@@ -254,11 +265,14 @@ export default class Home extends React.Component {
             <TouchableOpacity onPress={()=>{
               var thus = this;
 
+              //Get the name of the new match
               firebase.database().ref('games/' + this.state.joingameId + '/name').once('value', function(snap) {
                 var newGameName = JSON.stringify(snap);
 
+                //Check if the game exists
                 if(newGameName.length > 1 && newGameName != "null") {
                   newGameName = newGameName.slice(1, -1);
+                  //Open the connection modal
                   thus.setState({joinGameName: newGameName, joinGameModalVisible: true});
                 } else {
                   Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.")
@@ -285,6 +299,7 @@ export default class Home extends React.Component {
 
   //Animate to the next color
   changeColor() {
+    //Get the number of the next color
     var value = this.state.value;
     if(value > 5) {
       value = 0;

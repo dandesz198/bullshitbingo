@@ -63,6 +63,7 @@ export default class Game extends React.Component {
   }
 
   componentWillMount() {
+    //Sync Firebase
     this.syncDatabase();
     //Starts the first loop in color changing
     this.changeColor();
@@ -93,6 +94,7 @@ export default class Game extends React.Component {
     var votes = 0;
     var card = cardToVoteOn;
 
+    //Check every card for votes
     cards.forEach(element => {
       if(element.voters.indexOf(this.state.myName) > -1) {
         //Already voted
@@ -107,13 +109,14 @@ export default class Game extends React.Component {
     }
 
     cards[cards.indexOf(cardToVoteOn)] = card;
-
     this.setState({gameCards: cards});
 
+    //Time to sync to Firebase
     this.syncToFirebase();
   }
 
   syncToFirebase() {
+    //Upload every card to Firebase
     firebase.database().ref('games/'+this.state.gameId+'/').update({
       cards: this.state.gameCards
     });
@@ -161,9 +164,13 @@ export default class Game extends React.Component {
               marginRight: 15,
               marginBottom: 10
             }} onPress={()=>{
+              //Declare variables
               var gameCards = this.state.gameCards;
               var newCard = {text: this.state.newCardText, creator: this.state.myName, voters: []}
-              gameCards.unshift(newCard)
+
+              //Add new card to the start of the array
+              gameCards.unshift(newCard);
+
               this.setState({gameCards: gameCards});
               this.vote(newCard);
               this.setState({newCardText: ''});
@@ -177,13 +184,18 @@ export default class Game extends React.Component {
             enableEmptySections={true}
             style={[styles.membersList, {minHeight: Dimensions.get('window').height}]}
             renderRow={(rowData) => <Card matchName={this.state.gameName} cardText={rowData.text} voteCount={rowData.voters.length} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} bgColor={bgColor} isGameMaster={this.state.gameMaster == this.state.myName ? true : false} onPress={()=>{
+              //Declare variables
               var cards = this.state.gameCards;
               var card = rowData;
+
+              //Check if user already voted to the card
               if(rowData.voters.indexOf(this.state.myName) > -1) {
+                //Delete the vote
                 card.voters.splice(card.voters.indexOf(this.state.myName), 1);
                 cards[cards.indexOf(rowData)] = card;
                 this.setState({gameCards: cards});
               } else {
+                //Vote, because the user didn't vote on the card
                 this.vote(rowData);
               }
               
