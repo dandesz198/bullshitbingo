@@ -39,17 +39,12 @@ export default class Game extends React.Component {
       {
         text: 'Tamáska Roland',
         creator: 'dandesz198',
-        voters: [
-          'dandesz198',
-          'razor97'
-        ]
+        voters: [ ]
       },
       {
         text: 'A lánya',
         creator: 'dibaczi',
-        voters: [
-          'dibaczi'
-        ]
+        voters: [ ]
       }
     ],
 
@@ -91,6 +86,29 @@ export default class Game extends React.Component {
       var finalstr = str.substring(1, str.length-1)
       thus.setState({gameMaster: finalstr});
     });
+  }
+
+  vote(cardToVoteOn) {
+    var cards = this.state.gameCards;
+    var votes = 0;
+    var card = cardToVoteOn;
+
+    cards.forEach(element => {
+      if(element.voters.indexOf(this.state.myName) > -1) {
+        //Already voted
+        votes += 1;
+      }
+    });
+
+    if(votes >= 2) {
+      Alert.alert('Error', 'You have more than 2 votes placed. Please unvote atleast one card to vote on this one.');
+    } else {
+      card.voters.push(this.state.myName);
+    }
+
+    cards[cards.indexOf(cardToVoteOn)] = card;
+
+    this.setState({gameCards: cards});
   }
 
   _handleIndexChange = index => this.setState({ index });
@@ -136,8 +154,11 @@ export default class Game extends React.Component {
               marginBottom: 10
             }} onPress={()=>{
               var gameCards = this.state.gameCards;
-              gameCards.unshift({text: this.state.newCardText, creator: this.state.myName, voters: [this.state.myName]})
-              this.setState({newCardText: '', gameCards: gameCards});
+              var newCard = {text: this.state.newCardText, creator: this.state.myName, voters: []}
+              gameCards.unshift(newCard)
+              this.setState({gameCards: gameCards});
+              this.vote(newCard);
+              this.setState({newCardText: ''});
             }}>
               <Text style={{color: 'white', textAlign: 'center', fontWeight: "bold"}}>Create</Text>
             </TouchableOpacity>
@@ -152,11 +173,12 @@ export default class Game extends React.Component {
               var card = rowData;
               if(rowData.voters.indexOf(this.state.myName) > -1) {
                 card.voters.splice(card.voters.indexOf(this.state.myName), 1);
+                cards[cards.indexOf(rowData)] = card;
+                this.setState({gameCards: cards});
               } else {
-                card.voters.push(this.state.myName);
+                this.vote(rowData);
               }
-              cards[cards.indexOf(rowData)] = card;
-              this.setState({gameCards: cards});
+              
             }}/>}
           />
         </ScrollView>
