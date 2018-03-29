@@ -46,7 +46,7 @@ export default class Home extends React.Component {
       if (value !== null){
         // We have data
         var array = JSON.parse(value);
-        array.forEach(element => {
+        array.forEach(async(element) => {
           //Remove the " from the start and end of the string
           if(element.name[0] == '"') {
             element.name = element.name.slice(1, -1);
@@ -61,6 +61,7 @@ export default class Home extends React.Component {
               array.splice(array.indexOf(element), 1)
             }
           });
+
         });
         this.setState({games: array});
       }
@@ -201,7 +202,7 @@ export default class Home extends React.Component {
           visible={this.state.joinGameModalVisible}>
           <View style={{flex: 1}}>
             <Animated.View style={{padding: 20, backgroundColor: bgColor}}>
-                <Text style={[styles.heading, {fontSize: 32}]}>Join {this.state.joinGameName}?</Text>
+                <Text style={[styles.heading, {fontSize: 32}]}>Join "{this.state.joinGameName}"?</Text>
             </Animated.View>
             <View style={{flex: 1, padding: 20}}>
               <View style={{flexDirection: 'column'}}>

@@ -15,9 +15,11 @@ class Card extends Component {
         return(
             <View style={style.boxStyle}>
                 <View style={style.textBoxStyle}>
-                    <Text style={style.roomNameText}>{this.props.matchName}</Text>
+                    <View style={{flexDirection: 'row', height: 20}}>
+                        <Text style={style.roomNameText}>{this.props.matchName}</Text>
+                        <Text style={[style.roomNameText, {marginRight: 0, marginLeft: 'auto'}]}>{this.props.creatorName}</Text>
+                    </View>
                     <Text style={style.nameText}>{this.props.cardText}</Text>
-                    <Text style={style.roomNameText}>by {this.props.creatorName}</Text>
                 </View>
                 <View style={style.buttonBoxStyle}>
                     <Animated.View style={{width: 100, height: 30, borderRadius: 5, backgroundColor: this.props.voted ? this.props.bgColor : '#555'}}>
@@ -60,14 +62,15 @@ const style = StyleSheet.create({
     /*UPPERBOX TEXT*/
 
     roomNameText: {
-        fontSize: 20,
+        fontSize: 15,
         color: '#95a5a6'
     },
 
     nameText: {
         color: '#555',
         fontSize: 35,
-        fontWeight: '600'
+        fontWeight: '600',
+        marginVertical: 5
     },
 
     /*LOWERBOX*/ 

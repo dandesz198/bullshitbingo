@@ -145,7 +145,7 @@ export default class Game extends React.Component {
           decelerationRate={0}
           contentOffset={{x: 0, y: 125}}
         >
-          <View style={{width: Dimensions.get('window').width, backgroundColor: '#d8e1e3', margin: -20, marginBottom: 15}}>
+          <View style={{width: Dimensions.get('window').width, backgroundColor: '#d8e1e3', margin: -20, marginBottom: 15, zIndex: 999}}>
             <TextInput
               style={{width: '100%', height: 75, padding: 10, marginBottom: 10, color: '#555', fontSize: 16}}
               underlineColorAndroid='transparent'
@@ -223,7 +223,7 @@ export default class Game extends React.Component {
             enableEmptySections={true}
             style={{marginTop: 10, margin: -20}}
             renderRow={(rowData) => 
-            <Animated.View style={{flex: 1, paddingHorizontal: 20, height: 40, flexDirection: 'row', justifyContent: 'center', backgroundColor: this.state.myName == rowData.name ? bgColor : 'transparent'}}>
+            <Animated.View style={{flex: 1, paddingHorizontal: 20, height: 40, zIndex: 999, flexDirection: 'row', justifyContent: 'center', backgroundColor: this.state.myName == rowData.name ? bgColor : 'transparent'}}>
               <Text style={[styles.membersListItem, {color: this.state.myName == rowData.name ? 'white' : '#555', marginTop: 7.5}]}><Text style={[styles.membersListItem, {fontWeight: '700', color: this.state.myName == rowData.name ? 'white' : '#555'}]}>{rowData.name}</Text> | {rowData.points} XP</Text>
               <Animated.View style={{display: this.state.myName != this.state.gameMaster && this.state.myName != rowData.name ? 'none' : 'flex', padding: 5, margin: 5, borderColor: this.state.myName == rowData.name ? 'white' : bgColor, borderWidth: 1.5, borderRadius: 5, alignSelf: 'flex-end', marginRight: 0, marginLeft: 'auto'}}>
                 <TouchableOpacity onPress={()=>{
