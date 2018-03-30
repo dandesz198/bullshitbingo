@@ -15,7 +15,7 @@ Below you'll find information about performing common tasks. The most recent ver
 
 This project is created by @dandesz198.
 
-Imagine the endless possibilities of creating a bingo game about anything. Who's going to marry next, what's the next thing that's going to broke in the office, which character is going to be gay in the next season of your favorite Netflix show, etc.
+Imagine the endless possibilities of creating a bingo game about anything. Who's going to marry next, what's the next thing that's going to broke in the office, etc.
 Well, that's what Bullshit Bingo is about.
 Create a match, share it with your friends, and play together freely.
 
