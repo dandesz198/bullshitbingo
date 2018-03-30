@@ -46,9 +46,40 @@ export default class Home extends React.Component {
   }
 
   async componentWillMount() {
+    //Starts the first loop in color changing
+    this.changeColor();
+
     //Initialize Firebase
     await firebase.initializeApp(config);
 
+    this.loadGames();
+
+    //Save the games with 2s delay
+    setTimeout(() => {
+      this.saveGames();
+    }, 2000);
+  }
+
+  async saveGames() {
+    console.log(this.state.games);
+    //Save games to AsyncStorage
+    try {
+      await AsyncStorage.setItem('@MySuperStore:games', JSON.stringify(this.state.games));
+    } catch (error) {
+      // Error saving data
+      console.log(error);
+    }
+
+    //Save name to AsyncStorage
+    try {
+      await AsyncStorage.setItem('@MySuperStore:name', this.state.myName);
+    } catch (error) {
+      // Error saving data
+      console.log(error);
+    }
+  }
+
+  async loadGames() {
     //Get games from AsyncStorage
     try {
       const value = await AsyncStorage.getItem('@MySuperStore:games');
@@ -78,15 +109,18 @@ export default class Home extends React.Component {
               });
             }
             else {
-              array.splice(array.indexOf(element), 1)
+              array.splice(array.indexOf(element), 1);
             }
 
-            //If match doesn't exist or player is kicked
-            if(members.length < 0 || count == 0) {
-              array.splice(array.indexOf(element), 1)
+            //If member even exists
+            if(members) {
+              //If match doesn't exist or player is kicked
+              if(members.length < 0 || count <= 0) {
+                array.splice(array.indexOf(element), 1);
+              }
+            } else {
+              array.splice(array.indexOf(element), 1);
             }
-
-            thus.saveGames();
           })
         });
         this.setState({games: array});
@@ -107,9 +141,6 @@ export default class Home extends React.Component {
       // Error retrieving data
       console.log(error);
     }
-
-    //Starts the first loop in color changing
-    this.changeColor();
   }
 
   deleteGame(name) {
@@ -117,24 +148,6 @@ export default class Home extends React.Component {
     games.splice(games.indexOf(name), 1);
     this.setState({games: games});
     this.saveGames();
-  }
-
-  async saveGames() {
-    //Save games to AsyncStorage
-    try {
-      await AsyncStorage.setItem('@MySuperStore:games', JSON.stringify(this.state.games));
-    } catch (error) {
-      // Error saving data
-      console.log(error);
-    }
-
-    //Save name to AsyncStorage
-    try {
-      await AsyncStorage.setItem('@MySuperStore:name', this.state.myName);
-    } catch (error) {
-      // Error saving data
-      console.log(error);
-    }
   }
 
   render() {
