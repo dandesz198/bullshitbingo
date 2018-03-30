@@ -2,7 +2,7 @@
    "expo": {
     "name": "Bullshit Bingo",
     "icon": "./icon.png",
-    "version": "0.9.0",
+    "version": "0.9.1",
     "slug": "bullshitbingo",
     "sdkVersion": "25.0.0",
     "ios": {
