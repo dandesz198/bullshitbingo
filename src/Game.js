@@ -37,15 +37,6 @@ export default class Game extends React.Component {
     newCardText: ''
   };
 
-  //Compare method for the players array
-  compare(a,b) {
-    if (a.points < b.points)
-      return -1;
-    if (a.points > b.points)
-      return 1;
-    return 0;
-  }
-
   async componentWillMount() {
     //Sync Firebase
     await this.getData();
@@ -53,6 +44,7 @@ export default class Game extends React.Component {
     this.changeColor();
   }
 
+  //Download match data from Firebase
   getData() {
     var thus = this;
     var members = [];
@@ -76,6 +68,7 @@ export default class Game extends React.Component {
     });
   }
 
+  //Vote on a card and alert the user if there's more than 2 votes
   vote(cardToVoteOn) {
     var cards = this.state.gameCards;
     var votes = 0;
@@ -102,6 +95,7 @@ export default class Game extends React.Component {
     this.syncToFirebase();
   }
 
+  //Upload data to Firebase
   syncToFirebase() {
     //Upload every card to Firebase
     firebase.database().ref('games/'+this.state.gameId+'/').update({
@@ -132,7 +126,7 @@ export default class Game extends React.Component {
           decelerationRate={0}
           contentOffset={{x: 0, y: 125}}
           >
-          <View style={{backgroundColor: '#d8e1e3', width: '100%',marginBottom: 15, zIndex: 999}}>
+          <View style={{width: Dimensions.get('window').width, backgroundColor: '#d8e1e3', margin: -20, marginBottom: 15, zIndex: 999}}>
             <TextInput
               style={{width: '100%', height: 75, padding: 10, marginBottom: 10, color: '#555', fontSize: 16}}
               underlineColorAndroid='transparent'

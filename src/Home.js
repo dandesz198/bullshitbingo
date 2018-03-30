@@ -60,6 +60,7 @@ export default class Home extends React.Component {
     }, 2000);
   }
 
+  //Save data to the AsyncStorage
   async saveGames() {
     console.log(this.state.games);
     //Save games to AsyncStorage
@@ -79,6 +80,7 @@ export default class Home extends React.Component {
     }
   }
 
+  //Load data from the AsyncStorage
   async loadGames() {
     //Get games from AsyncStorage
     try {
@@ -143,6 +145,7 @@ export default class Home extends React.Component {
     }
   }
 
+  //Delete a game from the 'Current matches' list
   deleteGame(name) {
     var games = this.state.games;
     games.splice(games.indexOf(name), 1);
@@ -244,8 +247,8 @@ export default class Home extends React.Component {
                     //Save the new game to AsyncStorage
                     this.saveGames();
 
-                    //Create new game ID for the next game
-                    this.setState({newGameID: Math.floor(Math.random() * 899999 + 100000).toString()});
+                    //Create new game ID for the next game, empty the screen
+                    this.setState({pw: '', pwAgain: '', newGameName: '', newGameID: Math.floor(Math.random() * 899999 + 100000).toString()});
                     }}>
                     <Text style={[styles.join, {color: 'white'}]}>Create match</Text>
                   </TouchableOpacity>
