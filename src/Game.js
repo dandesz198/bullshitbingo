@@ -50,7 +50,7 @@ export default class Game extends React.Component {
     var members = [];
 
     //Get data
-    firebase.database().ref('games/' + this.state.gameId+'/').once('value', function(snap) {
+    firebase.database().ref('games/' + this.state.gameId+'/').on('value', function(snap) {
       //Parse objects
       var snapshot = snap.val();
 
@@ -128,7 +128,7 @@ export default class Game extends React.Component {
           >
           <View style={{width: Dimensions.get('window').width, backgroundColor: '#d8e1e3', margin: -20, marginBottom: 15, zIndex: 999}}>
             <TextInput
-              style={{width: '100%', height: 75, padding: 10, marginBottom: 10, color: '#555', fontSize: 16}}
+              style={{width: '100%', height: 75, padding: 15, marginBottom: 10, color: '#555', fontSize: 16}}
               underlineColorAndroid='transparent'
               placeholder="Create a new card"
               placeholderTextColor="#666"
