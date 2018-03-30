@@ -62,7 +62,6 @@ export default class Home extends React.Component {
 
   //Save data to the AsyncStorage
   async saveGames() {
-    console.log(this.state.games);
     //Save games to AsyncStorage
     try {
       await AsyncStorage.setItem('@MySuperStore:games', JSON.stringify(this.state.games));

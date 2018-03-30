@@ -27,13 +27,13 @@ class Card extends Component {
                     </View>
                 </View>
                 <View style={style.buttonBoxStyle}>
-                    <Animated.View style={{width: 100, height: 30, borderRadius: 5, backgroundColor: this.props.voted ? this.props.bgColor : '#555'}}>
+                    <Animated.View style={{width: 100, height: 30, marginRight: 10, borderRadius: 5, backgroundColor: this.props.voted ? this.props.bgColor : '#555', display: this.props.isBingo ? 'none' :  'flex'}}>
                         <TouchableOpacity style={[style.buttonStyle, {backgroundColor: 'transparent'}]} onPress={() => this.props.onVotePress()}>
                             <Text style={[style.buttonText]}>Vote!</Text>
                         </TouchableOpacity>
                     </Animated.View>
 
-                    <TouchableOpacity style={[style.buttonStyle, style.secondButton, this.props.bingo ? style.buttonStylePressed : style.buttonStyle, {display: this.props.isGameMaster ? 'flex' :  'none'}]} onPress={() => console.log('bingo!')}>
+                    <TouchableOpacity style={[style.buttonStyle, {backgroundColor: this.props.isBingo ? this.props.bgColor : '#555', display: this.props.isGameMaster ? 'flex' :  'none'}]} onPress={() => this.props.onBingoPress()}>
                         <Text style={style.buttonText}>Bingo</Text>
                     </TouchableOpacity>
                     <Text style={style.voteNumberStyle}>{this.props.voteCount} votes</Text>
@@ -93,10 +93,6 @@ const style = StyleSheet.create({
         height: 30,
         backgroundColor: '#555',
         borderRadius: 5
-    },
-
-    secondButton: {
-        marginLeft: 10,
     },
 
     /*LOWERBOX TEXT*/

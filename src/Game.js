@@ -64,7 +64,7 @@ export default class Game extends React.Component {
         });
       }
 
-      thus.setState({gameMembers: Object.values(snapshot.members), gameMaster: snapshot.master, gameCards: gameCards});
+      thus.setState({gameMembers: Object.values(snapshot.members), gameMaster: snapshot.master, gameCards: gameCards, isBingo: snapshot.isBingo});
     });
   }
 
@@ -148,7 +148,7 @@ export default class Game extends React.Component {
               if (this.state.newCardText.length > 0) {
                 //Declare variables
                 var gameCards = this.state.gameCards;
-                var newCard = {text: this.state.newCardText, creator: this.state.myName, voters: []}
+                var newCard = {text: this.state.newCardText, creator: this.state.myName, isBingo: false, voters: []}
 
                 //Add new card to the start of the array
                 gameCards.unshift(newCard);
@@ -174,7 +174,7 @@ export default class Game extends React.Component {
             dataSource={ds.cloneWithRows(this.state.gameCards)}
             enableEmptySections={true}
             style={[styles.membersList, {minHeight: Dimensions.get('window').height}]}
-            renderRow={(rowData) => <Card matchName={this.state.gameName} cardText={rowData.text} voteCount={rowData.voters.length} creatorName={rowData.creator} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} bgColor={bgColor} isGameMaster={this.state.gameMaster == this.state.myName ? true : false} 
+            renderRow={(rowData) => <Card matchName={this.state.gameName} cardText={rowData.text} voteCount={rowData.voters.length} creatorName={rowData.creator} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} isBingo={rowData.isBingo} bgColor={bgColor} isGameMaster={this.state.gameMaster == this.state.myName ? true : false} 
             onVotePress={()=>{
               //Declare variables
               var cards = this.state.gameCards;
@@ -209,6 +209,32 @@ export default class Game extends React.Component {
                   style: 'destructive'
                 },
                 { text: 'Nah', style: 'cancel' }
+              ])
+            }}
+            onBingoPress={()=>{
+              Alert.alert('Are you sure?', 'You are now going to give points to the voters of the card "'+rowData.text+'". This action is irreversible. Are you sure?', [
+                {
+                  text: "It's BINGO!, I'm pretty sure",
+                  onPress: ()=>{ 
+                    //Declare variables
+                    var cards = this.state.gameCards;
+                    var card = rowData;
+
+                    rowData.isBingo = true;
+
+                    rowData.voters.forEach(element => {
+                      firebase.database().ref('games/'+this.state.gameId+'/members/'+element+'/points').once('value').then((snap) => {
+                        firebase.database().ref('games/'+this.state.gameId+'/members/'+element+'/').update({
+                          points: snap.val() + 1
+                        });
+                      })
+                    });
+
+                    this.setState({gameCards: cards});
+                    this.syncToFirebase();
+                  }
+                },
+                { text: 'Nah, false alarm', style: 'cancel' }
               ])
             }}
             />}
