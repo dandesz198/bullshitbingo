@@ -415,7 +415,7 @@ export default class Home extends React.Component {
             <TextInput
               style={[styles.input, {flex: 1}]}
               placeholder="Match PIN"
-              placeholderTextColor="#ecf0f1"
+              placeholderTextColor="#fff"
               keyboardType="number-pad"
               underlineColorAndroid='transparent'
               onChangeText={(joingameId) => this.setState({joingameId})}
@@ -452,7 +452,7 @@ export default class Home extends React.Component {
             dataSource={ds.cloneWithRows(this.state.games)}
             enableEmptySections={true}
             renderRow={(rowData) => 
-              <TouchableOpacity style={{borderColor: '#ecf0f1', borderBottomWidth: .5, padding: 2.5}} onPress={()=>{this.props.navigation.navigate('Game', {gameName: rowData.name, gameId: rowData.id, myName: this.state.myName})}}>
+              <TouchableOpacity style={{borderColor: '#fff', borderBottomWidth: .5, padding: 2.5}} onPress={()=>{this.props.navigation.navigate('Game', {gameName: rowData.name, gameId: rowData.id, myName: this.state.myName})}}>
                 <Text style={styles.gameList}>{rowData.name}</Text>
               </TouchableOpacity>
             }
@@ -491,29 +491,29 @@ let styles = StyleSheet.create({
   welcome: {
     fontSize: 40,
     fontWeight: 'bold',
-    color: '#ecf0f1'
+    color: '#fff'
   },
 
   heading: {
     fontSize: 30,
     marginTop: 35,
     fontWeight: 'bold',
-    color: '#ecf0f1'
+    color: '#fff'
   },
 
   instructions: {
     fontSize: 18,
     textAlign: 'center',
-    color: '#ecf0f1'
+    color: '#fff'
   },
 
   input: {
-    color: '#ecf0f1',
+    color: '#fff',
     padding: 5,
     marginRight: 25,
     height: 45,
     fontSize: 18,
-    borderColor: '#ecf0f1',
+    borderColor: '#fff',
     borderBottomWidth: 2.5
   },
 
@@ -521,7 +521,7 @@ let styles = StyleSheet.create({
     height: 45,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ecf0f1',
+    backgroundColor: '#fff',
     shadowColor: '#999',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.7

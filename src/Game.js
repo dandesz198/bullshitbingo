@@ -427,22 +427,22 @@ let styles = StyleSheet.create({
     fontSize: 40,
     marginTop: 20,
     fontWeight: 'bold',
-    color: '#ecf0f1'
+    color: '#fff'
   },
 
   heading: {
     fontSize: 25,
     fontWeight: 'bold',
-    color: '#ecf0f1'
+    color: '#fff'
   },
 
   input: {
-    color: '#ecf0f1',
+    color: '#fff',
     padding: 5,
     marginRight: 25,
     height: 45,
     fontSize: 18,
-    borderColor: '#ecf0f1',
+    borderColor: '#fff',
     borderBottomWidth: 2.5
   },
 
@@ -450,7 +450,7 @@ let styles = StyleSheet.create({
     height: 45,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ecf0f1',
+    backgroundColor: '#fff',
     shadowColor: '#999',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.7
