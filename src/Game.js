@@ -63,12 +63,14 @@ export default class Game extends React.Component {
       var snapshot = snap.val();
 
       var gameCards = [];
-      snapshot.cards.forEach(element => {
-        if(!element.voters) {
-          element.voters = [];
-        }
-        gameCards.push(element);
-      });
+      if(snapshot.cards) {
+        snapshot.cards.forEach(element => {
+          if(!element.voters) {
+            element.voters = [];
+          }
+          gameCards.push(element);
+        });
+      }
 
       thus.setState({gameMembers: Object.values(snapshot.members), gameMaster: snapshot.master, gameCards: gameCards});
     });

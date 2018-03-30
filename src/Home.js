@@ -2,6 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Modal, Alert, AsyncStorage } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import * as firebase from 'firebase';
+import InputScrollView from 'react-native-input-scroll-view';
+import md5 from 'md5';
 
 let Environment = require('./environment.js')
 
@@ -29,11 +31,15 @@ export default class Home extends React.Component {
         newGameModalVisible: false,
         newGameName: '',
         newGameID: Math.floor(Math.random() * 899999 + 100000).toString(),
+        pw: '',
+        pwAgain: '',
 
         //Data for joining game
         joinGameModalVisible: false,
         joinGameName: '',
         joingameId: '',
+        joinMaster: '',
+        matchPw: '',
 
         myName: ''
     };
@@ -49,6 +55,8 @@ export default class Home extends React.Component {
       if (value !== null){
         // We have data
         var array = JSON.parse(value);
+        var thus = this;
+
         array.forEach(async(element) => {
           //Remove the " from the start and end of the string
           if(element.name[0] == '"') {
@@ -59,12 +67,26 @@ export default class Home extends React.Component {
           firebase.database().ref('games/' + element.id+'/members/')
           .once('value')
           .then((snap) => {
-            var members = JSON.parse(snap);
+            if(snap.val()) {
+              var members = Object.values(snap.val());
+              var count = 0;
 
-            //If match doesn't exist or player is kicked
-            if(members.length < 1 || members.indexOf(this.state.myName) == -1) {
+              members.forEach(element => {
+                if(element.name == this.state.myName) {
+                  count += 1;
+                }
+              });
+            }
+            else {
               array.splice(array.indexOf(element), 1)
             }
+
+            //If match doesn't exist or player is kicked
+            if(members.length < 0 || count == 0) {
+              array.splice(array.indexOf(element), 1)
+            }
+
+            thus.saveGames();
           })
         });
         this.setState({games: array});
@@ -135,8 +157,8 @@ export default class Home extends React.Component {
             <Animated.View style={{padding: 20, backgroundColor: bgColor}}>
                 <Text style={[styles.heading, {fontSize: 32}]}>Create a new Bullshit Bingo match</Text>
             </Animated.View>
-            <View style={{flex: 1, padding: 20}}>
-              <View style={{flexDirection: 'column'}}>
+            <InputScrollView keyboardOffset={0} props={{backgroundColor: 'red'}}>
+              <View style={{flexDirection: 'column', padding: 20, paddingBottom: 10}}>
                 <Text style={styles.p}>The name of the match (public)</Text>
                 <TextInput
                   style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20}]}
@@ -151,22 +173,45 @@ export default class Home extends React.Component {
                   onChangeText={(myName) => this.setState({myName})}
                   value={this.state.myName}
                 />
+                <Text style={[styles.p, {marginTop: 10}]}>Password lock (for you only)</Text>
+                <TextInput
+                  style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20}]}
+                  underlineColorAndroid='transparent'
+                  secureTextEntry={true}
+                  placeholder="Password"
+                  placeholderTextColor="#aaa"
+                  onChangeText={(pw) => this.setState({pw})}
+                  value={this.state.pw}
+                />
+                <TextInput
+                  style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20}]}
+                  underlineColorAndroid='transparent'
+                  secureTextEntry={true}
+                  placeholder="Password again"
+                  placeholderTextColor="#aaa"
+                  onChangeText={(pwAgain) => this.setState({pwAgain})}
+                  value={this.state.pwAgain}
+                />
               </View>
-              <View style={{flexDirection: 'column'}}>
+              <View style={{flexDirection: 'column', paddingHorizontal: 20}}>
                 <Text style={styles.p}>Match PIN:</Text>
                 <Text style={styles.h2}>{this.state.newGameID}</Text>
               </View>
-              <View style={{flexDirection: 'row', height: 45, marginTop: 20}}>
+              <View style={{flexDirection: 'row', height: 45, marginHorizontal: 20, marginTop: 10, marginBottom: 40}}>
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
                   <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{
 
-                    //Create game ID
-                    this.setState({newGameID: Math.floor(Math.random() * 899999 + 100000).toString()});
+                    //Check the password
+                    if(this.state.pw != this.state.pwAgain) {
+                      Alert.alert('Error', "The passwords don't match.");
+                      return;
+                    }
                     
                     //Upload the game itself to Firebase
                     firebase.database().ref('games/'+this.state.newGameID).set({
                       name: this.state.newGameName,
-                      master: this.state.myName
+                      master: this.state.myName,
+                      masterPw: md5(this.state.pw)
                     });
 
                     //Upload the user to Firebase
@@ -185,6 +230,9 @@ export default class Home extends React.Component {
 
                     //Save the new game to AsyncStorage
                     this.saveGames();
+
+                    //Create new game ID for the next game
+                    this.setState({newGameID: Math.floor(Math.random() * 899999 + 100000).toString()});
                     }}>
                     <Text style={[styles.join, {color: 'white'}]}>Create match</Text>
                   </TouchableOpacity>
@@ -195,7 +243,8 @@ export default class Home extends React.Component {
                   </TouchableOpacity>
                 </Animated.View>
               </View>
-            </View>
+            </InputScrollView>
+            
           </View>
         </Modal>
         <Modal
@@ -215,10 +264,24 @@ export default class Home extends React.Component {
                   onChangeText={(myName) => this.setState({myName})}
                   value={this.state.myName}
                 />
+                <TextInput
+                  style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20, display: this.state.myName == this.state.joinMaster ? 'flex' : 'none'}]}
+                  secureTextEntry={true}
+                  placeholder="Match master password"
+                  placeholderTextColor="#aaa"
+                  underlineColorAndroid='transparent'
+                  onChangeText={(joinPw) => this.setState({joinPw})}
+                  value={this.state.joinPw}
+                />
               </View>
               <View style={{flexDirection: 'row', height: 45, marginTop: 20}}>
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
                   <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={async()=>{
+                    //Chceck the password
+                    if(this.state.matchPw != md5(this.state.joinPw)) {
+                      Alert.alert('Error', 'The password is incorrect.');
+                      return;
+                    }
 
                     //Add the user to Firebase
                     firebase.database().ref('games/'+this.state.joingameId+'/members/'+this.state.myName).set({
@@ -268,15 +331,21 @@ export default class Home extends React.Component {
             <TouchableOpacity onPress={()=>{
               var thus = this;
 
-              //Get the name of the new match
-              firebase.database().ref('games/' + this.state.joingameId + '/name').once('value', function(snap) {
-                var newGameName = JSON.stringify(snap);
+              //Get the name and the master's name of the new match
+              firebase.database().ref('games/' + this.state.joingameId).once('value', function(snap) {
+                var newGameName = JSON.stringify(snap.val().name);
+                var masterName = JSON.stringify(snap.val().master);
+                var masterPw = JSON.stringify(snap.val().masterPw);
 
                 //Check if the game exists
                 if(newGameName.length > 1 && newGameName != "null") {
+                  //Remove "
                   newGameName = newGameName.slice(1, -1);
+                  masterName = masterName.slice(1, -1);
+                  masterPw = masterPw.slice(1, -1);
+
                   //Open the connection modal
-                  thus.setState({joinGameName: newGameName, joinGameModalVisible: true});
+                  thus.setState({joinGameName: newGameName, joinMaster: masterName, matchPw: masterPw, joinGameModalVisible: true});
                 } else {
                   Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.")
                 }
