@@ -21,6 +21,14 @@ let analytics = new Analytics(Environment.analytics);
 
 var isMounted = false;
 
+transitionConfig : () => ({
+	transitionSpec: {
+		duration: 0,
+		timing: Animated.timing,
+		easing: Easing.step0,
+	},
+})
+
 export default class Game extends React.Component {
   state = {
     index: 0,
@@ -41,8 +49,13 @@ export default class Game extends React.Component {
 
     gameMembers: [],
 
-    newCardText: ''
+    newCardText: '',
   };
+
+  constructor(props) {
+    super(props)
+    this.props.navigation.state.delete = 'this.props.navigation.state.params.myName'
+  }
 
   componentDidMount() {
     //Sync Firebase
@@ -316,7 +329,8 @@ export default class Game extends React.Component {
                                     //Delete match
                                     firebase.database().ref('games/' + this.state.gameId).remove();
                                     analytics.event(new Event('Delete game'));
-                                    thus.props.navigation.dispatch(NavigationActions.back({delete: this.state.gameName}))
+                                    this.props.navigation.state.params.returnData(this.state.gameName);
+                                    this.props.navigation.goBack();
                                   }, style: 'destructive'}
                                 ],
                               );
@@ -333,8 +347,8 @@ export default class Game extends React.Component {
                               //Quit game
                               analytics.event(new Event('Quit'));
                               firebase.database().ref('games/' + this.state.gameId + '/members/'+rowData.name).remove();
-                              this.deleteGame(this.state.gameName);
-                              thus.props.navigation.dispatch(NavigationActions.back({delete: this.state.gameName}))
+                              this.props.navigation.state.params.returnData(this.state.gameName);
+                              this.props.navigation.goBack();
                             } else {
                               //Can't kick others
                               Alert.alert(

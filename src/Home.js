@@ -21,30 +21,35 @@ let analytics = new Analytics(Environment.analytics);
 
 let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
+console.disableYellowBox = true
+
 export default class Home extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-        x: new Animated.Value(0),
-        games: [],
-        value: 0,
-        
-        //Data for the new match
-        newGameModalVisible: false,
-        newGameName: '',
-        newGameID: Math.floor(Math.random() * 899999 + 100000).toString(),
-        pw: '',
-        pwAgain: '',
+    state = {
+      x: new Animated.Value(0),
+      games: [],
+      value: 0,
+      
+      //Data for the new match
+      newGameModalVisible: false,
+      newGameName: '',
+      newGameID: Math.floor(Math.random() * 899999 + 100000).toString(),
+      pw: '',
+      pwAgain: '',
 
-        //Data for joining game
-        joinGameModalVisible: false,
-        joinGameName: '',
-        joingameId: '',
-        joinMaster: '',
-        matchPw: '',
+      //Data for joining game
+      joinGameModalVisible: false,
+      joinGameName: '',
+      joingameId: '',
+      joinMaster: '',
+      matchPw: '',
 
-        myName: ''
-    };
+      myName: ''
+  };
+
+  returnData(id) {
+    console.log('returndata');
+    console.log(id);
+    this.deleteGame(id);
   }
 
   async componentDidMount() {
@@ -164,6 +169,9 @@ export default class Home extends React.Component {
   }
 
   render() {
+    if(this.props.navigation.state.params) {
+      console.log(this.props.navigation.state.params.delete)
+    }
     var bgColor = this.state.x.interpolate({
       inputRange: [1, 2, 3, 4],
       outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)']
@@ -251,7 +259,7 @@ export default class Home extends React.Component {
                     this.setState({games: games, newGameModalVisible: false});
 
                     //Navigate to the new game's screen
-                    this.props.navigation.navigate('Game', {gameName: this.state.newGameName, gameId: this.state.newGameID, myName: this.state.myName})
+                    this.props.navigation.navigate('Game', {gameName: this.state.newGameName, gameId: this.state.newGameID, myName: this.state.myName, returnData: this.returnData.bind(this)})
 
                     //Save the new game to AsyncStorage
                     this.saveGames();
@@ -322,7 +330,7 @@ export default class Home extends React.Component {
                     this.setState({joinGameModalVisible: false, games: games, joingameId: ''});
 
                     //Navigate to the game
-                    this.props.navigation.navigate('Game', {gameName: this.state.joinGameName, gameId: this.state.joingameId, myName: this.state.myName});
+                    this.props.navigation.navigate('Game', {gameName: this.state.joinGameName, gameId: this.state.joingameId, myName: this.state.myName, returnData: this.returnData.bind(this)});
 
                     //Save to AsyncStorage
                     this.saveGames();
