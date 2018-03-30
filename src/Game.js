@@ -63,7 +63,6 @@ export default class Game extends React.Component {
 
   //Download match data from Firebase
   getData() {
-    console.log('g1')
     var thus = this;
     var members = [];
 
@@ -73,11 +72,8 @@ export default class Game extends React.Component {
       var snapshot = snap.val();
 
       var gameCards = [];
-      console.log('gc')
       if(snapshot.cards) {
-        console.log('gc2')
         snapshot.cards.forEach(element => {
-          console.log('frch')
           if(!element.voters) {
             element.voters = [];
           }
@@ -135,16 +131,16 @@ export default class Game extends React.Component {
 
   _renderHeader = (props) => {
     var bgColor = this.state.x.interpolate({
-      inputRange: [1, 2, 3, 4, 5],
-      outputRange: ['rgb(22, 160, 133)', 'rgb(39, 174, 96)', 'rgb(41, 128, 185)', 'rgb(142, 68, 173)', 'rgb(211, 84, 0)']
+      inputRange: [1, 2, 3, 4],
+      outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)']
     });
     return(<TabBar style={{paddingTop: Platform.OS == 'ios' ? 15 : 0, backgroundColor: bgColor}} {...props}/>);
   };
 
   _renderScene = ({ route }) => {
     var bgColor = this.state.x.interpolate({
-      inputRange: [1, 2, 3, 4, 5],
-      outputRange: ['rgb(22, 160, 133)', 'rgb(39, 174, 96)', 'rgb(41, 128, 185)', 'rgb(142, 68, 173)', 'rgb(211, 84, 0)']
+      inputRange: [1, 2, 3, 4],
+      outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)']
     });
     switch (route.key) {
       case '1':
@@ -320,7 +316,7 @@ export default class Game extends React.Component {
                                     //Delete match
                                     firebase.database().ref('games/' + this.state.gameId).remove();
                                     analytics.event(new Event('Delete game'));
-                                    thus.props.navigation.dispatch(NavigationActions.back())
+                                    thus.props.navigation.dispatch(NavigationActions.back({delete: this.state.gameName}))
                                   }, style: 'destructive'}
                                 ],
                               );
@@ -338,7 +334,7 @@ export default class Game extends React.Component {
                               analytics.event(new Event('Quit'));
                               firebase.database().ref('games/' + this.state.gameId + '/members/'+rowData.name).remove();
                               this.deleteGame(this.state.gameName);
-                              thus.props.navigation.dispatch(NavigationActions.back())
+                              thus.props.navigation.dispatch(NavigationActions.back({delete: this.state.gameName}))
                             } else {
                               //Can't kick others
                               Alert.alert(
@@ -387,7 +383,7 @@ export default class Game extends React.Component {
       return;
     }
     var value = this.state.value;
-    if(value > 5) {
+    if(value > 4) {
       value = 0;
     } else {
       value += 1;

@@ -19,12 +19,11 @@ let config = {
 
 let analytics = new Analytics(Environment.analytics);
 
+let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+
 export default class Home extends React.Component {
   constructor(props) {
     super(props);
-    var ds = new ListView.DataSource({
-        rowHasChanged: (row1, row2) => row1 !== row2,
-    });
     this.state = {
         x: new Animated.Value(0),
         games: [],
@@ -151,6 +150,11 @@ export default class Home extends React.Component {
     }
   }
 
+  componentWillReceiveProps() {
+    console.log('componentWillReceiveProps');
+    this.deleteGame(this.props.delete);
+  }
+
   //Delete a game from the 'Current matches' list
   deleteGame(name) {
     var games = this.state.games;
@@ -160,10 +164,9 @@ export default class Home extends React.Component {
   }
 
   render() {
-    let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     var bgColor = this.state.x.interpolate({
-      inputRange: [1, 2, 3, 4, 5],
-      outputRange: ['rgb(22, 160, 133)', 'rgb(39, 174, 96)', 'rgb(41, 128, 185)', 'rgb(142, 68, 173)', 'rgb(211, 84, 0)']
+      inputRange: [1, 2, 3, 4],
+      outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)']
     });
 
     return (
@@ -399,7 +402,7 @@ export default class Home extends React.Component {
   changeColor() {
     //Get the number of the next color
     var value = this.state.value;
-    if(value > 5) {
+    if(value > 4) {
       value = 0;
     } else {
       value += 1;
