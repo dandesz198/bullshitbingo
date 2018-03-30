@@ -357,7 +357,7 @@ export default class Home extends React.Component {
           transparent={false}
           visible={this.state.infoModalVisible}>
           <ScrollView style={{flex: 1, backgroundColor: '#eee', padding: 20}}>
-            <Text style={[styles.welcome, {color: '#555', marginVertical: 20}]}>Bullshit Bingo infos</Text>
+            <Text style={[styles.welcome, {color: '#555', marginVertical: 20}]}>Bullshit Bingo</Text>
             <Text style={{color: '#555', fontSize: 16}}>
               Imagine the endless possibilities of creating a bingo game about anything. Who's going to marry next, what's the next thing that's going to broke in the office, which character is going to be gay in the next season of your favorite Netflix show, etc.{"\n"}{"\n"}
               Well, that's what Bullshit Bingo is about.{"\n"}
