@@ -153,7 +153,7 @@ export default class Game extends React.Component {
       inputRange: [1, 2, 3, 4],
       outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)']
     });
-    return(<TabBar style={{paddingTop: Platform.OS == 'ios' ? 15 : 0, backgroundColor: bgColor}} {...props}/>);
+    return(<TabBar style={{paddingTop: 15, backgroundColor: bgColor}} {...props}/>);
   };
 
   _renderScene = ({ route }) => {

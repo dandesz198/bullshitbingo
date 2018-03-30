@@ -190,10 +190,10 @@ export default class Home extends React.Component {
           transparent={false}
           visible={this.state.newGameModalVisible}>
           <View style={{flex: 1}}>
-            <Animated.View style={{padding: 20, backgroundColor: bgColor}}>
-                <Text style={[styles.heading, {fontSize: 32}]}>Create a new Bullshit Bingo match</Text>
-            </Animated.View>
-            <InputScrollView keyboardOffset={0} props={{backgroundColor: 'red'}}>
+            <ScrollView style={{flex: 1}}>
+              <Animated.View style={{padding: 20, backgroundColor: bgColor}}>
+                  <Text style={[styles.heading, {fontSize: 32}]}>Create a new Bullshit Bingo match</Text>
+              </Animated.View>
               <View style={{flexDirection: 'column', padding: 20, paddingBottom: 10}}>
                 <Text style={styles.p}>The name of the match (public)</Text>
                 <TextInput
@@ -233,7 +233,7 @@ export default class Home extends React.Component {
                 <Text style={styles.p}>Match PIN:</Text>
                 <Text style={styles.h2}>{this.state.newGameID}</Text>
               </View>
-              <View style={{flexDirection: 'row', height: 45, marginHorizontal: 20, marginTop: 10, marginBottom: 40}}>
+              <View style={{flexDirection: 'row', height: 45, marginHorizontal: 20, marginTop: 10, marginBottom: 20}}>
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
                   <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{
 
@@ -281,7 +281,7 @@ export default class Home extends React.Component {
                   </TouchableOpacity>
                 </Animated.View>
               </View>
-            </InputScrollView>
+            </ScrollView>
             
           </View>
         </Modal>
@@ -316,7 +316,7 @@ export default class Home extends React.Component {
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
                   <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={async()=>{
                     //Chceck the password
-                    if(this.state.matchPw != md5(this.state.joinPw)) {
+                    if(this.state.myName == this.state.joinMaster && this.state.matchPw != md5(this.state.joinPw)) {
                       Alert.alert('Error', 'The password is incorrect.');
                       return;
                     }
