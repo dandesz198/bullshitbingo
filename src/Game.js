@@ -174,7 +174,8 @@ export default class Game extends React.Component {
             dataSource={ds.cloneWithRows(this.state.gameCards)}
             enableEmptySections={true}
             style={[styles.membersList, {minHeight: Dimensions.get('window').height}]}
-            renderRow={(rowData) => <Card matchName={this.state.gameName} cardText={rowData.text} voteCount={rowData.voters.length} creatorName={rowData.creator} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} bgColor={bgColor} isGameMaster={this.state.gameMaster == this.state.myName ? true : false} onPress={()=>{
+            renderRow={(rowData) => <Card matchName={this.state.gameName} cardText={rowData.text} voteCount={rowData.voters.length} creatorName={rowData.creator} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} bgColor={bgColor} isGameMaster={this.state.gameMaster == this.state.myName ? true : false} 
+            onVotePress={()=>{
               //Declare variables
               var cards = this.state.gameCards;
               var card = rowData;
@@ -190,7 +191,27 @@ export default class Game extends React.Component {
                 this.vote(rowData);
               }
               
-            }}/>}
+            }}
+            onDeletePress={()=>{
+              Alert.alert('Are you sure?', 'Are you sure want to delete the card "'+rowData.text+'"? This action is irreversible.', [
+                {
+                  text: 'Yep, delete it',
+                  onPress: ()=>{ 
+                    //Declare variables
+                    var cards = this.state.gameCards;
+                    var card = rowData;
+
+                    cards.splice(cards.indexOf(card), 1);
+
+                    this.setState({gameCards: cards});
+                    this.syncToFirebase();
+                  },
+                  style: 'destructive'
+                },
+                { text: 'Nah', style: 'cancel' }
+              ])
+            }}
+            />}
           />
         </ScrollView>
       );

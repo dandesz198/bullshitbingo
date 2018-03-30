@@ -19,21 +19,21 @@ class Card extends Component {
                         <Text style={style.roomNameText}>{this.props.matchName}</Text>
                         <Text style={[style.roomNameText, {marginRight: 0, marginLeft: 'auto'}]}>{this.props.creatorName}</Text>
                     </View>
-                    <TouchableOpacity>
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <Text style={style.nameText}>{this.props.cardText}</Text>
-                            <Image source={require('./delete.png')} style={{height: 22.5, width: 22.5, marginVertical: 'auto', marginRight: 0, marginLeft: 'auto'}} />
-                        </View>
-                    </TouchableOpacity>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <Text style={style.nameText}>{this.props.cardText}</Text>
+                        <TouchableOpacity style={{marginRight: 0, marginLeft: 'auto', display: this.props.isGameMaster ? 'flex' : 'none'}} onPress={() => this.props.onDeletePress()}>
+                            <Image source={require('./delete.png')} style={{height: 22.5, width: 22.5, marginVertical: 'auto'}} />
+                        </TouchableOpacity>
+                    </View>
                 </View>
                 <View style={style.buttonBoxStyle}>
                     <Animated.View style={{width: 100, height: 30, borderRadius: 5, backgroundColor: this.props.voted ? this.props.bgColor : '#555'}}>
-                        <TouchableOpacity style={[style.buttonStyle, {backgroundColor: 'transparent'}]} onPress={() => this.props.onPress()}>
-                            <Text style={[style.buttonText]}>{this.state.text}</Text>
+                        <TouchableOpacity style={[style.buttonStyle, {backgroundColor: 'transparent'}]} onPress={() => this.props.onVotePress()}>
+                            <Text style={[style.buttonText]}>Vote!</Text>
                         </TouchableOpacity>
                     </Animated.View>
 
-                    <TouchableOpacity style={[style.buttonStyle, style.secondButton, this.state.pressed ? style.buttonStylePressed : style.buttonStyle, {display: this.props.isGameMaster ? 'flex' :  'none'}]} onPress={() => this.setState({pressed: !this.state.pressed})}>
+                    <TouchableOpacity style={[style.buttonStyle, style.secondButton, this.props.bingo ? style.buttonStylePressed : style.buttonStyle, {display: this.props.isGameMaster ? 'flex' :  'none'}]} onPress={() => console.log('bingo!')}>
                         <Text style={style.buttonText}>Bingo</Text>
                     </TouchableOpacity>
                     <Text style={style.voteNumberStyle}>{this.props.voteCount} votes</Text>
