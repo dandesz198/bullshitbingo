@@ -126,7 +126,7 @@ export default class Game extends React.Component {
           decelerationRate={0}
           contentOffset={{x: 0, y: 125}}
           >
-          <View style={{width: Dimensions.get('window').width, backgroundColor: '#d8e1e3', margin: -20, marginBottom: 15, zIndex: 999}}>
+          <View style={{width: Dimensions.get('window').width, backgroundColor: '#d8e1e3', marginBottom: 15, zIndex: 999}}>
             <TextInput
               style={{width: '100%', height: 75, padding: 15, marginBottom: 10, color: '#555', fontSize: 16}}
               underlineColorAndroid='transparent'
@@ -196,88 +196,92 @@ export default class Game extends React.Component {
       );
       case '2':      
       return (
-        <ScrollView style={styles.container}>
-          <Text style={[styles.heading, {color: '#555', fontSize: 30}]}>{this.state.gameName}</Text>
-          <View style={{flexDirection: 'column'}}>
-            <Text style={[styles.p, {marginTop: 5}]}>Match PIN:</Text>
+        <ScrollView style={{flex: 1}}>
+          <View style={[styles.card, {marginTop: 15}]}>
+            <Text style={[styles.heading, {color: '#555', fontSize: 30}]}>{this.state.gameName}</Text>
+          </View>
+          <View style={styles.card}>
+            <Text style={[styles.p]}>Match PIN:</Text>
             <Text style={styles.h2}>{this.state.gameId}</Text>
             <Text style={[styles.p, {fontSize: 15}]}>Others will use this code to connect to this match.</Text>
           </View>
-          <View style={{flexDirection: 'column'}}>
-            <Text style={[styles.p, {marginTop: 15}]}>Match master:</Text>
+          <View style={styles.card}>
+            <Text style={[styles.p]}>Match master:</Text>
             <Text style={styles.h2}>{this.state.gameMaster}</Text>
             <Text style={[styles.p, {fontSize: 15}]}>They can give points for the winners of the match.</Text>
           </View>
-          <Text style={[styles.heading, {color: '#555', fontSize: 30, marginTop: 20}]}>Members</Text>
-          <ListView
-            dataSource={ds.cloneWithRows(this.state.gameMembers.sort(function(a,b) {return (a.points < b.points) ? 1 : ((b.points < a.points) ? -1 : 0);} ))}
-            enableEmptySections={true}
-            style={{marginTop: 10, margin: -20}}
-            renderRow={(rowData) => 
-            <Animated.View style={{flex: 1, paddingHorizontal: 20, height: 40, zIndex: 999, flexDirection: 'row', justifyContent: 'center', backgroundColor: this.state.myName == rowData.name ? bgColor : 'transparent'}}>
-              <Text style={[styles.membersListItem, {color: this.state.myName == rowData.name ? 'white' : '#555', marginTop: 7.5}]}><Text style={[styles.membersListItem, {fontWeight: '700', color: this.state.myName == rowData.name ? 'white' : '#555'}]}>{rowData.name}</Text> | {rowData.points} XP</Text>
-              <Animated.View style={{display: this.state.myName != this.state.gameMaster && this.state.myName != rowData.name ? 'none' : 'flex', padding: 5, margin: 5, borderColor: this.state.myName == rowData.name ? 'white' : bgColor, borderWidth: 1.5, borderRadius: 5, alignSelf: 'flex-end', marginRight: 0, marginLeft: 'auto'}}>
-                <TouchableOpacity onPress={()=>{
-                  var thus = this;
-                  Alert.alert(
-                    'Are you sure?', 
-                    this.state.myName == rowData.name ? 'Do you *really* want to quit the match '+this.state.gameName+'? You can still rejoin the match later.' : 'Do you *really* want to kick '+rowData.name+'? They can still rejoin the match.',
-                    [ 
-                      {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
-                      {text: 'Yes', onPress: () => {
-                        //Determine if the player is the match master
-                        if(this.state.myName == this.state.gameMaster) {
-                          //If match master AND kicking itself
-                          if(this.state.myName == rowData.name) {
-                            //But you are the match master - quitting will delete the match
-                            Alert.alert(
-                              'Are you sure?', 
-                              'You are the match master. If you quit, the match will be deleted.',
-                              [ 
-                                {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
-                                {text: 'Yes, I want to delete the match', onPress: () => {
-                                  //Delete match
-                                  firebase.database().ref('games/' + this.state.gameId).remove();
-                                  this.deleteGame(this.state.gameName);
-                                  thus.props.navigation.dispatch(NavigationActions.back())
-                                }, style: 'destructive'}
-                              ],
-                            );
+          <View style={styles.card}>
+            <Text style={[styles.heading, {color: '#555', fontSize: 30}]}>Members</Text>
+            <ListView
+              dataSource={ds.cloneWithRows(this.state.gameMembers.sort(function(a,b) {return (a.points < b.points) ? 1 : ((b.points < a.points) ? -1 : 0);} ))}
+              enableEmptySections={true}
+              style={{marginTop: 10}}
+              renderRow={(rowData) => 
+              <Animated.View style={{flex: 1, paddingHorizontal: 20, height: 40, flexDirection: 'row', justifyContent: 'center', backgroundColor: this.state.myName == rowData.name ? bgColor : 'transparent'}}>
+                <Text style={[styles.membersListItem, {color: this.state.myName == rowData.name ? 'white' : '#555', marginTop: 7.5}]}><Text style={[styles.membersListItem, {fontWeight: '700', color: this.state.myName == rowData.name ? 'white' : '#555'}]}>{rowData.name}</Text> | {rowData.points} XP</Text>
+                <Animated.View style={{display: this.state.myName != this.state.gameMaster && this.state.myName != rowData.name ? 'none' : 'flex', padding: 5, margin: 5, borderColor: this.state.myName == rowData.name ? 'white' : bgColor, borderWidth: 1.5, borderRadius: 5, alignSelf: 'flex-end', marginRight: 0, marginLeft: 'auto'}}>
+                  <TouchableOpacity onPress={()=>{
+                    var thus = this;
+                    Alert.alert(
+                      'Are you sure?', 
+                      this.state.myName == rowData.name ? 'Do you *really* want to quit the match '+this.state.gameName+'? You can still rejoin the match later.' : 'Do you *really* want to kick '+rowData.name+'? They can still rejoin the match.',
+                      [ 
+                        {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
+                        {text: 'Yes', onPress: () => {
+                          //Determine if the player is the match master
+                          if(this.state.myName == this.state.gameMaster) {
+                            //If match master AND kicking itself
+                            if(this.state.myName == rowData.name) {
+                              //But you are the match master - quitting will delete the match
+                              Alert.alert(
+                                'Are you sure?', 
+                                'You are the match master. If you quit, the match will be deleted.',
+                                [ 
+                                  {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
+                                  {text: 'Yes, I want to delete the match', onPress: () => {
+                                    //Delete match
+                                    firebase.database().ref('games/' + this.state.gameId).remove();
+                                    this.deleteGame(this.state.gameName);
+                                    thus.props.navigation.dispatch(NavigationActions.back())
+                                  }, style: 'destructive'}
+                                ],
+                              );
+                            }
+                            else {
+                              //Since it's not kicking itself, they can kick the player 
+                              firebase.database().ref('games/' + this.state.gameId + '/members/'+rowData.name).remove();
+                            }
+                            
                           }
                           else {
-                            //Since it's not kicking itself, they can kick the player 
-                            firebase.database().ref('games/' + this.state.gameId + '/members/'+rowData.name).remove();
+                            if(rowData.name == this.state.myName) {
+                              //Quit game
+                              firebase.database().ref('games/' + this.state.gameId + '/members/'+rowData.name).remove();
+                              this.deleteGame(this.state.gameName);
+                              thus.props.navigation.dispatch(NavigationActions.back())
+                            } else {
+                              //Can't kick others
+                              Alert.alert(
+                                'Error', 
+                                "You aren't the match master. You can't kick other players.",
+                                [ 
+                                  {text: 'Ok', onPress: () => console.log('Cancel'), style: 'cancel'},
+                                ],
+                              );
+                            }
                           }
-                          
-                        }
-                        else {
-                          if(rowData.name == this.state.myName) {
-                            //Quit game
-                            firebase.database().ref('games/' + this.state.gameId + '/members/'+rowData.name).remove();
-                            this.deleteGame(this.state.gameName);
-                            thus.props.navigation.dispatch(NavigationActions.back())
-                          } else {
-                            //Can't kick others
-                            Alert.alert(
-                              'Error', 
-                              "You aren't the match master. You can't kick other players.",
-                              [ 
-                                {text: 'Ok', onPress: () => console.log('Cancel'), style: 'cancel'},
-                              ],
-                            );
-                          }
-                        }
-                        thus.syncDatabase();
-                      }, style: 'destructive'}
-                    ],
-                  );
-                }}>
-                  <Animated.Text style={{color: this.state.myName == rowData.name ? 'white' : bgColor}}>{this.state.myName == rowData.name ? 'Quit match' : 'Kick player'}</Animated.Text>
-                </TouchableOpacity>
+                          thus.syncDatabase();
+                        }, style: 'destructive'}
+                      ],
+                    );
+                  }}>
+                    <Animated.Text style={{color: this.state.myName == rowData.name ? 'white' : bgColor}}>{this.state.myName == rowData.name ? 'Quit match' : 'Kick player'}</Animated.Text>
+                  </TouchableOpacity>
+                </Animated.View>
               </Animated.View>
-            </Animated.View>
-            }
-          />
+              }
+            />
+          </View>
         </ScrollView>
       );
       default:
@@ -317,8 +321,7 @@ export default class Game extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 20
+    flex: 1
   },
 
   welcome: {
@@ -359,7 +362,7 @@ const styles = StyleSheet.create({
   },
 
   membersListItem: {
-    fontSize: 20,
+    fontSize: 18,
     color: '#555',
     fontWeight: '500'
   },
@@ -373,5 +376,16 @@ const styles = StyleSheet.create({
   p: {
     color: '#666',
     fontSize: 20
+  },
+
+  card: {
+    width: Dimensions.get('window').width * 0.9,
+    marginHorizontal: Dimensions.get('window').width * 0.05,
+    marginVertical: 10,
+    padding: 15,
+    backgroundColor: 'white',
+    shadowColor: '#999',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.7
   }
 });

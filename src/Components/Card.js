@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Image } from 'react-native';
 import * as firebase from 'firebase';
 
 class Card extends Component {
@@ -19,7 +19,12 @@ class Card extends Component {
                         <Text style={style.roomNameText}>{this.props.matchName}</Text>
                         <Text style={[style.roomNameText, {marginRight: 0, marginLeft: 'auto'}]}>{this.props.creatorName}</Text>
                     </View>
-                    <Text style={style.nameText}>{this.props.cardText}</Text>
+                    <TouchableOpacity>
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <Text style={style.nameText}>{this.props.cardText}</Text>
+                            <Image source={require('./delete.png')} style={{height: 22.5, width: 22.5, marginVertical: 'auto', marginRight: 0, marginLeft: 'auto'}} />
+                        </View>
+                    </TouchableOpacity>
                 </View>
                 <View style={style.buttonBoxStyle}>
                     <Animated.View style={{width: 100, height: 30, borderRadius: 5, backgroundColor: this.props.voted ? this.props.bgColor : '#555'}}>
@@ -46,9 +51,7 @@ const style = StyleSheet.create({
         // background color must be set
         backgroundColor : "#0000", // invisible color
         marginVertical: 12.5,
-        marginHorizontal: 2.5,
-        elevation: 1,
-        zIndex: 999,
+        marginHorizontal: 15,
         display: 'flex',
     }, 
 
