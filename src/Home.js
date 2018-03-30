@@ -390,7 +390,7 @@ export default class Home extends React.Component {
                 • <Link text="Twitter" url="https://twitter.com/hajdupetke" />{"\n"}
             </Text>
             <TouchableOpacity style={{marginLeft: 'auto', marginRight: 'auto'}} onPress={()=>{Linking.openURL('https://paypal.me/dandesz198')}}>
-              <Image source={require('./coffee.png')} resizeMode="cover" style={{height: 45, width: 225}}/>
+              <Image source={require('./coffee.png')} style={{height: 45, width: 225}}/>
             </TouchableOpacity>
             <Text style={[styles.p, {fontSize: 15, textAlign: 'center', marginTop: 5}]}>Since the server isn't free, every single cent of your donation is going to be spent on the costs of running this game.</Text>
             <Animated.View style={{flex: 1, backgroundColor: bgColor, marginTop: 20, marginBottom: 40, height: 50}}>
@@ -416,7 +416,7 @@ export default class Home extends React.Component {
               style={[styles.input, {flex: 1}]}
               placeholder="Match PIN"
               placeholderTextColor="#fff"
-              keyboardType="number-pad"
+              keyboardType="numeric"
               underlineColorAndroid='transparent'
               onChangeText={(joingameId) => this.setState({joingameId})}
               value={this.state.joingameId}
