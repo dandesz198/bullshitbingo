@@ -52,11 +52,6 @@ export default class Game extends React.Component {
     newCardText: '',
   };
 
-  constructor(props) {
-    super(props)
-    this.props.navigation.state.delete = 'this.props.navigation.state.params.myName'
-  }
-
   componentDidMount() {
     //Sync Firebase
     this.getData();
@@ -79,7 +74,7 @@ export default class Game extends React.Component {
     var thus = this;
     var members = [];
 
-    //Get data
+    //Get data and add listener
     firebase.database().ref('games/' + this.state.gameId+'/').on('value', async function(snap) {
       //Parse objects
       var snapshot = snap.val();
@@ -100,6 +95,17 @@ export default class Game extends React.Component {
       thus.setState({gameMembers: Object.values(snapshot.members), gameMaster: snapshot.master, gameCards: gameCards, isBingo: snapshot.isBingo});
 
       console.log(thus.state);
+    });
+
+    //Add the user kicker listener
+    firebase.database().ref('games/' + this.state.gameId+'/members').on('child_removed', async function(snap) {
+      if(snap.val().name == thus.state.myName) {
+        thus.props.navigation.state.params.returnData(thus.state.gameName);
+        thus.props.navigation.goBack();
+        Alert.alert('Kicked', "You were kicked from the game. You can still rejoin if you'd like to.");        
+      } else {
+        console.log('Someone else got kicked')
+      }
     });
   }
 

@@ -1,6 +1,6 @@
 {
-  "name": "Bullshit Bingo",
-  "version": "0.8",
+  "name": "bullshitbingo",
+  "version": "0.8.0",
   "private": true,
   "devDependencies": {
     "jest-expo": "25.0.0",
