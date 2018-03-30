@@ -19,6 +19,8 @@ let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
 let analytics = new Analytics(Environment.analytics);
 
+var isMounted = false;
+
 export default class Game extends React.Component {
   state = {
     index: 0,
@@ -49,6 +51,14 @@ export default class Game extends React.Component {
     this.changeColor();
 
     analytics.hit(new PageHit('Game'));
+  }
+
+  componentWillMount() {
+    isMounted = true;
+  }
+
+  componentWillUnmount() {
+    isMounted = false;
   }
 
   //Download match data from Firebase
@@ -300,7 +310,6 @@ export default class Game extends React.Component {
                                   {text: 'Yes, I want to delete the match', onPress: () => {
                                     //Delete match
                                     firebase.database().ref('games/' + this.state.gameId).remove();
-                                    this.deleteGame(this.state.gameName);
                                     analytics.event(new Event('Delete game'));
                                     thus.props.navigation.dispatch(NavigationActions.back())
                                   }, style: 'destructive'}
@@ -365,6 +374,9 @@ export default class Game extends React.Component {
 
   //Animate to the next color
   changeColor() {
+    if(!isMounted) {
+      return;
+    }
     var value = this.state.value;
     if(value > 5) {
       value = 0;

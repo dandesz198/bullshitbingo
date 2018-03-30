@@ -48,12 +48,12 @@ export default class Home extends React.Component {
     };
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     //Starts the first loop in color changing
     this.changeColor();
 
     //Initialize Firebase
-    await firebase.initializeApp(config);
+    firebase.initializeApp(config);
 
     this.loadGames();
 
@@ -115,17 +115,19 @@ export default class Home extends React.Component {
               });
             }
             else {
-              array.splice(array.indexOf(element), 1);
+              this.deleteGame(element.name);
             }
 
             //If member even exists
             if(members) {
               //If match doesn't exist or player is kicked
               if(members.length < 0 || count <= 0) {
-                array.splice(array.indexOf(element), 1);
+                this.deleteGame(element.name);
+              } else {
+
               }
             } else {
-              array.splice(array.indexOf(element), 1);
+              this.deleteGame(element.name);
             }
           })
         });
