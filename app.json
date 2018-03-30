@@ -6,7 +6,8 @@
     "slug": "bullshitbingo",
     "sdkVersion": "25.0.0",
     "ios": {
-      "bundleIdentifier": "com.funbyte.bullshitbingo"
+      "bundleIdentifier": "com.funbyte.bullshitbingo",
+      "loadJSInBackgroundExperimental": true
     },
     "android": {
       "package": "com.funbyte.bullshitbingo"
