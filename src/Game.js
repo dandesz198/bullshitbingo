@@ -6,13 +6,18 @@ import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import * as firebase from 'firebase';
 import Home from './Home.js';
 import Card from './Components/Card.js';
+import { Analytics, PageHit, Event } from 'expo-analytics';
 
-const initialLayout = {
+let Environment = require('./environment.js')
+
+let initialLayout = {
   height: 0,
   width: Dimensions.get('window').width,
 };
 
-const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+
+let analytics = new Analytics(Environment.analytics);
 
 export default class Game extends React.Component {
   state = {
@@ -42,6 +47,8 @@ export default class Game extends React.Component {
     await this.getData();
     //Starts the first loop in color changing
     this.changeColor();
+
+    analytics.hit(new PageHit('Game'));
   }
 
   //Download match data from Firebase
@@ -76,16 +83,18 @@ export default class Game extends React.Component {
 
     //Check every card for votes
     cards.forEach(element => {
-      if(element.voters.indexOf(this.state.myName) > -1) {
-        //Already voted
+      if(element.voters.indexOf(this.state.myName) > -1 && !element.isBingo) {
+        //Already voted for an active card
         votes += 1;
       }
     });
 
     if(votes >= 2) {
       Alert.alert('Error', 'You have more than 2 votes placed. Please unvote atleast one card to vote on this one.');
+      analytics.event(new Event('UnsuccessfulVote'));
     } else {
       card.voters.push(this.state.myName);
+      analytics.event(new Event('Vote'));
     }
 
     cards[cards.indexOf(cardToVoteOn)] = card;
@@ -156,6 +165,8 @@ export default class Game extends React.Component {
                 this.setState({gameCards: gameCards});
                 this.vote(newCard);
                 this.setState({newCardText: ''});
+
+                analytics.event(new Event('NewCard'));
               } else {
                  Alert.alert(
                   'Error', 
@@ -186,6 +197,7 @@ export default class Game extends React.Component {
                 card.voters.splice(card.voters.indexOf(this.state.myName), 1);
                 cards[cards.indexOf(rowData)] = card;
                 this.setState({gameCards: cards});
+                analytics.event(new Event('Unvote'));
               } else {
                 //Vote, because the user didn't vote on the card
                 this.vote(rowData);
@@ -289,13 +301,15 @@ export default class Game extends React.Component {
                                     //Delete match
                                     firebase.database().ref('games/' + this.state.gameId).remove();
                                     this.deleteGame(this.state.gameName);
+                                    analytics.event(new Event('Delete game'));
                                     thus.props.navigation.dispatch(NavigationActions.back())
                                   }, style: 'destructive'}
                                 ],
                               );
                             }
                             else {
-                              //Since it's not kicking itself, they can kick the player 
+                              //Since it's not kicking itself, they can kick the player
+                              analytics.event(new Event('Kick'));
                               firebase.database().ref('games/' + this.state.gameId + '/members/'+rowData.name).remove();
                             }
                             
@@ -303,6 +317,7 @@ export default class Game extends React.Component {
                           else {
                             if(rowData.name == this.state.myName) {
                               //Quit game
+                              analytics.event(new Event('Quit'));
                               firebase.database().ref('games/' + this.state.gameId + '/members/'+rowData.name).remove();
                               this.deleteGame(this.state.gameName);
                               thus.props.navigation.dispatch(NavigationActions.back())
@@ -317,7 +332,7 @@ export default class Game extends React.Component {
                               );
                             }
                           }
-                          thus.syncDatabase();
+                          thus.syncToFirebase();
                         }, style: 'destructive'}
                       ],
                     );
@@ -366,7 +381,7 @@ export default class Game extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({
+let styles = StyleSheet.create({
   container: {
     flex: 1
   },

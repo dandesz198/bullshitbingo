@@ -4,6 +4,7 @@ import { StackNavigator } from 'react-navigation';
 import * as firebase from 'firebase';
 import InputScrollView from 'react-native-input-scroll-view';
 import md5 from 'md5';
+import { Analytics, PageHit, Event } from 'expo-analytics';
 
 let Environment = require('./environment.js')
 
@@ -15,6 +16,8 @@ let config = {
   storageBucket: Environment.storageBucket,
   messagingSenderId: Environment.messagingSenderId
 };
+
+let analytics = new Analytics(Environment.analytics);
 
 export default class Home extends React.Component {
   constructor(props) {
@@ -54,6 +57,8 @@ export default class Home extends React.Component {
 
     this.loadGames();
 
+    analytics.hit(new PageHit('Home'));
+
     //Save the games with 2s delay
     setTimeout(() => {
       this.saveGames();
@@ -83,7 +88,7 @@ export default class Home extends React.Component {
   async loadGames() {
     //Get games from AsyncStorage
     try {
-      const value = await AsyncStorage.getItem('@MySuperStore:games');
+      let value = await AsyncStorage.getItem('@MySuperStore:games');
       if (value !== null){
         // We have data
         var array = JSON.parse(value);
@@ -133,7 +138,7 @@ export default class Home extends React.Component {
 
     //Get name from AsyncStorage
     try {
-      const value = await AsyncStorage.getItem('@MySuperStore:name');
+      let value = await AsyncStorage.getItem('@MySuperStore:name');
       if (value !== null){
         // We have data
         this.setState({myName: value});
@@ -248,6 +253,8 @@ export default class Home extends React.Component {
 
                     //Create new game ID for the next game, empty the screen
                     this.setState({pw: '', pwAgain: '', newGameName: '', newGameID: Math.floor(Math.random() * 899999 + 100000).toString()});
+
+                    analytics.event(new Event('CreateMatch'));
                     }}>
                     <Text style={[styles.join, {color: 'white'}]}>Create match</Text>
                   </TouchableOpacity>
@@ -314,6 +321,8 @@ export default class Home extends React.Component {
 
                     //Save to AsyncStorage
                     this.saveGames();
+
+                    analytics.event(new Event('JoinMatch'));
                   }}>
                     <Text style={[styles.join, {color: 'white'}]}>Join match</Text>
                   </TouchableOpacity>
@@ -403,7 +412,7 @@ export default class Home extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({
+let styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,

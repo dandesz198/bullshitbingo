@@ -1,16 +1,12 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Image } from 'react-native';
 import * as firebase from 'firebase';
+import { Analytics, PageHit, Event } from 'expo-analytics';
+
+let Environment = require('../environment.js')
+let analytics = new Analytics(Environment.analytics);
 
 class Card extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            text: "Vote",
-            pressed: false,
-        }
-    }
-
     render() {
         return(
             <View style={style.boxStyle}>
@@ -21,19 +17,19 @@ class Card extends Component {
                     </View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                         <Text style={style.nameText}>{this.props.cardText}</Text>
-                        <TouchableOpacity style={{marginRight: 0, marginLeft: 'auto', display: this.props.isGameMaster ? 'flex' : 'none'}} onPress={() => this.props.onDeletePress()}>
+                        <TouchableOpacity style={{marginRight: 0, marginLeft: 'auto', display: this.props.isGameMaster ? 'flex' : 'none'}} onPress={() => {this.props.onDeletePress(); analytics.event(new Event('Delete'));}}>
                             <Image source={require('./delete.png')} style={{height: 22.5, width: 22.5, marginVertical: 'auto'}} />
                         </TouchableOpacity>
                     </View>
                 </View>
                 <View style={style.buttonBoxStyle}>
                     <Animated.View style={{width: 100, height: 30, marginRight: 10, borderRadius: 5, backgroundColor: this.props.voted ? this.props.bgColor : '#555', display: this.props.isBingo ? 'none' :  'flex'}}>
-                        <TouchableOpacity style={[style.buttonStyle, {backgroundColor: 'transparent'}]} onPress={() => this.props.onVotePress()}>
+                        <TouchableOpacity style={[style.buttonStyle, {backgroundColor: 'transparent'}]} onPress={() => {this.props.onVotePress()}}>
                             <Text style={[style.buttonText]}>Vote!</Text>
                         </TouchableOpacity>
                     </Animated.View>
 
-                    <TouchableOpacity style={[style.buttonStyle, {backgroundColor: this.props.isBingo ? this.props.bgColor : '#555', display: this.props.isGameMaster ? 'flex' :  'none'}]} onPress={() => this.props.onBingoPress()}>
+                    <TouchableOpacity style={[style.buttonStyle, {backgroundColor: this.props.isBingo ? this.props.bgColor : '#555', display: this.props.isGameMaster ? 'flex' :  'none'}]} onPress={() => {this.props.onBingoPress(); analytics.event(new Event('Bingo'));}}>
                         <Text style={style.buttonText}>Bingo</Text>
                     </TouchableOpacity>
                     <Text style={style.voteNumberStyle}>{this.props.voteCount} votes</Text>
@@ -43,7 +39,7 @@ class Card extends Component {
     }
 }
 
-const style = StyleSheet.create({
+let style = StyleSheet.create({
     boxStyle: {
         shadowColor: '#999',
         shadowOffset: {width: 0, height: 2},
