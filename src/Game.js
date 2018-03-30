@@ -132,7 +132,7 @@ export default class Game extends React.Component {
           decelerationRate={0}
           contentOffset={{x: 0, y: 125}}
           >
-          <View style={{width: Dimensions.get('window').width, backgroundColor: '#d8e1e3', margin: -20, marginBottom: 15, zIndex: 999}}>
+          <View style={{backgroundColor: '#d8e1e3', width: '100%',marginBottom: 15, zIndex: 999}}>
             <TextInput
               style={{width: '100%', height: 75, padding: 10, marginBottom: 10, color: '#555', fontSize: 16}}
               underlineColorAndroid='transparent'
@@ -151,16 +151,26 @@ export default class Game extends React.Component {
               marginRight: 15,
               marginBottom: 10
             }} onPress={()=>{
-              //Declare variables
-              var gameCards = this.state.gameCards;
-              var newCard = {text: this.state.newCardText, creator: this.state.myName, voters: []}
+              if (this.state.newCardText.length > 0) {
+                //Declare variables
+                var gameCards = this.state.gameCards;
+                var newCard = {text: this.state.newCardText, creator: this.state.myName, voters: []}
 
-              //Add new card to the start of the array
-              gameCards.unshift(newCard);
+                //Add new card to the start of the array
+                gameCards.unshift(newCard);
 
-              this.setState({gameCards: gameCards});
-              this.vote(newCard);
-              this.setState({newCardText: ''});
+                this.setState({gameCards: gameCards});
+                this.vote(newCard);
+                this.setState({newCardText: ''});
+              } else {
+                 Alert.alert(
+                  'Error', 
+                  "You didn't put in any text",
+                  [ 
+                    {text: 'Ok', onPress: () => console.log('Cancel'), style: 'cancel'},
+                  ],
+                );
+              }
             }}>
               <Text style={{color: 'white', textAlign: 'center', fontWeight: "bold"}}>Create</Text>
             </TouchableOpacity>
