@@ -44,9 +44,9 @@ export default class Game extends React.Component {
     newCardText: ''
   };
 
-  async componentWillMount() {
+  componentDidMount() {
     //Sync Firebase
-    await this.getData();
+    this.getData();
     //Starts the first loop in color changing
     this.changeColor();
 
@@ -63,25 +63,34 @@ export default class Game extends React.Component {
 
   //Download match data from Firebase
   getData() {
+    console.log('g1')
     var thus = this;
     var members = [];
 
     //Get data
-    firebase.database().ref('games/' + this.state.gameId+'/').on('value', function(snap) {
+    firebase.database().ref('games/' + this.state.gameId+'/').on('value', async function(snap) {
       //Parse objects
       var snapshot = snap.val();
 
       var gameCards = [];
+      console.log('gc')
       if(snapshot.cards) {
+        console.log('gc2')
         snapshot.cards.forEach(element => {
+          console.log('frch')
           if(!element.voters) {
             element.voters = [];
           }
           gameCards.push(element);
         });
+      } else {
+        thus.setState({gameMembers: Object.values(snapshot.members), gameMaster: snapshot.master, gameCards: [], isBingo: snapshot.isBingo});
+        return;
       }
 
       thus.setState({gameMembers: Object.values(snapshot.members), gameMaster: snapshot.master, gameCards: gameCards, isBingo: snapshot.isBingo});
+
+      console.log(thus.state);
     });
   }
 
