@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Modal, Alert, AsyncStorage } from 'react-native';
+import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Modal, Alert, AsyncStorage, Image, Dimensions, Linking } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import * as firebase from 'firebase';
 import InputScrollView from 'react-native-input-scroll-view';
 import md5 from 'md5';
 import { Analytics, PageHit, Event } from 'expo-analytics';
+import Link from './Components/Link.js';
 
 let Environment = require('./environment.js')
 
@@ -43,7 +44,9 @@ export default class Home extends React.Component {
       joinMaster: '',
       matchPw: '',
 
-      myName: ''
+      myName: '',
+
+      infoModalVisible: false
   };
 
   returnData(id) {
@@ -349,7 +352,60 @@ export default class Home extends React.Component {
             </View>
           </View>
         </Modal>
-        <Text style={styles.welcome}>Bullshit Bingo</Text>
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.infoModalVisible}>
+          <ScrollView style={{flex: 1, backgroundColor: '#eee', padding: 20}}>
+            <Text style={[styles.welcome, {color: '#555', marginVertical: 20}]}>Bullshit Bingo infos</Text>
+            <Text style={{color: '#555', fontSize: 16}}>
+              Imagine the endless possibilities of creating a bingo game about anything. Who's going to marry next, what's the next thing that's going to broke in the office, which character is going to be gay in the next season of your favorite Netflix show, etc.{"\n"}{"\n"}
+              Well, that's what Bullshit Bingo is about.{"\n"}
+              Create a match, share it with your friends, and play together freely.
+            </Text>
+            <Text style={[styles.heading, {color: '#555', marginTop: 15}]}>Rules</Text>
+            <Text style={{color: '#555', fontSize: 16}}>
+              • You can only vote on 2 games{"\n"}
+              • Only the match master can delete cards and give points (via 'Bingo!' button){"\n"}
+              • The match master can kick anyone{"\n"}
+              • Both the kicked players and the quitters can rejoin every match{"\n"}
+              • Once the match master exits, the game is going to be deleted, permanently.{"\n"}
+              • Have fun! ;)
+            </Text>
+            <Text style={[styles.heading, {color: '#555', marginTop: 15}]}>Creator</Text>
+            <Text style={{color: '#555', fontSize: 16, fontWeight: 'bold'}}>This project is fully open-source.</Text>
+            <Link text="Bullshit Bingo on GitHub" url="https://github.com/dandesz198/bullshitbingo" />
+            <Text style={{color: '#555', fontSize: 16, marginTop: 16}}>
+              Daniel Gergely{"\n"}
+                • <Link text="GitHub" url="https://github.com/dandesz198" />{"\n"}
+                • <Link text="Facebook" url="https://fb.me/dandesz198" />{"\n"}
+                • <Link text="Twitter" url="https://twitter.com/dandesz198" />{"\n"}
+                • <Link text="LinkedIn" url="https://linkedin.com/in/dandesz198" />
+            </Text>
+            <Text style={[styles.heading, {color: '#555', marginTop: 10}]}>Contributor</Text>
+            <Text style={{color: '#555', fontSize: 16}}>
+              Péter Hajdu{"\n"}
+                • <Link text="GitHub" url="https://github.com/razor97" />{"\n"}
+                • <Link text="Facebook" url="https://fb.me/hajdupetke" />{"\n"}
+                • <Link text="Twitter" url="https://twitter.com/hajdupetke" />{"\n"}
+            </Text>
+            <TouchableOpacity style={{marginLeft: 'auto', marginRight: 'auto'}} onPress={()=>{Linking.openURL('https://paypal.me/dandesz198')}}>
+              <Image source={require('./coffee.png')} resizeMode="cover" style={{height: 45, width: 225}}/>
+            </TouchableOpacity>
+            <Text style={[styles.p, {fontSize: 15, textAlign: 'center', marginTop: 5}]}>Since the server isn't free, every single cent of your donation is going to be spent on the costs of running this game.</Text>
+            <Animated.View style={{flex: 1, backgroundColor: bgColor, marginTop: 20, marginBottom: 40, height: 50}}>
+              <TouchableOpacity style={[styles.button, {flex: 1, shadowColor: 'transparent', backgroundColor: 'transparent'}]} onPress={()=>{this.setState({infoModalVisible: false})}}>
+                <Text style={[styles.join, {backgroundColor: 'transparent', color: 'white'}]}>Close</Text>
+              </TouchableOpacity>
+            </Animated.View>
+          </ScrollView>
+        </Modal>
+        <View style={{marginTop: 20, flexDirection: 'row', width: Dimensions.get('window').width}}>
+          <Text style={styles.welcome}>Bullshit Bingo</Text>
+          <TouchableOpacity style={{marginRight: 40, marginLeft: 'auto', alignItems: 'center'}} onPress={() => {this.setState({infoModalVisible: true})}}>
+              <Image source={require('./info.png')} style={{height: 25, width: 25, marginTop: 'auto', marginBottom: 'auto'}} />
+          </TouchableOpacity>
+        </View>
         <ScrollView style={{flex: 1}}>
           <TouchableOpacity style={[styles.button, {marginTop: 20, height: 45}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
             <Animated.Text style={[styles.join, {color: bgColor}]}>Create new match</Animated.Text>
@@ -434,7 +490,6 @@ let styles = StyleSheet.create({
 
   welcome: {
     fontSize: 40,
-    marginTop: 20,
     fontWeight: 'bold',
     color: '#ecf0f1'
   },
