@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Linking, Dimensions } from 'r
 class Link extends Component {
     render() {
         return(
-            <TouchableOpacity style={{height: 16, width: Dimensions.get('window').width * (60 / 100)}} onPress={()=>{Linking.openURL(this.props.url)}}>
+            <TouchableOpacity style={{height: 20, width: Dimensions.get('window').width * (60 / 100)}} onPress={()=>{Linking.openURL(this.props.url)}}>
                 <Text style={styles.link}>{this.props.text}</Text>
             </TouchableOpacity>
         )

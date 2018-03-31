@@ -377,18 +377,18 @@ export default class Home extends React.Component {
             <Link text="Bullshit Bingo on GitHub" url="https://github.com/dandesz198/bullshitbingo" />
             <Text style={{color: '#555', fontSize: 16, marginTop: 16}}>
               Daniel Gergely{"\n"}
-                • <Link text="GitHub" url="https://github.com/dandesz198" />{"\n"}
-                • <Link text="Facebook" url="https://fb.me/dandesz198" />{"\n"}
-                • <Link text="Twitter" url="https://twitter.com/dandesz198" />{"\n"}
-                • <Link text="LinkedIn" url="https://linkedin.com/in/dandesz198" />
             </Text>
+            <Link text="GitHub" url="https://github.com/dandesz198" />
+            <Link text="Facebook" url="https://fb.me/dandesz198" />
+            <Link text="Twitter" url="https://twitter.com/dandesz198" />
+            <Link text="LinkedIn" url="https://linkedin.com/in/dandesz198" />
             <Text style={[styles.heading, {color: '#555', marginTop: 10}]}>Contributor</Text>
             <Text style={{color: '#555', fontSize: 16}}>
               Péter Hajdu{"\n"}
-                • <Link text="GitHub" url="https://github.com/razor97" />{"\n"}
-                • <Link text="Facebook" url="https://fb.me/hajdupetke" />{"\n"}
-                • <Link text="Twitter" url="https://twitter.com/hajdupetke" />{"\n"}
             </Text>
+            <Link text="GitHub" url="https://github.com/razor97" />
+            <Link text="Facebook" url="https://fb.me/hajdupetke" />
+            <Link text="Twitter" url="https://twitter.com/hajdupetke" />
             <TouchableOpacity style={{marginLeft: 'auto', marginRight: 'auto'}} onPress={()=>{Linking.openURL('https://paypal.me/dandesz198')}}>
               <Image source={require('./coffee.png')} style={{height: 45, width: 225}}/>
             </TouchableOpacity>
@@ -426,12 +426,19 @@ export default class Home extends React.Component {
 
               //Get the name and the master's name of the new match
               firebase.database().ref('games/' + this.state.joingameId).once('value', function(snap) {
-                var newGameName = JSON.stringify(snap.val().name);
-                var masterName = JSON.stringify(snap.val().master);
-                var masterPw = JSON.stringify(snap.val().masterPw);
+                if(snap.val() != null) {
+                  var newGameName = JSON.stringify(snap.val().name);
+                }
+                else {
+                  Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.");
+                  return;
+                }
 
                 //Check if the game exists
                 if(newGameName.length > 1 && newGameName != "null") {
+                  var masterName = JSON.stringify(snap.val().master);
+                  var masterPw = JSON.stringify(snap.val().masterPw);
+
                   //Remove "
                   newGameName = newGameName.slice(1, -1);
                   masterName = masterName.slice(1, -1);
