@@ -29,12 +29,12 @@ transitionConfig : () => ({
 	},
 })
 
-export default class Game extends React.Component {
+export default class Room extends React.Component {
   state = {
     index: 0,
     routes: [
-      { key: '1', title: 'Bingo' },
-      { key: '2', title: 'Match info' }
+      { key: '1', title: 'Matches' },
+      { key: '2', title: 'Room info' }
     ],
     x: new Animated.Value(0),
     value: 0,
@@ -45,11 +45,11 @@ export default class Game extends React.Component {
     gameId: this.props.navigation.state.params.gameId,
     gameMaster: '',
 
-    gameCards: [],
+    matches: [],
 
     gameMembers: [],
 
-    newCardText: '',
+    newMatchText: '',
   };
 
   componentDidMount() {
@@ -79,27 +79,33 @@ export default class Game extends React.Component {
       //Parse objects
       var snapshot = snap.val();
 
-      var gameCards = [];
-      if(snapshot.cards) {
-        snapshot.cards.forEach(element => {
-          if(!element.voters) {
-            element.voters = [];
-          }
-          gameCards.push(element);
+      let membersName = Object.values(snapshot.members);
+      var members = [];
+
+      membersName.forEach(element => {
+        firebase.database().ref('users/'+element+'/').once('value', function(snap) {
+          members.push(snap.val());
+        });
+      });
+
+      var matches = [];
+      if(snapshot.matches) {
+        snapshot.matches.forEach(element => {
+          matches.push(element);
         });
       } else {
-        thus.setState({gameMembers: Object.values(snapshot.members), gameMaster: snapshot.master, gameCards: [], isBingo: snapshot.isBingo});
+        thus.setState({gameMembers: members, gameMaster: snapshot.master, matches: [], isBingo: snapshot.isBingo});
         return;
       }
 
-      thus.setState({gameMembers: Object.values(snapshot.members), gameMaster: snapshot.master, gameCards: gameCards, isBingo: snapshot.isBingo});
-
-      console.log(thus.state);
+      thus.setState({gameMembers: members, gameMaster: snapshot.master, matches: matches, isBingo: snapshot.isBingo});
     });
+
+    console.log(this.state.gameMembers);
 
     //Add the user kicker listener
     firebase.database().ref('games/' + this.state.gameId+'/members').on('child_removed', async function(snap) {
-      if(snap.val().name == thus.state.myName) {
+      if(snap.val() == thus.state.myName) {
         thus.props.navigation.state.params.returnData(thus.state.gameName);
         thus.props.navigation.goBack();
         Alert.alert('Kicked', "You were kicked from the game. You can still rejoin if you'd like to.");        
@@ -109,41 +115,16 @@ export default class Game extends React.Component {
     });
   }
 
-  //Vote on a card and alert the user if there's more than 2 votes
-  vote(cardToVoteOn) {
-    var cards = this.state.gameCards;
-    var votes = 0;
-    var card = cardToVoteOn;
-
-    //Check every card for votes
-    cards.forEach(element => {
-      if(element.voters.indexOf(this.state.myName) > -1 && !element.isBingo) {
-        //Already voted for an active card
-        votes += 1;
-      }
-    });
-
-    if(votes >= 2) {
-      Alert.alert('Error', 'You have more than 2 votes placed. Please unvote atleast one card to vote on this one.');
-      analytics.event(new Event('UnsuccessfulVote'));
-    } else {
-      card.voters.push(this.state.myName);
-      card.isBingo = true;
-      analytics.event(new Event('Vote'));
-    }
-    
-    cards[cards.indexOf(cardToVoteOn)] = card;
-    this.setState({gameCards: cards});
-
-    //Time to sync to Firebase
-    this.syncToFirebase();
+  returnData(id) {
+    this.props.navigation.state.params.returnData(this.state.gameName);
+    this.props.navigation.goBack();
   }
 
   //Upload data to Firebase
   syncToFirebase() {
     //Upload every card to Firebase
     firebase.database().ref('games/'+this.state.gameId+'/').update({
-      cards: this.state.gameCards
+      matches: this.state.matches
     });
   }
 
@@ -174,10 +155,10 @@ export default class Game extends React.Component {
             <TextInput
               style={{width: '100%', height: 75, padding: 15, marginBottom: 10, color: '#555', fontSize: 16}}
               underlineColorAndroid='transparent'
-              placeholder="Create a new card"
+              placeholder="Create a new match"
               placeholderTextColor="#666"
-              onChangeText={(newCardText) => this.setState({newCardText})}
-              value={this.state.newCardText}
+              onChangeText={(newMatchText) => this.setState({newMatchText})}
+              value={this.state.newMatchText}
             />
             <TouchableOpacity style={{
               justifyContent: 'center',
@@ -189,19 +170,20 @@ export default class Game extends React.Component {
               marginRight: 15,
               marginBottom: 10
             }} onPress={()=>{
-              if (this.state.newCardText.length > 0) {
+              if (this.state.newMatchText.length > 0) {
                 //Declare variables
-                var gameCards = this.state.gameCards;
-                var newCard = {text: this.state.newCardText, creator: this.state.myName, isBingo: false, voters: []}
+                var matches = this.state.matches;
+                var newMatch = {name: this.state.newMatchText, master: this.state.myName, cards: []}
 
                 //Add new card to the start of the array
-                gameCards.unshift(newCard);
+                matches.unshift(newMatch);
 
-                this.setState({gameCards: gameCards});
-                this.vote(newCard);
-                this.setState({newCardText: ''});
+                this.setState({matches: matches});
+                this.setState({newMatchText: ''});
 
-                analytics.event(new Event('NewCard'));
+                this.syncToFirebase();
+
+                analytics.event(new Event('NewMatch'));
               } else {
                  Alert.alert(
                   'Error', 
@@ -215,73 +197,24 @@ export default class Game extends React.Component {
               <Text style={{color: 'white', textAlign: 'center', fontWeight: "bold"}}>Create</Text>
             </TouchableOpacity>
           </View>
-          <Text style={{padding: 1.25, textAlign: 'center', fontSize: 14, color: '#888'}}>Grab me to create a new card</Text>
+          <Text style={{padding: 1.25, textAlign: 'center', fontSize: 14, color: '#888'}}>Grab me to create a new match</Text>
           <ListView
-            dataSource={ds.cloneWithRows(this.state.gameCards)}
+            dataSource={ds.cloneWithRows(this.state.matches)}
             enableEmptySections={true}
             style={[styles.membersList, {minHeight: Dimensions.get('window').height}]}
-            renderRow={(rowData) => <Card matchName={this.state.gameName} cardText={rowData.text} voteCount={rowData.voters.length} creatorName={rowData.creator} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} isBingo={rowData.isBingo} bgColor={bgColor} isGameMaster={this.state.gameMaster == this.state.myName ? true : false} 
+            renderRow={(rowData) => <Card isMatch={true} matchName={this.state.gameName} cardText={rowData.name} creatorName={rowData.master} bgColor={bgColor} isGameMaster={rowData.master == this.state.myName ? true : false} 
             onVotePress={()=>{
-              //Declare variables
-              var cards = this.state.gameCards;
-              var card = rowData;
-
-              //Check if user already voted to the card
-              if(rowData.voters.indexOf(this.state.myName) > -1) {
-                //Delete the vote
-                card.voters.splice(card.voters.indexOf(this.state.myName), 1);
-                cards[cards.indexOf(rowData)] = card;
-                this.setState({gameCards: cards});
-                analytics.event(new Event('Unvote'));
-              } else {
-                //Vote, because the user didn't vote on the card
-                this.vote(rowData);
-              }
-              
-            }}
-            onDeletePress={()=>{
-              Alert.alert('Are you sure?', 'Are you sure want to delete the card "'+rowData.text+'"? This action is irreversible.', [
-                {
-                  text: 'Yep, delete it',
-                  onPress: ()=>{ 
-                    //Declare variables
-                    var cards = this.state.gameCards;
-                    var card = rowData;
-
-                    cards.splice(cards.indexOf(card), 1);
-
-                    this.setState({gameCards: cards});
-                    this.syncToFirebase();
-                  },
-                  style: 'destructive'
-                },
-                { text: 'Nah', style: 'cancel' }
-              ])
+                this.props.navigation.navigate('Match', {matchName: this.state.gameName, gameId: this.state.gameId, myName: this.state.myName, matchId: this.state.matches.indexOf(rowData), matchMaster: rowData.master, returnData: this.returnData.bind(this)});
             }}
             onBingoPress={()=>{
-              Alert.alert('Are you sure?', 'You are now going to give points to the voters of the card "'+rowData.text+'". This action is irreversible. Are you sure?', [
+              Alert.alert('Are you sure?', 'You are now deleting the match "'+rowData.text+'". This action is irreversible. Are you sure?', [
                 {
-                  text: "It's BINGO!, I'm pretty sure",
+                  text: "I'll delete it",
                   onPress: ()=>{ 
-                    //Declare variables
-                    var cards = this.state.gameCards;
-                    var card = rowData;
-
-                    rowData.isBingo = true;
-
-                    rowData.voters.forEach(element => {
-                      firebase.database().ref('games/'+this.state.gameId+'/members/'+element+'/points').once('value').then((snap) => {
-                        firebase.database().ref('games/'+this.state.gameId+'/members/'+element+'/').update({
-                          points: snap.val() + 1
-                        });
-                      })
-                    });
-
-                    this.setState({gameCards: cards});
-                    this.syncToFirebase();
+                    firebase.database().ref('games/'+this.state.gameId+'/matches/'+this.state.matches.indexOf(rowData)).remove();
                   }
                 },
-                { text: 'Nah, false alarm', style: 'cancel' }
+                { text: 'Nah', style: 'cancel' }
               ])
             }}
             />}
@@ -295,14 +228,14 @@ export default class Game extends React.Component {
             <Text style={[styles.heading, {color: '#555', fontSize: 30}]}>{this.state.gameName}</Text>
           </View>
           <View style={styles.card}>
-            <Text style={[styles.p]}>Match PIN:</Text>
+            <Text style={[styles.p]}>Room PIN:</Text>
             <Text style={styles.h2}>{this.state.gameId}</Text>
-            <Text style={[styles.p, {fontSize: 15}]}>Others will use this code to connect to this match.</Text>
+            <Text style={[styles.p, {fontSize: 15}]}>Others can use this code to join to this room.</Text>
           </View>
           <View style={styles.card}>
-            <Text style={[styles.p]}>Match master:</Text>
+            <Text style={[styles.p]}>Room master:</Text>
             <Text style={styles.h2}>{this.state.gameMaster}</Text>
-            <Text style={[styles.p, {fontSize: 15}]}>They can give points for the winners of the match.</Text>
+            <Text style={[styles.p, {fontSize: 15}]}>They can give points for the winners in the matches.</Text>
           </View>
           <View style={styles.card}>
             <Text style={[styles.heading, {color: '#555', fontSize: 30}]}>Members</Text>
@@ -345,7 +278,11 @@ export default class Game extends React.Component {
                             else {
                               //Since it's not kicking itself, they can kick the player
                               analytics.event(new Event('Kick'));
-                              firebase.database().ref('games/' + this.state.gameId + '/members/'+rowData.name).remove();
+                              let members = this.state.gameMembers;
+                              members.splice(members.indexOf(rowData));
+                              firebase.database().ref('games/' + this.state.gameId).update({
+                                'members': members
+                              });
                             }
                             
                           }
@@ -353,7 +290,11 @@ export default class Game extends React.Component {
                             if(rowData.name == this.state.myName) {
                               //Quit game
                               analytics.event(new Event('Quit'));
-                              firebase.database().ref('games/' + this.state.gameId + '/members/'+rowData.name).remove();
+                              let members = this.state.gameMembers;
+                              members.splice(members.indexOf(rowData));
+                              firebase.database().ref('games/' + this.state.gameId).update({
+                                'members': members
+                              });
                               this.props.navigation.state.params.returnData(this.state.gameName);
                               this.props.navigation.goBack();
                             } else {
@@ -424,13 +365,6 @@ let styles = StyleSheet.create({
     flex: 1
   },
 
-  welcome: {
-    fontSize: 40,
-    marginTop: 20,
-    fontWeight: 'bold',
-    color: '#fff'
-  },
-
   heading: {
     fontSize: 25,
     fontWeight: 'bold',
@@ -445,16 +379,6 @@ let styles = StyleSheet.create({
     fontSize: 18,
     borderColor: '#fff',
     borderBottomWidth: 2.5
-  },
-
-  button: {
-    height: 45,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    shadowColor: '#999',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.7
   },
 
   membersList: {

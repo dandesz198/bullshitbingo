@@ -17,7 +17,7 @@ class Card extends Component {
                     </View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                         <Text style={style.nameText}>{this.props.cardText}</Text>
-                        <TouchableOpacity style={{marginRight: 0, marginLeft: 'auto', display: this.props.isGameMaster ? 'flex' : 'none'}} onPress={() => {this.props.onDeletePress(); analytics.event(new Event('Delete'));}}>
+                        <TouchableOpacity style={{marginRight: 0, marginLeft: 'auto', display: this.props.isGameMaster && !this.props.isMatch ? 'flex' : 'none'}} onPress={() => {this.props.onDeletePress(); analytics.event(new Event(this.props.isMatch ? 'Delete match' :  'Delete card'));}}>
                             <Image source={require('./delete.png')} style={{height: 22.5, width: 22.5, marginVertical: 'auto'}} />
                         </TouchableOpacity>
                     </View>
@@ -25,14 +25,14 @@ class Card extends Component {
                 <View style={style.buttonBoxStyle}>
                     <Animated.View style={{width: 100, height: 30, marginRight: 10, borderRadius: 5, backgroundColor: this.props.voted ? this.props.bgColor : '#555', display: this.props.isBingo ? 'none' :  'flex'}}>
                         <TouchableOpacity style={[style.buttonStyle, {backgroundColor: 'transparent'}]} onPress={() => {this.props.onVotePress()}}>
-                            <Text style={[style.buttonText]}>Vote!</Text>
+                            <Text style={[style.buttonText]}>{this.props.isMatch ? 'Join' : 'Vote'}</Text>
                         </TouchableOpacity>
                     </Animated.View>
 
                     <TouchableOpacity style={[style.buttonStyle, {backgroundColor: this.props.isBingo ? this.props.bgColor : '#555', display: this.props.isGameMaster ? 'flex' :  'none'}]} onPress={() => {this.props.onBingoPress(); analytics.event(new Event('Bingo'));}}>
-                        <Text style={style.buttonText}>Bingo</Text>
+                        <Text style={style.buttonText}>{this.props.isMatch ? 'Delete' : 'Bingo'}</Text>
                     </TouchableOpacity>
-                    <Text style={style.voteNumberStyle}>{this.props.voteCount} votes</Text>
+                    <Text style={[style.voteNumberStyle, {display: this.props.isMatch ?  'none' : 'flex'}]}>{this.props.voteCount} votes</Text>
                 </View>
             </View>
         )
