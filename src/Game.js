@@ -128,9 +128,10 @@ export default class Game extends React.Component {
       analytics.event(new Event('UnsuccessfulVote'));
     } else {
       card.voters.push(this.state.myName);
+      card.isBingo = true;
       analytics.event(new Event('Vote'));
     }
-
+    
     cards[cards.indexOf(cardToVoteOn)] = card;
     this.setState({gameCards: cards});
 
