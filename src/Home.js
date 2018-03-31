@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Modal, Alert, AsyncStorage, Image, Dimensions, Linking } from 'react-native';
+import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Modal, Alert, AsyncStorage, Image, Dimensions, Linking, BackAndroid } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import * as firebase from 'firebase';
 import InputScrollView from 'react-native-input-scroll-view';
@@ -66,11 +66,19 @@ export default class Home extends React.Component {
 
     analytics.hit(new PageHit('Home'));
 
+    BackAndroid.addEventListener('hardwareBackPress', this.onBackPress)
+
     //Save the games with 2s delay
     setTimeout(() => {
       this.saveGames();
     }, 2000);
   }
+
+  onBackPress () {
+    console.log('onbackpress')
+    this.setState({joinGameModalVisible: false, newGameModalVisible: false, infoModalVisible: false})
+    return true
+ }
 
   //Save data to the AsyncStorage
   async saveGames() {
@@ -188,6 +196,7 @@ export default class Home extends React.Component {
         <Modal
           animationType="slide"
           transparent={false}
+          onRequestClose={()=>this.setState({newGameModalVisible: false})}
           visible={this.state.newGameModalVisible}>
           <View style={{flex: 1}}>
             <ScrollView style={{flex: 1}}>
@@ -288,6 +297,7 @@ export default class Home extends React.Component {
         <Modal
           animationType="slide"
           transparent={false}
+          onRequestClose={()=>this.setState({joinGameModalVisible: false})}
           visible={this.state.joinGameModalVisible}>
           <View style={{flex: 1}}>
             <Animated.View style={{padding: 20, backgroundColor: bgColor}}>
@@ -355,6 +365,7 @@ export default class Home extends React.Component {
         <Modal
           animationType="slide"
           transparent={false}
+          onRequestClose={()=>this.setState({infoModalVisible: false})}
           visible={this.state.infoModalVisible}>
           <ScrollView style={{flex: 1, backgroundColor: '#eee', padding: 20}}>
             <Text style={[styles.welcome, {color: '#555', marginVertical: 20}]}>Bullshit Bingo</Text>
@@ -426,7 +437,7 @@ export default class Home extends React.Component {
 
               //Get the name and the master's name of the new match
               firebase.database().ref('games/' + this.state.joingameId).once('value', function(snap) {
-                if(snap.val() != null) {
+                if(snap.val().name != null) {
                   var newGameName = JSON.stringify(snap.val().name);
                 }
                 else {
