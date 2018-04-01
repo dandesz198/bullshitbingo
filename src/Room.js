@@ -159,7 +159,7 @@ export default class Room extends React.Component {
               justifyContent: 'center',
               width: 100,
               height: 30,
-              backgroundColor: '#555',
+              backgroundColor: this.state.newMatchText.length > 0 ? '#555' : '#999',
               borderRadius: 5,
               marginLeft: 'auto',
               marginRight: 15,
@@ -180,13 +180,7 @@ export default class Room extends React.Component {
 
                 analytics.event(new Event('NewMatch'));
               } else {
-                 Alert.alert(
-                  'Error', 
-                  "You didn't put in any text",
-                  [ 
-                    {text: 'Ok', onPress: () => console.log('Cancel'), style: 'cancel'},
-                  ],
-                );
+                 return;
               }
             }}>
               <Text style={{color: 'white', textAlign: 'center', fontWeight: "bold"}}>Create</Text>

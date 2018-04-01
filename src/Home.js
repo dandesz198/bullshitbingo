@@ -237,7 +237,7 @@ export default class Home extends React.Component {
                   <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={async()=>{
 
                     if(this.state.myName.length == 0) {
-                      await this.setState({myName: this.state.myNameWB});
+                      await this.setState({myName: this.state.myNameWB, myNameWB: ''});
 
                       //Save name to AsyncStorage
                       try {
@@ -246,6 +246,11 @@ export default class Home extends React.Component {
                         // Error saving data
                         console.log(error);
                       }
+
+                      firebase.database().ref('users/'+this.state.myName).set({
+                        name: this.state.myName,
+                        points: 0
+                      });
                     }
 
                     //Check the password
@@ -307,8 +312,8 @@ export default class Home extends React.Component {
                   underlineColorAndroid='transparent'
                   placeholder="Your in-room name (public)"
                   placeholderTextColor="#aaa"
-                  onChangeText={(myName) => this.setState({myName})}
-                  value={this.state.myName}
+                  onChangeText={(myNameWB) => this.setState({myNameWB})}
+                  value={this.state.myNameWB}
                 />
                 <TextInput
                   style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20, display: this.state.myName == this.state.joinMaster ? 'flex' : 'none'}]}
@@ -323,6 +328,23 @@ export default class Home extends React.Component {
               <View style={{flexDirection: 'row', height: 45, marginTop: 20}}>
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
                   <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={async()=>{
+                    if(this.state.myName.length == 0) {
+                      await this.setState({myName: this.state.myNameWB, myNameWB: ''});
+
+                      //Save name to AsyncStorage
+                      try {
+                        await AsyncStorage.setItem('@MySuperStore:name', this.state.myName);
+                      } catch (error) {
+                        // Error saving data
+                        console.log(error);
+                      }
+
+                      firebase.database().ref('users/'+this.state.myName).set({
+                        name: this.state.myName,
+                        points: 0
+                      });
+                    }
+
                     //Chceck the password
                     if(this.state.myName == this.state.joinMaster && this.state.roomPw != md5(this.state.joinPw)) {
                       Alert.alert('Error', 'The password is incorrect.');

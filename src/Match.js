@@ -169,7 +169,8 @@ export default class Match extends React.Component {
             borderRadius: 5,
             marginLeft: 'auto',
             marginRight: 15,
-            marginBottom: 10
+            marginBottom: 10,
+            backgroundColor: this.state.newCardText.length > 0 ? '#555' : '#999',
           }} onPress={()=>{
             if (this.state.newCardText.length > 0) {
               //Declare variables
@@ -185,13 +186,7 @@ export default class Match extends React.Component {
 
               analytics.event(new Event('NewCard'));
             } else {
-                Alert.alert(
-                'Error', 
-                "You didn't put in any text",
-                [ 
-                  {text: 'Ok', onPress: () => console.log('Cancel'), style: 'cancel'},
-                ],
-              );
+              return;
             }
           }}>
             <Text style={{color: 'white', textAlign: 'center', fontWeight: "bold"}}>Create</Text>
