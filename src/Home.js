@@ -48,7 +48,7 @@ export default class Home extends React.Component {
 
       infoModalVisible: false,
 
-      isFirstOpen: true
+      isFirstOpen: false
   };
 
   returnData(id) {
@@ -191,7 +191,7 @@ export default class Home extends React.Component {
           </View>
           <View style={[styles.onboardContainter, {backgroundColor: '#5352ed'}]}>
             <Text style={{color: 'white', fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>Rooms</Text>
-            <Text style={{color: 'white', fontSize: 20, textAlign: 'center'}}>Inside rooms, you can find matches and other players. They are generally built around themes, like a Netflix show, a school class, or your office friend group.</Text>
+            <Text style={{color: 'white', fontSize: 20, textAlign: 'center'}}>Inside rooms, you can find matches and other players. They are generally built around themes, like a Netflix show, a school class, or your workplace friend circle.</Text>
           </View>
           <View style={[styles.onboardContainter, {backgroundColor: '#3742fa'}]}>
             <Text style={{color: 'white', fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>Matches</Text>
@@ -275,7 +275,9 @@ export default class Home extends React.Component {
                   <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
                     <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={async()=>{
 
-                      if(this.state.myNameWB.length == 0 || this.state.pw.length == 0 || this.state.pwAgain.length == 0 || this.state.newGameName.length == 0) {
+                      if((this.state.myNameWB.length == 0 && this.state.myName.length == 0) || this.state.pw.length == 0 || this.state.pwAgain.length == 0 || this.state.newGameName.length == 0) {
+                        console.log(this.state.pw)
+                        console.log(this.state.pwAgain)
                         this.setState({newGameModalVisible: false})
                         Alert.alert('Error', 'I saw terrible things... Empty fields. Please fill in the form to continue.', [
                           {text: 'OK', onPress: () => this.setState({newGameModalVisible: true})},
@@ -302,7 +304,10 @@ export default class Home extends React.Component {
   
                       //Check the password
                       if(this.state.pw != this.state.pwAgain) {
-                        Alert.alert('Error', "The passwords don't room.");
+                        this.setState({newGameModalVisible: false})
+                        Alert.alert('Error', "The passowrds don't look the same for me.", [
+                          {text: 'OK', onPress: () => this.setState({newGameModalVisible: true})},
+                        ]);
                         return;
                       }
                       
@@ -486,7 +491,7 @@ export default class Home extends React.Component {
           </Modal>
           <View style={{marginTop: 20, flexDirection: 'row', width: Dimensions.get('window').width}}>
             <Text style={styles.welcome}>Bullshit Bingo</Text>
-            <Text style={[styles.p, {fontSize: 16, color: 'white', marginTop: 'auto', marginBottom: 5, marginLeft: 7.5}]}>0.9.9.2</Text>
+            <Text style={[styles.p, {fontSize: 16, color: 'white', marginTop: 'auto', marginBottom: 5, marginLeft: 7.5}]}>0.9.9.3</Text>
             <TouchableOpacity style={{marginRight: 40, marginLeft: 'auto', alignItems: 'center'}} onPress={() => {this.setState({infoModalVisible: true})}}>
                 <Image source={require('./info.png')} style={{height: 25, width: 25, marginTop: 'auto', marginBottom: 'auto'}} />
             </TouchableOpacity>
