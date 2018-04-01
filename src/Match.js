@@ -71,11 +71,8 @@ export default class Match extends React.Component {
     var thus = this;
     var members = [];
 
-    console.log(this.state.gameId);
-
     //Get data and add listener
     firebase.database().ref('games/'+this.state.gameId+'/matches/'+this.state.matchId+'/').on('value', async function(snap) {
-      console.log(snap);
       //Parse objects
       var snapshot = snap.val();
 
@@ -93,11 +90,7 @@ export default class Match extends React.Component {
       }
 
       thus.setState({gameCards: gameCards});
-
-      console.log(thus.state.gameCards);
     });
-
-    console.log(this.state.gameMembers);
 
     //Add the user kicker listener
     firebase.database().ref('games/' + this.state.gameId+'/members').on('child_removed', async function(snap) {
@@ -149,7 +142,6 @@ export default class Match extends React.Component {
   }
 
   render() {
-    console.log(this.state);
     var bgColor = this.state.x.interpolate({
       inputRange: [1, 2, 3, 4],
       outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)']

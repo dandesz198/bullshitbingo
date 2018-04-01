@@ -74,7 +74,6 @@ export default class Home extends React.Component {
   }
 
   onBackPress () {
-    console.log('onbackpress')
     this.setState({joinGameModalVisible: false, newGameModalVisible: false, infoModalVisible: false})
     return true
  }
@@ -172,9 +171,6 @@ export default class Home extends React.Component {
   }
 
   render() {
-    if(this.props.navigation.state.params) {
-      console.log(this.props.navigation.state.params.delete)
-    }
     var bgColor = this.state.x.interpolate({
       inputRange: [1, 2, 3, 4],
       outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)']

@@ -106,8 +106,6 @@ export default class Room extends React.Component {
         thus.props.navigation.state.params.returnData(thus.state.gameName);
         thus.props.navigation.goBack();
         Alert.alert('Kicked', "You were kicked from the game. You can still rejoin if you'd like to.");        
-      } else {
-        console.log('Someone else got kicked')
       }
     });
   }
