@@ -75,33 +75,30 @@ export default class Room extends React.Component {
     var members = [];
 
     //Get data and add listener
-    firebase.database().ref('games/' + this.state.gameId+'/').on('value', async function(snap) {
+    firebase.database().ref('games/' + this.state.gameId+'/').on('value', async function(snapshot) {
       //Parse objects
-      var snapshot = snap.val();
+      let snap = snapshot.val();
 
-      let membersName = Object.values(snapshot.members);
+      let membersName = Object.values(snap.members);
       var members = [];
 
       membersName.forEach(element => {
-        firebase.database().ref('users/'+element+'/').once('value', function(snap) {
-          members.push(snap.val());
+        firebase.database().ref('users/'+element+'/').once('value', function(snp) {
+          members.push(snp.val());
         });
       });
 
       var matches = [];
-      if(snapshot.matches) {
-        snapshot.matches.forEach(element => {
+      if(snap.matches) {
+        snap.matches.forEach(element => {
           matches.push(element);
         });
       } else {
-        thus.setState({gameMembers: members, gameMaster: snapshot.master, matches: [], isBingo: snapshot.isBingo});
+        thus.setState({gameMembers: members, gameMaster: snap.master, matches: []});
         return;
       }
-
-      thus.setState({gameMembers: members, gameMaster: snapshot.master, matches: matches, isBingo: snapshot.isBingo});
+      thus.setState({gameMembers: members, gameMaster: snap.master, matches: matches});
     });
-
-    console.log(this.state.gameMembers);
 
     //Add the user kicker listener
     firebase.database().ref('games/' + this.state.gameId+'/members').on('child_removed', async function(snap) {
@@ -169,7 +166,7 @@ export default class Room extends React.Component {
               marginLeft: 'auto',
               marginRight: 15,
               marginBottom: 10
-            }} onPress={()=>{
+            }} onPress={() => {
               if (this.state.newMatchText.length > 0) {
                 //Declare variables
                 var matches = this.state.matches;
@@ -217,7 +214,8 @@ export default class Room extends React.Component {
                 { text: 'Nah', style: 'cancel' }
               ])
             }}
-            />}
+            />
+          }
           />
         </ScrollView>
       );

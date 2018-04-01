@@ -53,14 +53,15 @@ export default class Home extends React.Component {
     this.deleteGame(id);
   }
 
+  componentWillMount() {
+    //Initialize Firebase
+    firebase.initializeApp(config);
+    this.loadGames();
+  }
+
   async componentDidMount() {
     //Starts the first loop in color changing
     this.changeColor();
-
-    //Initialize Firebase
-    firebase.initializeApp(config);
-
-    this.loadGames();
 
     analytics.hit(new PageHit('Home'));
 
@@ -87,70 +88,10 @@ export default class Home extends React.Component {
       // Error saving data
       console.log(error);
     }
-
-    //Save name to AsyncStorage
-    try {
-      await AsyncStorage.setItem('@MySuperStore:name', this.state.myName);
-    } catch (error) {
-      // Error saving data
-      console.log(error);
-    }
   }
 
   //Load data from the AsyncStorage
   async loadGames() {
-    //Get games from AsyncStorage
-    try {
-      let value = await AsyncStorage.getItem('@MySuperStore:games');
-      if (value !== null){
-        // We have data
-        var array = JSON.parse(value);
-        var thus = this;
-
-        array.forEach(async(element) => {
-          //Remove the " from the start and end of the string
-          if(element.name[0] == '"') {
-            element.name = element.name.slice(1, -1);
-          }
-          
-          //Check if room still exists
-          firebase.database().ref('games/' + element.id+'/members/')
-          .once('value')
-          .then((snap) => {
-            if(snap.val()) {
-              var members = Object.values(snap.val());
-              var count = 0;
-
-              members.forEach(lm => {
-                if(lm == this.state.myName) {
-                  count += 1;
-                }
-              });
-            }
-            else {
-              this.deleteGame(element.name);
-            }
-
-            //If member even exists
-            if(members) {
-              //If room doesn't exist or player is kicked
-              if(members.length < 0 || count <= 0) {
-                this.deleteGame(element.name);
-              } else {
-
-              }
-            } else {
-              this.deleteGame(element.name);
-            }
-          })
-        });
-        this.setState({games: array});
-      }
-    } catch (error) {
-      // Error retrieving data
-      console.log(error);
-    }
-
     //Get name from AsyncStorage
     try {
       let value = await AsyncStorage.getItem('@MySuperStore:name');
@@ -162,10 +103,63 @@ export default class Home extends React.Component {
       // Error retrieving data
       console.log(error);
     }
+
+    setTimeout(async() => {
+      //Get games from AsyncStorage
+      try {
+        let value = await AsyncStorage.getItem('@MySuperStore:games');
+        if (value !== null){
+          // We have data
+          var array = JSON.parse(value);
+          var thus = this;
+
+          array.forEach(async(element) => {
+            //Remove the " from the start and end of the string
+            if(element.name[0] == '"') {
+              element.name = element.name.slice(1, -1);
+            }
+            
+            //Check if room still exists
+            firebase.database().ref('games/'+element.id+'/members/')
+            .once('value')
+            .then((snap) => {
+              if(snap.val()) {
+                var members = Object.values(snap.val());
+                var count = 0;
+
+                members.forEach(lm => {
+                  if(lm == this.state.myName) {
+                    count += 1;
+                  }
+                });
+              }
+              else {
+                this.deleteGame(element.name);
+              }
+
+              //If member even exists
+              if(members) {
+                //If room doesn't exist or player is kicked
+                if(members.length < 0 || count <= 0) {
+                  this.deleteGame(element.name);
+                } else {
+
+                }
+              } else {
+                this.deleteGame(element.name);
+              }
+            })
+          });
+          this.setState({games: array});
+        }
+      } catch (error) {
+        // Error retrieving data
+        console.log(error);
+      }
+    }, 500);
   }
 
   componentWillReceiveProps() {
-    console.log('componentWillReceiveProps');
     this.deleteGame(this.props.delete);
   }
 
@@ -202,10 +196,19 @@ export default class Home extends React.Component {
                   <Text style={[styles.heading, {fontSize: 32}]}>Create a new Bullshit Bingo room</Text>
               </Animated.View>
               <View style={{flexDirection: 'column', padding: 20, paddingBottom: 10}}>
-                <Text style={styles.p}>The name of the room (public)</Text>
+                <TextInput
+                  style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20, display: this.state.myName.length == 0 ? 'flex' : 'none'}]}
+                  underlineColorAndroid='transparent'
+                  placeholder="Your in-room name (public)"
+                  placeholderTextColor="#aaa"
+                  onChangeText={(myNameWB) => this.setState({myNameWB})}
+                  value={this.state.myNameWB}
+                />
                 <TextInput
                   style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20}]}
                   underlineColorAndroid='transparent'
+                  placeholder="The name of the room (public)"
+                  placeholderTextColor="#aaa"
                   onChangeText={(newGameName) => this.setState({newGameName})}
                   value={this.state.newGameName}
                 />
@@ -235,7 +238,19 @@ export default class Home extends React.Component {
               </View>
               <View style={{flexDirection: 'row', height: 45, marginHorizontal: 20, marginTop: 10, marginBottom: 20}}>
                 <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
-                  <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{
+                  <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={async()=>{
+
+                    if(this.state.myName.length == 0) {
+                      await this.setState({myName: this.state.myNameWB});
+
+                      //Save name to AsyncStorage
+                      try {
+                        await AsyncStorage.setItem('@MySuperStore:name', this.state.myName);
+                      } catch (error) {
+                        // Error saving data
+                        console.log(error);
+                      }
+                    }
 
                     //Check the password
                     if(this.state.pw != this.state.pwAgain) {
@@ -244,7 +259,7 @@ export default class Home extends React.Component {
                     }
                     
                     //Upload the game itself to Firebase
-                    firebase.database().ref('games/'+this.state.newGameID).set({
+                    await firebase.database().ref('games/'+this.state.newGameID).set({
                       name: this.state.newGameName,
                       master: this.state.myName,
                       masterPw: md5(this.state.pw),
@@ -291,17 +306,18 @@ export default class Home extends React.Component {
             </Animated.View>
             <View style={{flex: 1, padding: 20}}>
               <View style={{flexDirection: 'column'}}>
-                <Text style={[styles.p, {marginTop: 10}]}>Your in-room name (public)</Text>
                 <TextInput
-                  style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20}]}
+                  style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20, display: this.state.myName.length == 0 ? 'flex' : 'none'}]}
                   underlineColorAndroid='transparent'
+                  placeholder="Your in-room name (public)"
+                  placeholderTextColor="#aaa"
                   onChangeText={(myName) => this.setState({myName})}
                   value={this.state.myName}
                 />
                 <TextInput
                   style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20, display: this.state.myName == this.state.joinMaster ? 'flex' : 'none'}]}
                   secureTextEntry={true}
-                  placeholder="room master password"
+                  placeholder="Room master password"
                   placeholderTextColor="#aaa"
                   underlineColorAndroid='transparent'
                   onChangeText={(joinPw) => this.setState({joinPw})}
@@ -402,7 +418,7 @@ export default class Home extends React.Component {
           </TouchableOpacity>
         </View>
         <ScrollView style={{flex: 1}}>
-          <TouchableOpacity style={[styles.button, {marginTop: 20, height: 45}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
+          <TouchableOpacity style={[styles.button, {marginTop: 10, height: 45}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
             <Animated.Text style={[styles.join, {color: bgColor}]}>Create new room</Animated.Text>
           </TouchableOpacity>
           <Text style={styles.heading}>Join a room</Text>
