@@ -197,7 +197,7 @@ export default class Room extends React.Component {
               <Text style={{color: 'white', textAlign: 'center', fontWeight: "bold"}}>Create</Text>
             </TouchableOpacity>
           </View>
-          <Text style={{padding: 1.25, textAlign: 'center', fontSize: 14, color: '#888'}}>Grab me to create a new match</Text>
+          <Text style={{padding: 1.25, textAlign: 'center', fontSize: 14, color: '#888'}}>Pull down to create a new match</Text>
           <ListView
             dataSource={ds.cloneWithRows(this.state.matches)}
             enableEmptySections={true}
@@ -207,7 +207,7 @@ export default class Room extends React.Component {
                 this.props.navigation.navigate('Match', {matchName: this.state.gameName, gameId: this.state.gameId, myName: this.state.myName, matchId: this.state.matches.indexOf(rowData), matchMaster: rowData.master, returnData: this.returnData.bind(this)});
             }}
             onBingoPress={()=>{
-              Alert.alert('Are you sure?', 'You are now deleting the match "'+rowData.text+'". This action is irreversible. Are you sure?', [
+              Alert.alert('Are you sure?', 'You are now deleting the match "'+rowData.name+'". This action is irreversible. Are you sure?', [
                 {
                   text: "I'll delete it",
                   onPress: ()=>{ 

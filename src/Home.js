@@ -247,11 +247,9 @@ export default class Home extends React.Component {
                     firebase.database().ref('games/'+this.state.newGameID).set({
                       name: this.state.newGameName,
                       master: this.state.myName,
-                      masterPw: md5(this.state.pw)
+                      masterPw: md5(this.state.pw),
+                      members: [this.state.myName]
                     });
-
-                    //Upload the user to Firebase
-                    firebase.database().ref('games/'+this.state.joingameId+'/members/').push(this.state.myName);
 
                     //Add the new game to the Games array (renderen in 'My rooms' section)
                     var games = this.state.games;
@@ -385,7 +383,7 @@ export default class Home extends React.Component {
             <Link text="GitHub" url="https://github.com/razor97" />
             <Link text="Facebook" url="https://fb.me/hajdupetke" />
             <Link text="Twitter" url="https://twitter.com/hajdupetke" />
-            <TouchableOpacity style={{marginLeft: 'auto', marginRight: 'auto'}} onPress={()=>{Linking.openURL('https://paypal.me/dandesz198')}}>
+            <TouchableOpacity style={{marginLeft: 'auto', marginRight: 'auto', marginTop: 15}} onPress={()=>{Linking.openURL('https://paypal.me/dandesz198')}}>
               <Image source={require('./coffee.png')} style={{height: 45, width: 225}}/>
             </TouchableOpacity>
             <Text style={[styles.p, {fontSize: 15, textAlign: 'center', marginTop: 5}]}>Since the server isn't free, every single cent of your donation is going to be spent on the costs of running this game.</Text>
@@ -398,7 +396,7 @@ export default class Home extends React.Component {
         </Modal>
         <View style={{marginTop: 20, flexDirection: 'row', width: Dimensions.get('window').width}}>
           <Text style={styles.welcome}>Bullshit Bingo</Text>
-          <Text style={[styles.p, {fontSize: 16, color: 'white', marginTop: 'auto', marginBottom: 5, marginLeft: 5}]}>0.9.5</Text>
+          <Text style={[styles.p, {fontSize: 16, color: 'white', marginTop: 'auto', marginBottom: 5, marginLeft: 5}]}>0.9.6</Text>
           <TouchableOpacity style={{marginRight: 40, marginLeft: 'auto', alignItems: 'center'}} onPress={() => {this.setState({infoModalVisible: true})}}>
               <Image source={require('./info.png')} style={{height: 25, width: 25, marginTop: 'auto', marginBottom: 'auto'}} />
           </TouchableOpacity>

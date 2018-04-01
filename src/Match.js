@@ -130,7 +130,6 @@ export default class Match extends React.Component {
       analytics.event(new Event('UnsuccessfulVote'));
     } else {
       card.voters.push(this.state.myName);
-      card.isBingo = true;
       analytics.event(new Event('Vote'));
     }
 
@@ -144,7 +143,7 @@ export default class Match extends React.Component {
   //Upload data to Firebase
   syncToFirebase() {
     //Upload every card to Firebase
-    firebase.database().ref('games/'+this.state.gameId+'/').update({
+    firebase.database().ref('games/'+this.state.gameId+'/matches/'+this.state.matchId).update({
       cards: this.state.gameCards
     });
   }
@@ -206,7 +205,7 @@ export default class Match extends React.Component {
             <Text style={{color: 'white', textAlign: 'center', fontWeight: "bold"}}>Create</Text>
           </TouchableOpacity>
         </View>
-        <Text style={{padding: 1.25, textAlign: 'center', fontSize: 14, color: '#888'}}>Grab me to create a new card</Text>
+        <Text style={{padding: 1.25, textAlign: 'center', fontSize: 14, color: '#888'}}>Pull down to create a new card</Text>
         <Text style={{marginLeft: 15, marginVertical: 10, fontWeight: 'bold', textAlign: 'left', fontSize: 36, color: '#555'}}>{this.state.gameName}</Text>
         <ListView
           dataSource={ds.cloneWithRows(this.state.gameCards)}
@@ -224,6 +223,7 @@ export default class Match extends React.Component {
               card.voters.splice(card.voters.indexOf(this.state.myName), 1);
               cards[cards.indexOf(rowData)] = card;
               this.setState({gameCards: cards});
+              this.syncToFirebase();
               analytics.event(new Event('Unvote'));
             } else {
               //Vote, because the user didn't vote on the card
@@ -263,7 +263,7 @@ export default class Match extends React.Component {
 
                   rowData.voters.forEach(element => {
                     firebase.database().ref('users/'+element+'/points').once('value').then((snap) => {
-                      firebase.database().ref('users/'+element+'/points/').update({
+                      firebase.database().ref('users/'+element+'/').update({
                         points: snap.val() + 1
                       });
                     })

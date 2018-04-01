@@ -29,9 +29,12 @@ class Card extends Component {
                         </TouchableOpacity>
                     </Animated.View>
 
-                    <TouchableOpacity style={[style.buttonStyle, {backgroundColor: this.props.isBingo ? this.props.bgColor : '#555', display: this.props.isGameMaster ? 'flex' :  'none'}]} onPress={() => {this.props.onBingoPress(); analytics.event(new Event('Bingo'));}}>
+                    <Animated.View style={[style.buttonStyle, {backgroundColor: this.props.isBingo ? this.props.bgColor : '#555', display: this.props.isGameMaster ? 'flex' :  'none'}]}>
+                        <TouchableOpacity style={[style.buttonStyle, {backgroundColor: 'transparent'}]} onPress={() => {this.props.onBingoPress()}}>
                         <Text style={style.buttonText}>{this.props.isMatch ? 'Delete' : 'Bingo'}</Text>
-                    </TouchableOpacity>
+                        </TouchableOpacity>
+                    </Animated.View>
+                    
                     <Text style={[style.voteNumberStyle, {display: this.props.isMatch ?  'none' : 'flex'}]}>{this.props.voteCount} votes</Text>
                 </View>
             </View>
