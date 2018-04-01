@@ -408,7 +408,7 @@ export default class Home extends React.Component {
         </Modal>
         <View style={{marginTop: 20, flexDirection: 'row', width: Dimensions.get('window').width}}>
           <Text style={styles.welcome}>Bullshit Bingo</Text>
-          <Text style={[styles.p, {fontSize: 16, color: 'white', marginTop: 'auto', marginBottom: 5, marginLeft: 5}]}>0.9.6</Text>
+          <Text style={[styles.p, {fontSize: 16, color: 'white', marginTop: 'auto', marginBottom: 5, marginLeft: 5}]}>0.9.7</Text>
           <TouchableOpacity style={{marginRight: 40, marginLeft: 'auto', alignItems: 'center'}} onPress={() => {this.setState({infoModalVisible: true})}}>
               <Image source={require('./info.png')} style={{height: 25, width: 25, marginTop: 'auto', marginBottom: 'auto'}} />
           </TouchableOpacity>
