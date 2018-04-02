@@ -2,7 +2,7 @@
    "expo": {
     "name": "Bullshit Bingo",
     "icon": "./icon.png",
-    "version": "0.9.9",
+    "version": "0.10.0",
     "slug": "bullshitbingo",
     "sdkVersion": "25.0.0",
     "ios": {
@@ -12,5 +12,8 @@
     "android": {
       "package": "com.funbyte.bullshitbingo"
     }
+   },
+   "updates": {
+    "checkAutomatically": "ON_ERROR_RECOVERY"
    }
  }

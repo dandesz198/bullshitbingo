@@ -5,6 +5,7 @@ import * as firebase from 'firebase';
 import md5 from 'md5';
 import { Analytics, PageHit, Event } from 'expo-analytics';
 import Link from './Components/Link.js';
+import { Updates } from 'expo';
 
 let Environment = require('./environment.js')
 
@@ -42,6 +43,7 @@ export default class Home extends React.Component {
       joingameId: '',
       joinMaster: '',
       roomPw: '',
+      isNewGameIDCorrect: true,
 
       myName: '',
       myNameWB: '',
@@ -68,6 +70,20 @@ export default class Home extends React.Component {
     analytics.hit(new PageHit('Home'));
 
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
+
+    try {
+      const update = await Expo.Updates.checkForUpdateAsync();
+      if (update.isAvailable) {
+        await Expo.Updates.fetchUpdateAsync();
+        Alert.alert('Update avaliable', "Please update the app in order to get the latest Bullshit Bingo experience. (It won't take more than 5 seconds, I swear)", [
+          {text: 'OK', onPress: () => Expo.Updates.reload()},
+          {text: 'GTFO', onPress: () => console.log('no update for you')},
+        ]);
+      }
+    } catch (e) {
+      // handle or log error
+    }
+    
 
     //Save the games with 2s delay
     setTimeout(() => {
@@ -228,28 +244,30 @@ export default class Home extends React.Component {
             <View style={{flex: 1}}>
               <ScrollView style={{flex: 1}}>
                 <Animated.View style={{padding: 20, backgroundColor: bgColor}}>
-                    <Text style={[styles.heading, {fontSize: 32}]}>Create a new Bullshit Bingo room</Text>
+                    <Text style={[styles.heading, {fontSize: 32}]}>Create a new room</Text>
                 </Animated.View>
                 <View style={{flexDirection: 'column', padding: 20, paddingBottom: 10}}>
                   <TextInput
-                    style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20, display: this.state.myName.length == 0 ? 'flex' : 'none'}]}
+                    style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 10, display: this.state.myName.length == 0 ? 'flex' : 'none'}]}
                     underlineColorAndroid='transparent'
                     placeholder="Your in-room name (public)"
                     placeholderTextColor="#aaa"
                     onChangeText={(myNameWB) => this.setState({myNameWB})}
                     value={this.state.myNameWB}
                   />
+                  <Text style={{color: '#ee5253', fontSize: 16, display: this.state.myName.length == 0 && this.state.myNameWB.length == 0 ? 'flex' : 'none'}}>Please fill in this field.</Text>
                   <TextInput
-                    style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20}]}
+                    style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 15, marginBottom: 10}]}
                     underlineColorAndroid='transparent'
                     placeholder="The name of the room (public)"
                     placeholderTextColor="#aaa"
                     onChangeText={(newGameName) => this.setState({newGameName})}
                     value={this.state.newGameName}
                   />
-                  <Text style={[styles.p, {marginTop: 10}]}>Password lock (for you only)</Text>
+                  <Text style={{color: '#ee5253', fontSize: 16, display: this.state.newGameName.length == 0 ? 'flex' : 'none'}}>Please fill in this field.</Text>
+                  <Text style={[styles.p, {marginTop: 10, fontWeight: 'bold'}]}>Password lock (for you only)</Text>
                   <TextInput
-                    style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20}]}
+                    style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 10}]}
                     underlineColorAndroid='transparent'
                     secureTextEntry={true}
                     placeholder="Password"
@@ -258,7 +276,7 @@ export default class Home extends React.Component {
                     value={this.state.pw}
                   />
                   <TextInput
-                    style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20}]}
+                    style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 10}]}
                     underlineColorAndroid='transparent'
                     secureTextEntry={true}
                     placeholder="Password again"
@@ -266,6 +284,7 @@ export default class Home extends React.Component {
                     onChangeText={(pwAgain) => this.setState({pwAgain})}
                     value={this.state.pwAgain}
                   />
+                  <Text style={{color: '#ee5253', fontSize: 16, display: this.state.pw !== this.state.pwAgain ? 'flex' : 'none'}}>The passwords don't match.</Text>
                 </View>
                 <View style={{flexDirection: 'column', paddingHorizontal: 20}}>
                   <Text style={styles.p}>Room PIN:</Text>
@@ -491,7 +510,7 @@ export default class Home extends React.Component {
           </Modal>
           <View style={{marginTop: 20, flexDirection: 'row', width: Dimensions.get('window').width}}>
             <Text style={styles.welcome}>Bullshit Bingo</Text>
-            <Text style={[styles.p, {fontSize: 16, color: 'white', marginTop: 'auto', marginBottom: 5, marginLeft: 7.5}]}>0.9.9.3</Text>
+            <Text style={[styles.p, {fontSize: 16, color: 'white', marginTop: 'auto', marginBottom: 5, marginLeft: 7.5}]}>0.10</Text>
             <TouchableOpacity style={{marginRight: 40, marginLeft: 'auto', alignItems: 'center'}} onPress={() => {this.setState({infoModalVisible: true})}}>
                 <Image source={require('./info.png')} style={{height: 25, width: 25, marginTop: 'auto', marginBottom: 'auto'}} />
             </TouchableOpacity>
@@ -515,17 +534,19 @@ export default class Home extends React.Component {
                 var thus = this;
 
                 if(this.state.joingameId.length < 6) {
-                  Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.");
+                  //Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.");
+                  this.setState({isNewGameIDCorrect: false});
                   return;
                 }
   
                 //Get the name and the master's name of the new room
                 firebase.database().ref('games/' + this.state.joingameId).once('value', function(snap) {
-                  if(typeof snap.val() === "undefined") {
+                  if(typeof snap.val() != "undefined") {
                     var newGameName = JSON.stringify(snap.val().name);
                   }
                   else {
-                    Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.");
+                    //Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.");
+                    thus.setState({isNewGameIDCorrect: false});
                     return;
                   }
   
@@ -549,6 +570,7 @@ export default class Home extends React.Component {
                 <Animated.Text style={[styles.join, {color: bgColor}]}>Join</Animated.Text>
               </TouchableOpacity>
             </View>
+            <Text style={{color: '#ee5253', fontSize: 16, marginTop: 10, display: this.state.isNewGameIDCorrect ? 'none' : 'flex'}}>Please check the PIN.</Text>
             <Text style={styles.heading}>My rooms</Text>
             <ListView
               dataSource={ds.cloneWithRows(this.state.games)}
@@ -599,7 +621,7 @@ let styles = StyleSheet.create({
 
   heading: {
     fontSize: 30,
-    marginTop: 35,
+    marginTop: 20,
     fontWeight: 'bold',
     color: '#fff'
   },

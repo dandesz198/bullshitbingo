@@ -93,7 +93,7 @@ export default class Match extends React.Component {
     });
 
     //Add the user kicker listener
-    firebase.database().ref('games/' + this.state.gameId+'/members').on('child_removed', async function(snap) {
+    firebase.database().ref('games/'+this.state.gameId+'/members').on('child_removed', async function(snap) {
       if(snap.val() == thus.state.myName) {
         thus.props.navigation.state.params.returnData(thus.state.gameName);
         thus.props.navigation.goBack();
@@ -238,6 +238,9 @@ export default class Match extends React.Component {
             ])
           }}
           onBingoPress={()=>{
+            if(rowData.isBingo) {
+              return;
+            }
             Alert.alert('Are you sure?', 'You are now going to give points to the voters of the card "'+rowData.text+'". This action is irreversible. Are you sure?', [
               {
                 text: "It's BINGO!, I'm pretty sure",
