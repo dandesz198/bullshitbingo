@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Dimensions, Platform, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Dimensions, Platform, Alert, Vibration } from 'react-native';
 import { StackNavigator, NavigationActions } from 'react-navigation';
 import * as GestureHandler from 'react-native-gesture-handler';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
@@ -58,7 +58,9 @@ export default class Room extends React.Component {
     //Starts the first loop in color changing
     this.changeColor();
 
-    analytics.hit(new PageHit('Game'));
+    //this.refs._scrollView.scrollTo({x: 0, y: 125, animated: false})
+
+    analytics.hit(new PageHit('Room'));
   }
 
   componentWillMount() {
@@ -105,6 +107,7 @@ export default class Room extends React.Component {
       if(snap.val() == thus.state.myName) {
         thus.props.navigation.state.params.returnData(thus.state.gameName);
         thus.props.navigation.goBack();
+        Vibration.vibrate();
         Alert.alert('Kicked', "You were kicked from the game. You can still rejoin if you'd like to.");        
       }
     });
@@ -130,7 +133,7 @@ export default class Room extends React.Component {
       inputRange: [1, 2, 3, 4],
       outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)']
     });
-    return(<TabBar style={{paddingTop: 15, backgroundColor: bgColor}} {...props}/>);
+    return(<TabBar style={{paddingTop: 25, backgroundColor: bgColor}} {...props}/>);
   };
 
   _renderScene = ({ route }) => {
@@ -144,8 +147,7 @@ export default class Room extends React.Component {
         <ScrollView 
           style={styles.container} 
           decelerationRate={0}
-          contentOffset={{x: 0, y: 125}}
-          >
+        >
           <View style={{width: Dimensions.get('window').width, backgroundColor: '#d8e1e3', marginBottom: 15, zIndex: 999}}>
             <TextInput
               style={{width: '100%', height: 75, padding: 15, marginBottom: 10, color: '#555', fontSize: 16}}
@@ -196,6 +198,7 @@ export default class Room extends React.Component {
                 this.props.navigation.navigate('Match', {matchName: this.state.gameName, gameId: this.state.gameId, myName: this.state.myName, matchId: this.state.matches.indexOf(rowData), matchMaster: rowData.master, returnData: this.returnData.bind(this)});
             }}
             onBingoPress={()=>{
+              Vibration.vibrate();
               Alert.alert('Are you sure?', 'You are now deleting the match "'+rowData.name+'". This action is irreversible. Are you sure?', [
                 {
                   text: "I'll delete it",
@@ -230,7 +233,7 @@ export default class Room extends React.Component {
           <View style={styles.card}>
             <Text style={[styles.heading, {color: '#555', fontSize: 30}]}>Members</Text>
             <ListView
-              dataSource={ds.cloneWithRows(this.state.gameMembers.sort(function(a,b) {return (a.points < b.points) ? 1 : ((b.points < a.points) ? -1 : 0);} ))}
+              dataSource={ds.cloneWithRows(this.state.gameMembers.sort(function(a,b) {return (a.points < b.points) ? 1 : ((b.points < a.points) ? -1 : 0);}))}
               enableEmptySections={true}
               style={{marginTop: 10}}
               renderRow={(rowData) => 
@@ -239,6 +242,7 @@ export default class Room extends React.Component {
                 <Animated.View style={{display: this.state.myName != this.state.gameMaster && this.state.myName != rowData.name ? 'none' : 'flex', padding: 5, margin: 5, borderColor: this.state.myName == rowData.name ? 'white' : bgColor, borderWidth: 1.5, borderRadius: 5, alignSelf: 'flex-end', marginRight: 0, marginLeft: 'auto'}}>
                   <TouchableOpacity onPress={()=>{
                     var thus = this;
+                    Vibration.vibrate();
                     Alert.alert(
                       'Are you sure?', 
                       this.state.myName == rowData.name ? 'Do you *really* want to quit the match '+this.state.gameName+'? You can still rejoin the match later.' : 'Do you *really* want to kick '+rowData.name+'? They can still rejoin the match.',
@@ -250,6 +254,7 @@ export default class Room extends React.Component {
                             //If match master AND kicking itself
                             if(this.state.myName == rowData.name) {
                               //But you are the match master - quitting will delete the match
+                              Vibration.vibrate();
                               Alert.alert(
                                 'Are you sure?', 
                                 'You are the match master. If you quit, the match will be deleted.',
@@ -289,6 +294,7 @@ export default class Room extends React.Component {
                               this.props.navigation.goBack();
                             } else {
                               //Can't kick others
+                              Vibration.vibrate();
                               Alert.alert(
                                 'Error', 
                                 "You aren't the match master. You can't kick other players.",
@@ -400,6 +406,7 @@ let styles = StyleSheet.create({
     backgroundColor: 'white',
     shadowColor: '#999',
     shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.7
+    shadowOpacity: 0.7,
+    elevation: 3
   }
 });

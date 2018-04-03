@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Dimensions, Platform, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Dimensions, Platform, Alert, Vibration } from 'react-native';
 import { StackNavigator, NavigationActions } from 'react-navigation';
 import * as GestureHandler from 'react-native-gesture-handler';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
@@ -55,7 +55,9 @@ export default class Match extends React.Component {
     //Starts the first loop in color changing
     this.changeColor();
 
-    analytics.hit(new PageHit('Game'));
+    //this.refs._scrollView.scrollTo({x: 0, y: 145, animated: false})
+
+    analytics.hit(new PageHit('Match'));
   }
 
   componentWillMount() {
@@ -97,6 +99,7 @@ export default class Match extends React.Component {
       if(snap.val() == thus.state.myName) {
         thus.props.navigation.state.params.returnData(thus.state.gameName);
         thus.props.navigation.goBack();
+        Vibration.vibrate();
         Alert.alert('Kicked', "You were kicked from the game. You can still rejoin if you'd like to.");        
       } else {
         console.log('Someone else got kicked')
@@ -119,6 +122,7 @@ export default class Match extends React.Component {
     });
 
     if(votes >= 2) {
+      Vibration.vibrate();
       Alert.alert('Error', 'You have more than 2 votes placed. Please unvote atleast one card to vote on this one.');
       analytics.event(new Event('UnsuccessfulVote'));
     } else {
@@ -150,11 +154,16 @@ export default class Match extends React.Component {
       <ScrollView 
         style={styles.container} 
         decelerationRate={0}
-        contentOffset={{x: 0, y: 125}}
+        ref="_scrollView"
         >
+        <StatusBar
+          backgroundColor="#555"
+          barStyle="light-content"
+        />
         <View style={{width: Dimensions.get('window').width, backgroundColor: '#d8e1e3', marginBottom: 15, zIndex: 999}}>
+          <View style={{width: Dimensions.get('window').width, height: 20, backgroundColor: '#555'}}/>
           <TextInput
-            style={{width: '100%', height: 75, padding: 15, marginBottom: 10, color: '#555', fontSize: 16}}
+            style={{width: Dimensions.get('window').width, height: 75, padding: 15, marginBottom: 10, color: '#555', fontSize: 16}}
             underlineColorAndroid='transparent'
             placeholder="Create a new card"
             placeholderTextColor="#666"
@@ -195,7 +204,7 @@ export default class Match extends React.Component {
         <Text style={{padding: 1.25, textAlign: 'center', fontSize: 14, color: '#888'}}>Pull down to create a new card</Text>
         <Text style={{marginLeft: 15, marginVertical: 10, fontWeight: 'bold', textAlign: 'left', fontSize: 36, color: '#555'}}>{this.state.gameName}</Text>
         <ListView
-          dataSource={ds.cloneWithRows(this.state.gameCards)}
+          dataSource={ds.cloneWithRows(this.state.gameCards.sort(function(a,b) {return (a.voters < b.voters) ? 1 : ((b.voters < a.voters) ? -1 : 0);}))}
           enableEmptySections={true}
           style={[styles.membersList, {minHeight: Dimensions.get('window').height}]}
           renderRow={(rowData) => <Card isMatch={false} matchName={this.state.matchName} cardText={rowData.text} voteCount={rowData.voters.length} creatorName={rowData.creator} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} isBingo={rowData.isBingo} bgColor={bgColor} isGameMaster={this.state.matchMaster == this.state.myName ? true : false} 
@@ -219,6 +228,7 @@ export default class Match extends React.Component {
             
           }}
           onDeletePress={()=>{
+            Vibration.vibrate();
             Alert.alert('Are you sure?', 'Are you sure want to delete the card "'+rowData.text+'"? This action is irreversible.', [
               {
                 text: 'Yep, delete it',
@@ -241,6 +251,7 @@ export default class Match extends React.Component {
             if(rowData.isBingo) {
               return;
             }
+            Vibration.vibrate();
             Alert.alert('Are you sure?', 'You are now going to give points to the voters of the card "'+rowData.text+'". This action is irreversible. Are you sure?', [
               {
                 text: "It's BINGO!, I'm pretty sure",

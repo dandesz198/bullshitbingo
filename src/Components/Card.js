@@ -34,7 +34,7 @@ class Card extends Component {
                         <Text style={style.buttonText}>{this.props.isMatch ? 'Delete' : 'Bingo'}</Text>
                         </TouchableOpacity>
                     </Animated.View>
-                    
+
                     <Text style={[style.voteNumberStyle, {display: this.props.isMatch ?  'none' : 'flex'}]}>{this.props.voteCount} votes</Text>
                 </View>
             </View>
@@ -52,6 +52,7 @@ let style = StyleSheet.create({
         marginVertical: 12.5,
         marginHorizontal: 15,
         display: 'flex',
+        elevation: 3
     }, 
 
     /*UPPERBOX*/

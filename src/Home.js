@@ -1,11 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Modal, Alert, AsyncStorage, Image, Dimensions, Linking, BackHandler } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Animated, ScrollView, ListView, Modal, Alert, AsyncStorage, Image, Dimensions, Linking, BackHandler, Vibration, ImageBackground } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import * as firebase from 'firebase';
 import md5 from 'md5';
 import { Analytics, PageHit, Event } from 'expo-analytics';
 import Link from './Components/Link.js';
-import { Updates } from 'expo';
+import { Updates, Font } from 'expo';
 
 let Environment = require('./environment.js')
 
@@ -26,9 +26,7 @@ console.disableYellowBox = true
 
 export default class Home extends React.Component {
     state = {
-      x: new Animated.Value(0),
       games: [],
-      value: 0,
       
       //Data for the new room
       newGameModalVisible: false,
@@ -44,13 +42,16 @@ export default class Home extends React.Component {
       joinMaster: '',
       roomPw: '',
       isNewGameIDCorrect: true,
+      joinPw: '',
 
       myName: '',
       myNameWB: '',
 
       infoModalVisible: false,
 
-      isFirstOpen: false
+      isFirstOpen: false,
+
+      fontsLoaded: false
   };
 
   returnData(id) {
@@ -60,21 +61,29 @@ export default class Home extends React.Component {
   componentWillMount() {
     //Initialize Firebase
     firebase.initializeApp(config);
+    this.newId();
     this.loadGames();
   }
 
   async componentDidMount() {
     //Starts the first loop in color changing
-    this.changeColor();
+    await Font.loadAsync({
+      'cabin-sketch': require('./fonts/CabinSketch-Regular.ttf'),
+      'cabin-sketch-bold': require('./fonts/CabinSketch-Bold.ttf')
+    });
 
-    analytics.hit(new PageHit('Home'));
+    this.setState({fontsLoaded: true});
 
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
+
+    analytics.hit(new PageHit('Home'));
 
     try {
       const update = await Expo.Updates.checkForUpdateAsync();
       if (update.isAvailable) {
         await Expo.Updates.fetchUpdateAsync();
+        Vibration.vibrate();
+        this.setState({joinGameModalVisible: false, newGameModalVisible: false, infoModalVisible: false})
         Alert.alert('Update avaliable', "Please update the app in order to get the latest Bullshit Bingo experience. (It won't take more than 5 seconds, I swear)", [
           {text: 'OK', onPress: () => Expo.Updates.reload()},
           {text: 'GTFO', onPress: () => console.log('no update for you')},
@@ -91,10 +100,23 @@ export default class Home extends React.Component {
     }, 2000);
   }
 
+  async newId() {
+    var thus = this;
+    firebase.database().ref('games/' + this.state.newGameID).once('value', function(snap) {
+      //Check if the game exists
+      if(typeof snap.val() != "undefined" && snap.val() != null) {
+        thus.setState({newGameID: Math.floor(Math.random() * 899999 + 100000).toString()});
+        thus.newId();
+      } else {
+        return;
+      }
+    });
+  }
+
   onBackPress () {
-    this.setState({joinGameModalVisible: false, newGameModalVisible: false, infoModalVisible: false})
-    return true
- }
+    this.setState({joinGameModalVisible: false, newGameModalVisible: false, infoModalVisible: false});
+    return true;
+  }
 
   //Save data to the AsyncStorage
   async saveGames() {
@@ -178,6 +200,7 @@ export default class Home extends React.Component {
 
   componentWillReceiveProps() {
     this.deleteGame(this.props.delete);
+    BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
   }
 
   //Delete a game from the 'My rooms' list
@@ -189,124 +212,114 @@ export default class Home extends React.Component {
   }
 
   render() {
-    var bgColor = this.state.x.interpolate({
-      inputRange: [1, 2, 3, 4],
-      outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)']
-    });
-
     if(this.state.isFirstOpen) {
       return (
         <ScrollView style={{flex: 1}} pagingEnabled={true} horizontal={true} vertical={false}>
-          <StatusBar
-            barStyle="light-content"
-          />
           <View style={[styles.onboardContainter, {backgroundColor: '#2f3542'}]}>
             <Image source={require('./poo.png')} style={{width: 125, height: 125}} />
-            <Text style={{color: 'white', fontSize: 30, fontWeight: 'bold', textAlign: 'center', marginTop: 10}}>Welcome to the {'\n'} Bullshit Bingo!</Text>
-            <Text style={{color: 'white', fontSize: 20, textAlign: 'center', marginTop: 5}}>We'll guide you trough the overcomplicated system of this game, or you can try to understand it on your own.</Text>
+            <Text style={{fontSize: 30, fontWeight: 'bold', textAlign: 'center', marginTop: 10}}>Welcome to the {'\n'} Bullshit Bingo!</Text>
+            <Text style={{fontSize: 20, textAlign: 'center', marginTop: 5}}>We'll guide you trough the overcomplicated system of this game, or you can try to understand it on your own.</Text>
           </View>
           <View style={[styles.onboardContainter, {backgroundColor: '#5352ed'}]}>
-            <Text style={{color: 'white', fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>Rooms</Text>
-            <Text style={{color: 'white', fontSize: 20, textAlign: 'center'}}>Inside rooms, you can find matches and other players. They are generally built around themes, like a Netflix show, a school class, or your workplace friend circle.</Text>
+            <Text style={{fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>Rooms</Text>
+            <Text style={{fontSize: 20, textAlign: 'center'}}>Inside rooms, you can find matches and other players. They are generally built around themes, like a Netflix show, a school class, or your workplace friend circle.</Text>
           </View>
           <View style={[styles.onboardContainter, {backgroundColor: '#3742fa'}]}>
-            <Text style={{color: 'white', fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>Matches</Text>
-            <Text style={{color: 'white', fontSize: 20, textAlign: 'center'}}>They got a question (e.g. "What's the next thing that's going to break in the office?"), and several cards (or answers) that you can vote on. If you vote on a card, and that thing breaks, you win. You can only have votes on a maximum of 2 cards.</Text>
+            <Text style={{fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>Matches</Text>
+            <Text style={{fontSize: 20, textAlign: 'center'}}>They got a question (e.g. "What's the next thing that's going to break in the office?"), and several cards (or answers) that you can vote on. If you vote on a card, and that thing breaks, you win. You can only have votes on a maximum of 2 cards.</Text>
           </View>
           <View style={[styles.onboardContainter, {backgroundColor: '#1e90ff'}]}>
-            <Text style={{color: 'white', fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>Cards</Text>
-            <Text style={{color: 'white', fontSize: 20, textAlign: 'center'}}>Cards are used to show you every information you may need ever: the text you can vote on, how much people voted on it, and that who created it. If you can't vote on a card, that can mean two things: 1., you exceeded your 2-card limit on the votes and/or the card already had a BINGO! on it. (Only the match master (the creator of the match) can give points for the players)</Text>
+            <Text style={{fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>Cards</Text>
+            <Text style={{fontSize: 20, textAlign: 'center'}}>Cards are used to show you every information you may need ever: the text you can vote on, how much people voted on it, and that who created it. If you can't vote on a card, that can mean two things: 1., you exceeded your 2-card limit on the votes and/or the card already had a BINGO! on it. (Only the match master (the creator of the match) can give points for the players)</Text>
           </View>
           <View style={[styles.onboardContainter, {backgroundColor: '#2ed573'}]}>
-            <Text style={{color: 'white', fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>BINGO!</Text>
-            <Text style={{color: 'white', fontSize: 20, textAlign: 'center'}}>If the text you voted on occurs (eg. the room #42's windows broke), the match master can give points for the players who voted on the corresponding card.</Text>
+            <Text style={{fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>BINGO!</Text>
+            <Text style={{fontSize: 20, textAlign: 'center'}}>If the text you voted on occurs (eg. the room #42's windows broke), the match master can give points for the players who voted on the corresponding card.</Text>
           </View>
           <View style={[styles.onboardContainter, {backgroundColor: '#ff4757'}]}>
-            <Text style={{color: 'white', fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>Let's get started!</Text>
-            <Text style={{color: 'white', fontSize: 20, textAlign: 'center'}}>Now you're all set. Have fun!</Text>
+            <Text style={{fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>Let's get started!</Text>
+            <Text style={{fontSize: 20, textAlign: 'center'}}>Now you're all set. Have fun!</Text>
             <TouchableOpacity style={{marginTop: 15}} onPress={()=>{this.setState({isFirstOpen: false})}}>
-              <Text style={{color: 'white', fontSize: 30, textAlign: 'center'}}>Play</Text>
+              <Text style={{fontSize: 30, textAlign: 'center'}}>Play</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
       )
     } else {
       return (
-        <Animated.View style={[styles.container, {backgroundColor: bgColor}]}>
-          <StatusBar
-            barStyle="light-content"
-          />
+        <View style={[styles.container, {backgroundColor: 'white'}]}>
           <Modal
             animationType="slide"
             transparent={false}
             onRequestClose={()=>this.setState({newGameModalVisible: false})}
             visible={this.state.newGameModalVisible}>
-            <View style={{flex: 1}}>
+            <View style={{flex: 1, backgroundColor: 'white', padding: 20}}>
               <ScrollView style={{flex: 1}}>
-                <Animated.View style={{padding: 20, backgroundColor: bgColor}}>
-                    <Text style={[styles.heading, {fontSize: 32}]}>Create a new room</Text>
-                </Animated.View>
-                <View style={{flexDirection: 'column', padding: 20, paddingBottom: 10}}>
+                <Text style={[styles.heading, {fontSize: 36, marginLeft: 0, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Create a new room</Text>
+                <View style={{display: this.state.myName.length == 0 ? 'flex' : 'none'}}>
                   <TextInput
-                    style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 10, display: this.state.myName.length == 0 ? 'flex' : 'none'}]}
+                    style={[styles.input, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch' : 'Arial', marginTop: 5, marginBottom: 5}]}
                     underlineColorAndroid='transparent'
-                    placeholder="Your in-room name (public)"
-                    placeholderTextColor="#aaa"
+                    placeholder="Your name (public)"
+                    placeholderTextColor="#222"
                     onChangeText={(myNameWB) => this.setState({myNameWB})}
                     value={this.state.myNameWB}
                   />
-                  <Text style={{color: '#ee5253', fontSize: 16, display: this.state.myName.length == 0 && this.state.myNameWB.length == 0 ? 'flex' : 'none'}}>Please fill in this field.</Text>
-                  <TextInput
-                    style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 15, marginBottom: 10}]}
-                    underlineColorAndroid='transparent'
-                    placeholder="The name of the room (public)"
-                    placeholderTextColor="#aaa"
-                    onChangeText={(newGameName) => this.setState({newGameName})}
-                    value={this.state.newGameName}
-                  />
-                  <Text style={{color: '#ee5253', fontSize: 16, display: this.state.newGameName.length == 0 ? 'flex' : 'none'}}>Please fill in this field.</Text>
-                  <Text style={[styles.p, {marginTop: 10, fontWeight: 'bold'}]}>Password lock (for you only)</Text>
-                  <TextInput
-                    style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 10}]}
-                    underlineColorAndroid='transparent'
-                    secureTextEntry={true}
-                    placeholder="Password"
-                    placeholderTextColor="#aaa"
-                    onChangeText={(pw) => this.setState({pw})}
-                    value={this.state.pw}
-                  />
-                  <TextInput
-                    style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 10}]}
-                    underlineColorAndroid='transparent'
-                    secureTextEntry={true}
-                    placeholder="Password again"
-                    placeholderTextColor="#aaa"
-                    onChangeText={(pwAgain) => this.setState({pwAgain})}
-                    value={this.state.pwAgain}
-                  />
-                  <Text style={{color: '#ee5253', fontSize: 16, display: this.state.pw !== this.state.pwAgain ? 'flex' : 'none'}}>The passwords don't match.</Text>
+                  <Image source={require('./images/line_long.png')} />
+                  <Text style={{fontSize: 16, marginTop: 10, display: this.state.myName.length == 0 && this.state.myNameWB.length == 0 ? 'flex' : 'none', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}}>Please don't leave any field empty.</Text>
                 </View>
-                <View style={{flexDirection: 'column', paddingHorizontal: 20}}>
-                  <Text style={styles.p}>Room PIN:</Text>
-                  <Text style={styles.h2}>{this.state.newGameID}</Text>
+                <TextInput
+                  style={[styles.input, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch' : 'Arial', marginTop: 20, marginBottom: 5}]}
+                  underlineColorAndroid='transparent'
+                  placeholder="The name of the room (public)"
+                  placeholderTextColor="#222"
+                  onChangeText={(newGameName) => this.setState({newGameName})}
+                  value={this.state.newGameName}
+                />
+                <Image source={require('./images/line_long.png')} />
+                <Text style={{color: '#ee5253', fontSize: 16, marginTop: 10, display: this.state.newGameName.length == 0 ? 'flex' : 'none', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}}>Please don't leave any field empty.</Text>
+                <Text style={[styles.p, {marginTop: 20, fontWeight: 'bold', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Password lock (for you only)</Text>
+                <TextInput
+                  style={[styles.input, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch' : 'Arial', marginTop: 5, marginBottom: 5}]}
+                  underlineColorAndroid='transparent'
+                  secureTextEntry={true}
+                  placeholder="Password"
+                  placeholderTextColor="#222"
+                  onChangeText={(pw) => this.setState({pw})}
+                  value={this.state.pw}
+                />
+                <Image source={require('./images/line_long.png')} />
+                <TextInput
+                  style={[styles.input, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch' : 'Arial', marginTop: 5, marginBottom: 5}]}
+                  underlineColorAndroid='transparent'
+                  secureTextEntry={true}
+                  placeholder="Password again"
+                  placeholderTextColor="#222"
+                  onChangeText={(pwAgain) => this.setState({pwAgain})}
+                  value={this.state.pwAgain}
+                />
+                <Image source={require('./images/line_long.png')} />
+                <Text style={{color: '#ee5253', fontSize: 16, display: this.state.pw !== this.state.pwAgain ? 'flex' : 'none', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}}>The passwords don't match.</Text>
+                <View style={{flexDirection: 'column'}}>
+                  <Text style={[styles.p, {marginTop: 20, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Room PIN:</Text>
+                  <Text style={[styles.h2, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>{this.state.newGameID}</Text>
                 </View>
-                <View style={{flexDirection: 'row', height: 45, marginHorizontal: 20, marginTop: 10, marginBottom: 20}}>
-                  <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
-                    <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={async()=>{
-
+                <View style={{flexDirection: 'row', alignContent: 'center', justifyContent: 'center', marginTop: 30}}>
+                  <View style={{flexDirection: 'column'}}>
+                    <Image source={require('./images/create_child.png')} style={{height: 102, width: 140, marginBottom: -2.5}}/>
+                    <TouchableOpacity style={[styles.button, {marginRight: 25}]} onPress={async()=>{
                       if((this.state.myNameWB.length == 0 && this.state.myName.length == 0) || this.state.pw.length == 0 || this.state.pwAgain.length == 0 || this.state.newGameName.length == 0) {
-                        console.log(this.state.pw)
-                        console.log(this.state.pwAgain)
-                        this.setState({newGameModalVisible: false})
+                        this.setState({newGameModalVisible: false});
+                        Vibration.vibrate();
                         Alert.alert('Error', 'I saw terrible things... Empty fields. Please fill in the form to continue.', [
                           {text: 'OK', onPress: () => this.setState({newGameModalVisible: true})},
                         ]);
                         return;
                       }
-  
+
                       if(this.state.myName.length == 0) {
                         await this.setState({myName: this.state.myNameWB, myNameWB: ''});
-  
+
                         //Save name to AsyncStorage
                         try {
                           await AsyncStorage.setItem('@MySuperStore:name', this.state.myName);
@@ -314,16 +327,17 @@ export default class Home extends React.Component {
                           // Error saving data
                           console.log(error);
                         }
-  
+
                         firebase.database().ref('users/'+this.state.myName).set({
                           name: this.state.myName,
                           points: 0
                         });
                       }
-  
+
                       //Check the password
                       if(this.state.pw != this.state.pwAgain) {
-                        this.setState({newGameModalVisible: false})
+                        this.setState({newGameModalVisible: false});
+                        Vibration.vibrate();
                         Alert.alert('Error', "The passowrds don't look the same for me.", [
                           {text: 'OK', onPress: () => this.setState({newGameModalVisible: true})},
                         ]);
@@ -337,34 +351,39 @@ export default class Home extends React.Component {
                         masterPw: md5(this.state.pw),
                         members: [this.state.myName]
                       });
-  
-                      //Add the new game to the Games array (renderen in 'My rooms' section)
+
+                      //Add the new game to the Games array (rendered in 'My rooms' section)
                       var games = this.state.games;
-                      games.push({id: this.state.newGameID, name: this.state.newGameName});
+                      var game = {id: this.state.newGameID, name: this.state.newGameName};
+
+                      games.push(game);
+
                       this.setState({games: games, newGameModalVisible: false});
-  
+                      
                       //Navigate to the new game's screen
-                      this.props.navigation.navigate('Room', {gameName: this.state.newGameName, gameId: this.state.newGameID, myName: this.state.myName, returnData: this.returnData.bind(this)})
-  
+                      this.props.navigation.navigate('Room', {gameName: this.state.newGameName, gameId: this.state.newGameID, myName: this.state.myName, returnData: this.returnData.bind(this)});
+                      BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
+
                       //Save the new game to AsyncStorage
                       this.saveGames();
-  
+
                       //Create new game ID for the next game, empty the screen
                       this.setState({pw: '', pwAgain: '', newGameName: '', newGameID: Math.floor(Math.random() * 899999 + 100000).toString()});
-  
+
                       analytics.event(new Event('Createroom'));
                       }}>
-                      <Text style={[styles.join, {color: 'white'}]}>Create room</Text>
+                      <ImageBackground source={require('./images/btn.png')} style={{width: 140, height: 58, justifyContent: 'center'}}>
+                        <Text style={[styles.join, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Create</Text>
+                      </ImageBackground>
                     </TouchableOpacity>
-                  </Animated.View>
-                  <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor}]}>
-                    <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{this.setState({newGameModalVisible: false})}}>
-                      <Text style={[styles.join, {color: 'white'}]}>Cancel</Text>
-                    </TouchableOpacity>
-                  </Animated.View>
+                  </View>
+                  <TouchableOpacity style={[styles.button, {marginTop: 99.5}]} onPress={()=>{this.setState({newGameModalVisible: false})}}>
+                    <ImageBackground source={require('./images/btn.png')} style={{width: 140, height: 58, justifyContent: 'center'}}>
+                      <Text style={[styles.join, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Cancel</Text>
+                    </ImageBackground>
+                  </TouchableOpacity>
                 </View>
-              </ScrollView>
-              
+              </ScrollView> 
             </View>
           </Modal>
           <Modal
@@ -372,36 +391,43 @@ export default class Home extends React.Component {
             transparent={false}
             onRequestClose={()=>this.setState({joinGameModalVisible: false})}
             visible={this.state.joinGameModalVisible}>
-            <View style={{flex: 1}}>
-              <Animated.View style={{padding: 20, backgroundColor: bgColor}}>
-                  <Text style={[styles.heading, {fontSize: 32}]}>Join "{this.state.joinGameName}"?</Text>
-              </Animated.View>
-              <View style={{flex: 1, padding: 20}}>
+            <View style={{flex: 1, backgroundColor: 'white', padding: 20}}>
+              <Text style={[styles.heading, {fontSize: 40, marginBottom: 20, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Join "{this.state.joinGameName}"?</Text>
+              <View style={{flex: 1}}>
                 <View style={{flexDirection: 'column'}}>
-                  <TextInput
-                    style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20, display: this.state.myName.length == 0 ? 'flex' : 'none'}]}
-                    underlineColorAndroid='transparent'
-                    placeholder="Your in-room name (public)"
-                    placeholderTextColor="#aaa"
-                    onChangeText={(myNameWB) => this.setState({myNameWB})}
-                    value={this.state.myNameWB}
-                  />
-                  <TextInput
-                    style={[styles.input, {color: '#666', borderColor: '#666', marginTop: 5, marginBottom: 20, display: this.state.myName == this.state.joinMaster ? 'flex' : 'none'}]}
-                    secureTextEntry={true}
-                    placeholder="Room master password"
-                    placeholderTextColor="#aaa"
-                    underlineColorAndroid='transparent'
-                    onChangeText={(joinPw) => this.setState({joinPw})}
-                    value={this.state.joinPw}
-                  />
+                  <View style={{marginLeft: 20, display: this.state.myName.length == 0 ? 'flex' : 'none'}}>
+                    <TextInput
+                      style={[styles.input, {color: '#666', borderColor: '#666', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}
+                      underlineColorAndroid='transparent'
+                      placeholder="Your name (public)"
+                      placeholderTextColor="#222"
+                      onChangeText={(myNameWB) => this.setState({myNameWB})}
+                      value={this.state.myNameWB}
+                    />
+                    <Image source={require('./images/line_long.png')} />
+                    <Text style={{color: '#ee5253', fontSize: 16, marginTop: 10, display: this.state.myNameWB.length == 0 ? 'flex' : 'none', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}}>Please don't leave any field empty.</Text>
+                  </View>
+                  <View style={{marginLeft: 20, display: this.state.myName == this.state.joinMaster ? 'flex' : 'none'}}>
+                    <TextInput
+                      style={[styles.input, {color: '#666', borderColor: '#666', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}
+                      secureTextEntry={true}
+                      placeholder="Room master password"
+                      placeholderTextColor="#222"
+                      underlineColorAndroid='transparent'
+                      onChangeText={(joinPw) => this.setState({joinPw})}
+                      value={this.state.joinPw}
+                    />
+                    <Image source={require('./images/line_long.png')} />
+                    <Text style={{color: '#ee5253', fontSize: 16, marginTop: 10, display: this.state.joinPw.length == 0 ? 'flex' : 'none', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}}>Please don't leave any field empty.</Text>
+                  </View>
                 </View>
-                <View style={{flexDirection: 'row', height: 45, marginTop: 20}}>
-                  <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor, marginRight: 25}]}>
+                <Image source={require('./images/join_bg.png')} style={{width: 300, height: 295, marginVertical: 20, alignSelf: 'center'}} />
+                <View style={[styles.card, {flexDirection: 'row', alignItems: 'center', alignSelf: 'center'}]}>
+                  <View style={[styles.button, {flex: 1, marginRight: 25}]}>
                     <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={async()=>{
-
                       if(this.state.myNameWB.length == 0 && this.state.myName.length == 0) {
-                        this.setState({joinGameModalVisible: false})
+                        this.setState({joinGameModalVisible: false});
+                        Vibration.vibrate();
                         Alert.alert('Error', 'I saw terrible things... Empty fields. Please fill in the form to continue.', [
                           {text: 'OK', onPress: () => this.setState({joinGameModalVisible: true})},
                         ]);
@@ -427,34 +453,60 @@ export default class Home extends React.Component {
   
                       //Check the password
                       if(this.state.myName == this.state.joinMaster && this.state.roomPw != md5(this.state.joinPw)) {
+                        Vibration.vibrate();
                         Alert.alert('Error', 'The password is incorrect.');
                         return;
                       }
+
+                      var thus = this;
   
                       //Add the user to Firebase
-                      firebase.database().ref('games/'+this.state.joingameId+'/members/').push(this.state.myName);
-  
+                      await firebase.database().ref('games/'+this.state.joingameId+'/members/').once('value', (snap) => {
+                        var members = Object.values(snap.val());
+                        if(members.indexOf(thus.state.myName) == -1) {
+                          firebase.database().ref('games/'+thus.state.joingameId+'/members/').push(thus.state.myName);
+                        }
+                      })  
+
                       //Add the new game to the games array (rendered in the 'My rooms' section in Home.js)
                       var games = this.state.games;
-                      games.push({name: this.state.joinGameName, id: this.state.joingameId});
-                      this.setState({joinGameModalVisible: false, games: games, joingameId: ''});
+                      var game = {id: this.state.joingameId, name: this.state.joinGameName};
+                      var alreadyAdded = false;
+
+                      games.forEach(element => {
+                        if(element.id == this.state.joingameId) {
+                          alreadyAdded = true;
+                        }
+                      });
+
+                      if(!alreadyAdded) {
+                        games.push(game);
+                      }
+
+                      this.setState({joinGameModalVisible: false, games: games});
   
                       //Navigate to the game
                       this.props.navigation.navigate('Room', {gameName: this.state.joinGameName, gameId: this.state.joingameId, myName: this.state.myName, returnData: this.returnData.bind(this)});
+
+                      this.setState({joingameId: '', joinPw: '', roomPw: ''});
+
+                      BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
   
                       //Save to AsyncStorage
                       this.saveGames();
   
-                      analytics.event(new Event('Joinroom'));
+                      analytics.event(new Event('JoinRoom'));
                     }}>
-                      <Text style={[styles.join, {color: 'white'}]}>Join room</Text>
+                      <ImageBackground source={require('./images/btn.png')} style={{width: 140, height: 58, justifyContent: 'center'}}>
+                        <Text style={[styles.join, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Join</Text>
+                      </ImageBackground>
                     </TouchableOpacity>
-                  </Animated.View>
-                  <Animated.View style={[styles.button, {flex: 1, backgroundColor: bgColor}]}>
-                    <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{this.setState({joinGameModalVisible: false})}}>
-                      <Text style={[styles.join, {color: 'white'}]}>Cancel</Text>
-                    </TouchableOpacity>
-                  </Animated.View>
+                  </View>
+                  <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'white'}]} onPress={()=>{this.setState({joinGameModalVisible: false})}}>
+                    <ImageBackground source={require('./images/btn.png')} style={{width: 140, height: 58, justifyContent: 'center'}}>
+                      <Text style={[styles.join, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Cancel</Text>
+                    </ImageBackground>
+                  </TouchableOpacity>
                 </View>
               </View>
             </View>
@@ -464,8 +516,8 @@ export default class Home extends React.Component {
             transparent={false}
             onRequestClose={()=>this.setState({infoModalVisible: false})}
             visible={this.state.infoModalVisible}>
-            <ScrollView style={{flex: 1, backgroundColor: '#eee', padding: 20}}>
-              <Text style={[styles.welcome, {color: '#555', marginVertical: 20}]}>Bullshit Bingo</Text>
+            <ScrollView style={{flex: 1, padding: 20}}>
+              <Text style={[styles.welcome, {color: '#555', marginVertical: 20, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Bullshit Bingo</Text>
               <Text style={{color: '#555', fontSize: 16}}>
                 Imagine the endless possibilities of creating a bingo game about anything. Who's going to marry next, what's the next thing that's going to break in the office, etc.{"\n"}{"\n"}
                 Well, that's what Bullshit Bingo is about.{"\n"}
@@ -501,172 +553,157 @@ export default class Home extends React.Component {
                 <Image source={require('./coffee.png')} style={{height: 45, width: 225}}/>
               </TouchableOpacity>
               <Text style={[styles.p, {fontSize: 15, textAlign: 'center', marginTop: 5}]}>Since the server isn't free, every single cent of your donation is going to be spent on the costs of running this game.</Text>
-              <Animated.View style={{flex: 1, backgroundColor: bgColor, marginTop: 20, marginBottom: 40, height: 50}}>
+              <View style={{flex: 1, marginTop: 20, marginBottom: 40, height: 50}}>
                 <TouchableOpacity style={[styles.button, {flex: 1, shadowColor: 'transparent', backgroundColor: 'transparent'}]} onPress={()=>{this.setState({infoModalVisible: false})}}>
                   <Text style={[styles.join, {backgroundColor: 'transparent', color: 'white'}]}>Close</Text>
                 </TouchableOpacity>
-              </Animated.View>
+              </View>
             </ScrollView>
           </Modal>
-          <View style={{marginTop: 20, flexDirection: 'row', width: Dimensions.get('window').width}}>
-            <Text style={styles.welcome}>Bullshit Bingo</Text>
-            <Text style={[styles.p, {fontSize: 16, color: 'white', marginTop: 'auto', marginBottom: 5, marginLeft: 7.5}]}>0.10</Text>
-            <TouchableOpacity style={{marginRight: 40, marginLeft: 'auto', alignItems: 'center'}} onPress={() => {this.setState({infoModalVisible: true})}}>
-                <Image source={require('./info.png')} style={{height: 25, width: 25, marginTop: 'auto', marginBottom: 'auto'}} />
-            </TouchableOpacity>
-          </View>
           <ScrollView style={{flex: 1}}>
-            <TouchableOpacity style={[styles.button, {marginTop: 10, height: 45}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
-              <Animated.Text style={[styles.join, {color: bgColor}]}>Create new room</Animated.Text>
+            <View style={{marginTop: 20, flexDirection: 'row', width: Dimensions.get('window').width}}>
+              <Text style={[styles.welcome, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Bullshit Bingo</Text>
+              <Text style={[styles.p, {fontSize: 16, marginTop: 'auto', marginBottom: 5, marginLeft: 7.5, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>0.11</Text>
+              {/*<TouchableOpacity style={{marginRight: 40, marginLeft: 'auto', alignItems: 'center'}} onPress={() => {this.setState({infoModalVisible: true})}}>
+                  <Image source={require('./info.png')} style={{height: 25, width: 25, marginTop: 'auto', marginBottom: 'auto'}} />
+              </TouchableOpacity>*/}
+            </View>
+            <TouchableOpacity style={[styles.button, {marginTop: 10}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
+              <ImageBackground source={require('./images/btn_wide.png')} style={{width: 330, height: 64, alignItems: 'center', justifyContent: 'center'}}>
+                <Text style={[styles.join, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Create a new room</Text>
+              </ImageBackground>
             </TouchableOpacity>
-            <Text style={styles.heading}>Join a room</Text>
-            <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
-              <TextInput
-                style={[styles.input, {flex: 1}]}
-                placeholder="Room PIN"
-                placeholderTextColor="#fff"
-                keyboardType="numeric"
-                underlineColorAndroid='transparent'
-                onChangeText={(joingameId) => this.setState({joingameId})}
-                value={this.state.joingameId}
-              />
-              <TouchableOpacity onPress={()=>{
-                var thus = this;
+            <Text style={[styles.heading, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Join a room</Text>
+            <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+              <Image source={require('./images/home_child.png')} style={{height: 180, width: 105, marginTop: 10, marginLeft: 0, marginRight: 'auto'}} />
+              <View style={{flexDirection: 'column', height: 140, alignItems: 'center', marginRight: 'auto', marginTop: 'auto', marginBottom: 'auto'}}>              
+                <TextInput
+                  style={[styles.input, {flex: 1, height: 40, width: 140, fontSize: 28, textAlign: 'center', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}
+                  placeholder="Room PIN"
+                  placeholderTextColor="#222"
+                  keyboardType="numeric"
+                  underlineColorAndroid='transparent'
+                  onChangeText={(joingameId) => this.setState({joingameId})}
+                  value={this.state.joingameId}
+                />
+                <Image source={require('./images/line_short.png')} style={{width: 140, marginTop: 5, marginBottom: 10}} />
+                <Text style={{color: '#ee5253', fontSize: 16, display: this.state.isNewGameIDCorrect ? 'none' : 'flex', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}}>Please check the PIN.</Text>
+                <TouchableOpacity style={[styles.button, {marginTop: 5}]}
+                onPress={()=>{
+                  var thus = this;
 
-                if(this.state.joingameId.length < 6) {
-                  //Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.");
-                  this.setState({isNewGameIDCorrect: false});
-                  return;
-                }
-  
-                //Get the name and the master's name of the new room
-                firebase.database().ref('games/' + this.state.joingameId).once('value', function(snap) {
-                  if(typeof snap.val() != "undefined") {
-                    var newGameName = JSON.stringify(snap.val().name);
-                  }
-                  else {
+                  if(this.state.joingameId.length < 6) {
                     //Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.");
-                    thus.setState({isNewGameIDCorrect: false});
+                    this.setState({isNewGameIDCorrect: false});
+                    Vibration.vibrate();
                     return;
                   }
-  
-                  //Check if the game exists
-                  if(newGameName.length > 1 && newGameName != "null") {
-                    var masterName = JSON.stringify(snap.val().master);
-                    var masterPw = JSON.stringify(snap.val().masterPw);
-  
-                    //Remove "
-                    newGameName = newGameName.slice(1, -1);
-                    masterName = masterName.slice(1, -1);
-                    masterPw = masterPw.slice(1, -1);
-  
-                    //Open the connection modal
-                    thus.setState({joinGameName: newGameName, joinMaster: masterName, roomPw: masterPw, joinGameModalVisible: true});
-                  } else {
-                    Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.")
-                  }
-                });
-                }} style={[styles.button, {flex: 1}]}>
-                <Animated.Text style={[styles.join, {color: bgColor}]}>Join</Animated.Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={{color: '#ee5253', fontSize: 16, marginTop: 10, display: this.state.isNewGameIDCorrect ? 'none' : 'flex'}}>Please check the PIN.</Text>
-            <Text style={styles.heading}>My rooms</Text>
-            <ListView
-              dataSource={ds.cloneWithRows(this.state.games)}
-              enableEmptySections={true}
-              renderRow={(rowData) => 
-                <TouchableOpacity style={{borderColor: '#fff', borderBottomWidth: .5, padding: 2.5}} onPress={()=>{this.props.navigation.navigate('Room', {gameName: rowData.name, gameId: rowData.id, myName: this.state.myName, returnData: this.returnData.bind(this)})}}>
-                  <Text style={styles.gameList}>{rowData.name}</Text>
+    
+                  //Get the name and the master's name of the new room
+                  firebase.database().ref('games/' + this.state.joingameId).once('value', function(snap) {
+                    if(typeof snap.val() != "undefined" && snap.val() != null) {
+                      var newGameName = JSON.stringify(snap.val().name);
+                    }
+                    else {
+                      //Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.");
+                      thus.setState({isNewGameIDCorrect: false});
+                      Vibration.vibrate();
+                      return;
+                    }
+    
+                    //Check if the game exists
+                    if(newGameName.length > 1 && newGameName != "null") {
+                      var masterName = JSON.stringify(snap.val().master);
+                      var masterPw = JSON.stringify(snap.val().masterPw);
+    
+                      //Remove "
+                      newGameName = newGameName.slice(1, -1);
+                      masterName = masterName.slice(1, -1);
+                      masterPw = masterPw.slice(1, -1);
+    
+                      //Open the connection modal
+                      thus.setState({joinGameName: newGameName, joinMaster: masterName, roomPw: masterPw, joinGameModalVisible: true});
+                    } else {
+                      Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.");
+                      Vibration.vibrate();
+                    }
+                  });
+                  }}
+                  >
+                  <ImageBackground source={require('./images/btn.png')} style={{width: 140, height: 58, justifyContent: 'center'}}>
+                    <Text style={[styles.join, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Join</Text>
+                  </ImageBackground>
                 </TouchableOpacity>
-              }
-            />
+              </View>
+            </View>
+            <Text style={[styles.heading, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>My rooms</Text>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <ListView
+                dataSource={ds.cloneWithRows(this.state.games)}
+                enableEmptySections={true}
+                renderRow={(rowData) => 
+                  <TouchableOpacity style={{padding: 2.5, marginLeft: 20}} onPress={()=>{
+                    this.props.navigation.navigate('Room', {gameName: rowData.name, gameId: rowData.id, myName: this.state.myName, returnData: this.returnData.bind(this)});
+                    BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
+                  }}>
+                    <Text style={[styles.gameList, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch' : 'Arial'}]}>{rowData.name}</Text>
+                    <Image source={require('./images/line_short.png')} />
+                  </TouchableOpacity>
+                }
+              />
+              <Image source={require('./images/home_grass.png')} style={{width: 45, height: 45, marginRight: 30}}/>
+            </View>
           </ScrollView>
-        </Animated.View>
+        </View>
       );
     }
-  }
-
-  //Animate to the next color
-  changeColor() {
-    //Get the number of the next color
-    var value = this.state.value;
-    if(value > 4) {
-      value = 0;
-    } else {
-      value += 1;
-    }
-    this.setState({value: value});
-    Animated.timing(this.state.x, { toValue: value, duration: 3000 }).start();
-    //Wait 3 sec before animating again
-    setTimeout(() => {
-      //Continue the animation
-      this.changeColor()
-    }, 3000);
   }
 }
 
 let styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     justifyContent: 'center'
   },
 
   welcome: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    color: '#fff'
+    fontSize: 45,
+    marginLeft: 20,
+    marginTop: 20
   },
 
   heading: {
-    fontSize: 30,
-    marginTop: 20,
-    fontWeight: 'bold',
-    color: '#fff'
+    fontSize: 35,
+    marginTop: 30,
+    marginLeft: 20
   },
 
   input: {
-    color: '#fff',
     padding: 5,
-    marginRight: 25,
-    height: 45,
-    fontSize: 18,
-    borderColor: '#fff',
-    borderBottomWidth: 2.5
+    fontSize: 24
   },
 
   button: {
-    height: 45,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    shadowColor: '#999',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.7
+    alignItems: 'center'
   },
 
   join: {
-    fontSize: 20,
+    fontSize: 30,
     textAlign: 'center'
   },
 
   gameList: {
-    color: 'white',
-    fontWeight: '300',
-    fontSize: 20,
+    fontSize: 30,
     marginVertical: 5
   },
 
   h2: {
-    color: '#444',
-    fontSize: 34,
-    fontWeight: '700'
+    fontSize: 38
   },
 
   p: {
-    color: '#666',
-    fontSize: 20
+    fontSize: 26
   },
 
   onboardContainter: {
@@ -675,5 +712,12 @@ let styles = StyleSheet.create({
     justifyContent: 'center', 
     alignItems: 'center', 
     padding: 30
+  },
+
+  card: {
+    width: Dimensions.get('window').width * 0.9,
+    marginHorizontal: Dimensions.get('window').width * 0.05,
+    marginVertical: 10,
+    padding: 15
   }
 });
