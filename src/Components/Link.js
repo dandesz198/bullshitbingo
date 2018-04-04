@@ -15,7 +15,8 @@ let styles = StyleSheet.create({
     link: {
         color: '#3498db', 
         fontSize: 16, 
-        textDecorationLine: 'underline'
+        textDecorationLine: 'underline',
+        fontFamily: 'cabin-sketch'
     }
 })
 

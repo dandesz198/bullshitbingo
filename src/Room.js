@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Dimensions, Platform, Alert, Vibration } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Animated, ScrollView, ListView, Dimensions, Platform, Alert, Vibration, Image, ImageBackground } from 'react-native';
 import { StackNavigator, NavigationActions } from 'react-navigation';
 import * as GestureHandler from 'react-native-gesture-handler';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
@@ -55,8 +55,6 @@ export default class Room extends React.Component {
   componentDidMount() {
     //Sync Firebase
     this.getData();
-    //Starts the first loop in color changing
-    this.changeColor();
 
     //this.refs._scrollView.scrollTo({x: 0, y: 125, animated: false})
 
@@ -129,18 +127,10 @@ export default class Room extends React.Component {
   _handleIndexChange = index => this.setState({ index });
 
   _renderHeader = (props) => {
-    var bgColor = this.state.x.interpolate({
-      inputRange: [1, 2, 3, 4],
-      outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)']
-    });
-    return(<TabBar style={{paddingTop: 25, backgroundColor: bgColor}} {...props}/>);
+    return(<TabBar indicatorStyle={{ backgroundColor: "black" }} labelStyle={{color: 'black', fontFamily: 'cabin-sketch-bold', fontSize: 20}} style={{paddingTop: 25, backgroundColor: 'white'}} {...props}/>);
   };
 
   _renderScene = ({ route }) => {
-    var bgColor = this.state.x.interpolate({
-      inputRange: [1, 2, 3, 4],
-      outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)']
-    });
     switch (route.key) {
       case '1':
       return (
@@ -148,24 +138,21 @@ export default class Room extends React.Component {
           style={styles.container} 
           decelerationRate={0}
         >
-          <View style={{width: Dimensions.get('window').width, backgroundColor: '#d8e1e3', marginBottom: 15, zIndex: 999}}>
+          <View style={{width: Dimensions.get('window').width, backgroundColor: '#eee'}}>
             <TextInput
-              style={{width: '100%', height: 75, padding: 15, marginBottom: 10, color: '#555', fontSize: 16}}
+              style={{width: '100%', height: 80, paddingHorizontal: 20, marginBottom: 10, color: '#555', fontSize: 20, fontFamily: 'cabin-sketch-bold'}}
               underlineColorAndroid='transparent'
               placeholder="Create a new match"
-              placeholderTextColor="#666"
+              placeholderTextColor="#222"
               onChangeText={(newMatchText) => this.setState({newMatchText})}
               value={this.state.newMatchText}
             />
             <TouchableOpacity style={{
               justifyContent: 'center',
-              width: 100,
-              height: 30,
-              backgroundColor: this.state.newMatchText.length > 0 ? '#555' : '#999',
-              borderRadius: 5,
               marginLeft: 'auto',
               marginRight: 15,
-              marginBottom: 10
+              marginBottom: 10,
+              fontFamily: 'cabin-sketch-bold'
             }} onPress={() => {
               if (this.state.newMatchText.length > 0) {
                 //Declare variables
@@ -185,17 +172,22 @@ export default class Room extends React.Component {
                  return;
               }
             }}>
-              <Text style={{color: 'white', textAlign: 'center', fontWeight: "bold"}}>Create</Text>
+              <ImageBackground source={require('./images/btn.png')} style={{width: 96, height: 40, justifyContent: 'center'}}>
+                <Text style={{fontSize: 20, textAlign: 'center', fontFamily: 'cabin-sketch-bold'}}>Create</Text>
+              </ImageBackground>
             </TouchableOpacity>
           </View>
-          <Text style={{padding: 1.25, textAlign: 'center', fontSize: 14, color: '#888'}}>Pull down to create a new match</Text>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Image source={require('./images/add_child.png')} style={{width: 75, height: 59, marginRight: 20}}/>
+            <Text style={{padding: 1.25, textAlign: 'left', fontSize: 16, color: 'black', fontFamily: 'cabin-sketch'}}>Pull down to create a new match</Text>
+          </View>
           <ListView
             dataSource={ds.cloneWithRows(this.state.matches)}
             enableEmptySections={true}
             style={[styles.membersList, {minHeight: Dimensions.get('window').height}]}
-            renderRow={(rowData) => <Card isMatch={true} matchName={this.state.gameName} cardText={rowData.name} creatorName={rowData.master} bgColor={bgColor} isGameMaster={rowData.master == this.state.myName ? true : false} 
+            renderRow={(rowData) => <Card isMatch={true} matchName={this.state.gameName} cardText={rowData.name} creatorName={rowData.master} bgColor={'white'} isGameMaster={rowData.master == this.state.myName ? true : false} 
             onVotePress={()=>{
-                this.props.navigation.navigate('Match', {matchName: this.state.gameName, gameId: this.state.gameId, myName: this.state.myName, matchId: this.state.matches.indexOf(rowData), matchMaster: rowData.master, returnData: this.returnData.bind(this)});
+                this.props.navigation.navigate('Match', {matchName: rowData.name, gameId: this.state.gameId, myName: this.state.myName, matchId: this.state.matches.indexOf(rowData), matchMaster: rowData.master, returnData: this.returnData.bind(this)});
             }}
             onBingoPress={()=>{
               Vibration.vibrate();
@@ -216,31 +208,43 @@ export default class Room extends React.Component {
       );
       case '2':      
       return (
-        <ScrollView style={{flex: 1}}>
-          <View style={[styles.card, {marginTop: 15}]}>
-            <Text style={[styles.heading, {color: '#555', fontSize: 30}]}>{this.state.gameName}</Text>
+        <ScrollView style={{flex: 1, backgroundColor: 'white'}}>
+          <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+            <View style={{flexDirection: 'column'}}>
+              <Text style={styles.p}>room name:</Text>
+              <Text style={styles.h2}>{this.state.gameName}</Text>
+            </View>
+            <Image source={require('./images/info_right.png')} style={{marginLeft: 'auto', marginRight: 0, width: 80, height: 100}}/>
           </View>
-          <View style={styles.card}>
-            <Text style={[styles.p]}>Room PIN:</Text>
-            <Text style={styles.h2}>{this.state.gameId}</Text>
-            <Text style={[styles.p, {fontSize: 15}]}>Others can use this code to join to this room.</Text>
+          <Text style={styles.p}>room master:</Text>
+          <Text style={styles.h2}>{this.state.gameMaster}</Text>
+          <View style={{flexDirection: 'row', justifyContent: 'center', marginLeft: 0, marginRight: 'auto'}}>
+            <Image source={require('./images/info_left.png')} style={{marginLeft: 0, width: 80, height: 100}}/>
+            <View style={{flexDirection: 'column'}}>
+              <Text style={[styles.p]}>room PIN:</Text>
+              <Text style={styles.h2}>{this.state.gameId}</Text>
+            </View>
           </View>
-          <View style={styles.card}>
-            <Text style={[styles.p]}>Room master:</Text>
-            <Text style={styles.h2}>{this.state.gameMaster}</Text>
-            <Text style={[styles.p, {fontSize: 15}]}>They can give points for the winners in the matches.</Text>
-          </View>
-          <View style={styles.card}>
-            <Text style={[styles.heading, {color: '#555', fontSize: 30}]}>Members</Text>
-            <ListView
-              dataSource={ds.cloneWithRows(this.state.gameMembers.sort(function(a,b) {return (a.points < b.points) ? 1 : ((b.points < a.points) ? -1 : 0);}))}
-              enableEmptySections={true}
-              style={{marginTop: 10}}
-              renderRow={(rowData) => 
-              <Animated.View style={{flex: 1, paddingHorizontal: 20, height: 40, flexDirection: 'row', justifyContent: 'center', backgroundColor: this.state.myName == rowData.name ? bgColor : 'transparent'}}>
-                <Text style={[styles.membersListItem, {color: this.state.myName == rowData.name ? 'white' : '#555', marginTop: 7.5}]}><Text style={[styles.membersListItem, {fontWeight: '700', color: this.state.myName == rowData.name ? 'white' : '#555'}]}>{rowData.name}</Text> | {rowData.points} XP</Text>
-                <Animated.View style={{display: this.state.myName != this.state.gameMaster && this.state.myName != rowData.name ? 'none' : 'flex', padding: 5, margin: 5, borderColor: this.state.myName == rowData.name ? 'white' : bgColor, borderWidth: 1.5, borderRadius: 5, alignSelf: 'flex-end', marginRight: 0, marginLeft: 'auto'}}>
-                  <TouchableOpacity onPress={()=>{
+          <Text style={styles.p}>members</Text>
+          <ListView
+            dataSource={ds.cloneWithRows(this.state.gameMembers.sort(function(a,b) {return (a.points < b.points) ? 1 : ((b.points < a.points) ? -1 : 0);}))}
+            enableEmptySections={true}
+            style={{marginTop: 10}}
+            renderRow={(rowData) => 
+            <View style={{flex: 1, paddingHorizontal: 20, height: 55, flexDirection: 'column', justifyContent: 'center'}}>
+              <View style={{flexDirection: 'row', backgroundColor: 'white'}}>
+                <Text style={[styles.membersListItem, {color: 'black', fontFamily: this.state.myName == rowData.name ? 'cabin-sketch-bold' : 'cabin-sketch'}]}><Text style={[styles.membersListItem, {fontFamily: 'cabin-sketch'}]}>{rowData.name}</Text> | {rowData.points} XP</Text>
+                <TouchableOpacity
+                  style={{
+                    display: this.state.myName != this.state.gameMaster && this.state.myName != rowData.name ? 'none' : 'flex',
+                    alignSelf: 'flex-end',
+                    marginRight: 0,
+                    marginLeft: 'auto',
+                    marginTop: 'auto',
+                    marginBottom: 'auto',
+                    justifyContent: 'center'
+                  }}
+                  onPress={()=>{
                     var thus = this;
                     Vibration.vibrate();
                     Alert.alert(
@@ -309,13 +313,15 @@ export default class Room extends React.Component {
                       ],
                     );
                   }}>
-                    <Animated.Text style={{color: this.state.myName == rowData.name ? 'white' : bgColor}}>{this.state.myName == rowData.name ? 'Quit match' : 'Kick player'}</Animated.Text>
-                  </TouchableOpacity>
-                </Animated.View>
-              </Animated.View>
-              }
-            />
-          </View>
+                  <ImageBackground source={require('./images/btn.png')} style={{width: 84, height: 35, justifyContent: 'center'}}>
+                    <Text style={{fontSize: 18, textAlign: 'center', fontFamily: 'cabin-sketch-bold'}}>{this.state.myName == rowData.name ? 'Quit' : 'Kick'}</Text>
+                  </ImageBackground>
+                </TouchableOpacity>
+              </View>
+              <Image style={{marginTop: 2.5, width: 200}} source={require('./images/line_short.png')}/>
+            </View>
+            }
+          />
         </ScrollView>
       );
       default:
@@ -334,37 +340,17 @@ export default class Room extends React.Component {
       />
     );
   }
-
-  //Animate to the next color
-  changeColor() {
-    if(!isMounted) {
-      return;
-    }
-    var value = this.state.value;
-    if(value > 4) {
-      value = 0;
-    } else {
-      value += 1;
-    }
-    this.setState({value: value});
-    Animated.timing(this.state.x, { toValue: value, duration: 3000 }).start();
-    //Wait 3 sec before animating again
-    setTimeout(() => {
-      //Continue the animation
-      this.changeColor()
-    }, 3000);
-  }
 }
 
 let styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor: 'white'
   },
 
   heading: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    color: '#fff'
+    fontSize: 30,
+    fontFamily: 'cabin-sketch-bold'
   },
 
   input: {
@@ -382,31 +368,22 @@ let styles = StyleSheet.create({
   },
 
   membersListItem: {
-    fontSize: 18,
-    color: '#555',
-    fontWeight: '500'
+    fontSize: 28,
+    fontFamily: 'cabin-sketch-bold',
+    marginTop: 'auto',
+    marginBottom: 'auto'
   },
 
   h2: {
-    color: '#444',
-    fontSize: 34,
-    fontWeight: '700'
+    fontSize: 40,
+    fontFamily: 'cabin-sketch-bold',
+    marginLeft: 20
   },
 
   p: {
-    color: '#666',
-    fontSize: 20
-  },
-
-  card: {
-    width: Dimensions.get('window').width * 0.9,
-    marginHorizontal: Dimensions.get('window').width * 0.05,
-    marginVertical: 10,
-    padding: 15,
-    backgroundColor: 'white',
-    shadowColor: '#999',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.7,
-    elevation: 3
+    fontSize: 26,
+    fontFamily: 'cabin-sketch',
+    marginLeft: 20,
+    marginTop: 20
   }
 });

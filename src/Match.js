@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, StatusBar, TouchableOpacity, Animated, ScrollView, ListView, Dimensions, Platform, Alert, Vibration } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Animated, ScrollView, ListView, Dimensions, Platform, Alert, Vibration, Image, ImageBackground } from 'react-native';
 import { StackNavigator, NavigationActions } from 'react-navigation';
 import * as GestureHandler from 'react-native-gesture-handler';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
@@ -52,8 +52,6 @@ export default class Match extends React.Component {
   componentDidMount() {
     //Sync Firebase
     this.getData();
-    //Starts the first loop in color changing
-    this.changeColor();
 
     //this.refs._scrollView.scrollTo({x: 0, y: 145, animated: false})
 
@@ -146,41 +144,28 @@ export default class Match extends React.Component {
   }
 
   render() {
-    var bgColor = this.state.x.interpolate({
-      inputRange: [1, 2, 3, 4],
-      outputRange: ['rgb(26, 188, 156)', 'rgb(22, 160, 133)', 'rgb(46, 204, 113)', 'rgb(39, 174, 96)']
-    });
     return (
       <ScrollView 
         style={styles.container} 
         decelerationRate={0}
         ref="_scrollView"
         >
-        <StatusBar
-          backgroundColor="#555"
-          barStyle="light-content"
-        />
-        <View style={{width: Dimensions.get('window').width, backgroundColor: '#d8e1e3', marginBottom: 15, zIndex: 999}}>
-          <View style={{width: Dimensions.get('window').width, height: 20, backgroundColor: '#555'}}/>
+        <View style={{width: Dimensions.get('window').width, backgroundColor: '#eee', paddingTop: 25}}>
           <TextInput
-            style={{width: Dimensions.get('window').width, height: 75, padding: 15, marginBottom: 10, color: '#555', fontSize: 16}}
+            style={{width: '100%', height: 80, paddingHorizontal: 20, marginBottom: 10, color: '#555', fontSize: 20, fontFamily: 'cabin-sketch-bold'}}
             underlineColorAndroid='transparent'
-            placeholder="Create a new card"
-            placeholderTextColor="#666"
-            onChangeText={(newCardText) => this.setState({newCardText})}
-            value={this.state.newCardText}
+            placeholder="Create a new match"
+            placeholderTextColor="#222"
+            onChangeText={(newMatchText) => this.setState({newMatchText})}
+            value={this.state.newMatchText}
           />
           <TouchableOpacity style={{
             justifyContent: 'center',
-            width: 100,
-            height: 30,
-            backgroundColor: '#555',
-            borderRadius: 5,
             marginLeft: 'auto',
             marginRight: 15,
             marginBottom: 10,
-            backgroundColor: this.state.newCardText.length > 0 ? '#555' : '#999',
-          }} onPress={()=>{
+            fontFamily: 'cabin-sketch-bold'
+          }} onPress={() => {
             if (this.state.newCardText.length > 0) {
               //Declare variables
               var gameCards = this.state.gameCards;
@@ -198,16 +183,21 @@ export default class Match extends React.Component {
               return;
             }
           }}>
-            <Text style={{color: 'white', textAlign: 'center', fontWeight: "bold"}}>Create</Text>
+            <ImageBackground source={require('./images/btn.png')} style={{width: 96, height: 40, justifyContent: 'center'}}>
+              <Text style={{fontSize: 20, textAlign: 'center', fontFamily: 'cabin-sketch-bold'}}>Create</Text>
+            </ImageBackground>
           </TouchableOpacity>
         </View>
-        <Text style={{padding: 1.25, textAlign: 'center', fontSize: 14, color: '#888'}}>Pull down to create a new card</Text>
+        <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: 'white'}}>
+          <Image source={require('./images/add_child.png')} style={{width: 75, height: 59, marginRight: 20}}/>
+          <Text style={{padding: 1.25, width: '100%', flex: 1, textAlign: 'left', fontSize: 16, color: 'black', fontFamily: 'cabin-sketch'}}>Pull down to create a new card</Text>
+        </View>
         <Text style={{marginLeft: 15, marginVertical: 10, fontWeight: 'bold', textAlign: 'left', fontSize: 36, color: '#555'}}>{this.state.gameName}</Text>
         <ListView
           dataSource={ds.cloneWithRows(this.state.gameCards.sort(function(a,b) {return (a.voters < b.voters) ? 1 : ((b.voters < a.voters) ? -1 : 0);}))}
           enableEmptySections={true}
           style={[styles.membersList, {minHeight: Dimensions.get('window').height}]}
-          renderRow={(rowData) => <Card isMatch={false} matchName={this.state.matchName} cardText={rowData.text} voteCount={rowData.voters.length} creatorName={rowData.creator} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} isBingo={rowData.isBingo} bgColor={bgColor} isGameMaster={this.state.matchMaster == this.state.myName ? true : false} 
+          renderRow={(rowData) => <Card isMatch={false} matchName={this.state.matchName} cardText={rowData.text} voteCount={rowData.voters.length} creatorName={rowData.creator} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} isBingo={rowData.isBingo} bgColor={'white'} isGameMaster={this.state.matchMaster == this.state.myName ? true : false} 
           onVotePress={()=>{
             //Declare variables
             var cards = this.state.gameCards;
@@ -282,31 +272,12 @@ export default class Match extends React.Component {
       </ScrollView>
     );
   }
-
-  //Animate to the next color
-  changeColor() {
-    if(!isMounted) {
-      return;
-    }
-    var value = this.state.value;
-    if(value > 4) {
-      value = 0;
-    } else {
-      value += 1;
-    }
-    this.setState({value: value});
-    Animated.timing(this.state.x, { toValue: value, duration: 3000 }).start();
-    //Wait 3 sec before animating again
-    setTimeout(() => {
-      //Continue the animation
-      this.changeColor()
-    }, 3000);
-  }
 }
 
 let styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor: 'white'
   },
 
   input: {

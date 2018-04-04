@@ -516,15 +516,15 @@ export default class Home extends React.Component {
             transparent={false}
             onRequestClose={()=>this.setState({infoModalVisible: false})}
             visible={this.state.infoModalVisible}>
-            <ScrollView style={{flex: 1, padding: 20}}>
-              <Text style={[styles.welcome, {color: '#555', marginVertical: 20, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Bullshit Bingo</Text>
-              <Text style={{color: '#555', fontSize: 16}}>
+            <ScrollView style={{flex: 1, padding: 25}}>
+              <Text style={{fontSize: 40, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial', marginTop: 20}}>Bullshit Bingo</Text>
+              <Text style={{fontFamily: this.state.fontsLoaded ? 'cabin-sketch' : 'Arial', fontSize: 20}}>
                 Imagine the endless possibilities of creating a bingo game about anything. Who's going to marry next, what's the next thing that's going to break in the office, etc.{"\n"}{"\n"}
                 Well, that's what Bullshit Bingo is about.{"\n"}
                 Create a room, share it with your friends, and play together freely.
               </Text>
-              <Text style={[styles.heading, {color: '#555', marginTop: 15}]}>Rules</Text>
-              <Text style={{color: '#555', fontSize: 16}}>
+              <Text style={{fontSize: 40, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial', marginTop: 15}}>Rules</Text>
+              <Text style={{fontFamily: this.state.fontsLoaded ? 'cabin-sketch' : 'Arial', fontSize: 20}}>
                 • You can only vote on 2 games{"\n"}
                 • Only the room master can delete cards and give points (via 'Bingo!' button){"\n"}
                 • The room master can kick anyone{"\n"}
@@ -532,19 +532,19 @@ export default class Home extends React.Component {
                 • Once the room master exits, the game is going to be deleted, permanently.{"\n"}
                 • Have fun! ;)
               </Text>
-              <Text style={[styles.heading, {color: '#555', marginTop: 15}]}>Creator</Text>
-              <Text style={{color: '#555', fontSize: 16, fontWeight: 'bold'}}>This project is fully open-source.</Text>
+              <Text style={{fontSize: 40, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial', marginTop: 15}}>Creator</Text>
+              <Text style={{fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial', fontSize: 20}}>This project is fully open-source.</Text>
               <Link text="Bullshit Bingo on GitHub" url="https://github.com/dandesz198/bullshitbingo" />
-              <Text style={{color: '#555', fontSize: 16, marginTop: 16}}>
-                Daniel Gergely{"\n"}
+              <Text style={{fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial', fontSize: 20, marginTop: 10}}>
+                Daniel Gergely
               </Text>
               <Link text="GitHub" url="https://github.com/dandesz198" />
               <Link text="Facebook" url="https://fb.me/dandesz198" />
               <Link text="Twitter" url="https://twitter.com/dandesz198" />
               <Link text="LinkedIn" url="https://linkedin.com/in/dandesz198" />
-              <Text style={[styles.heading, {color: '#555', marginTop: 10}]}>Contributor</Text>
-              <Text style={{color: '#555', fontSize: 16}}>
-                Péter Hajdu{"\n"}
+              <Text style={{fontSize: 40, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial', marginTop: 15}}>Contributor</Text>
+              <Text style={{fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial', fontSize: 20}}>
+                Péter Hajdu
               </Text>
               <Link text="GitHub" url="https://github.com/razor97" />
               <Link text="Facebook" url="https://fb.me/hajdupetke" />
@@ -552,10 +552,12 @@ export default class Home extends React.Component {
               <TouchableOpacity style={{marginLeft: 'auto', marginRight: 'auto', marginTop: 15}} onPress={()=>{Linking.openURL('https://paypal.me/dandesz198')}}>
                 <Image source={require('./coffee.png')} style={{height: 45, width: 225}}/>
               </TouchableOpacity>
-              <Text style={[styles.p, {fontSize: 15, textAlign: 'center', marginTop: 5}]}>Since the server isn't free, every single cent of your donation is going to be spent on the costs of running this game.</Text>
+              <Text style={[styles.p, {fontSize: 20, textAlign: 'center', marginTop: 5, fontFamily: this.state.fontsLoaded ? 'cabin-sketch' : 'Arial'}]}>Since the server isn't free, every single cent of your donation is going to be spent on the costs of running this game.</Text>
               <View style={{flex: 1, marginTop: 20, marginBottom: 40, height: 50}}>
                 <TouchableOpacity style={[styles.button, {flex: 1, shadowColor: 'transparent', backgroundColor: 'transparent'}]} onPress={()=>{this.setState({infoModalVisible: false})}}>
-                  <Text style={[styles.join, {backgroundColor: 'transparent', color: 'white'}]}>Close</Text>
+                  <ImageBackground source={require('./images/btn_wide.png')} style={{width: 330, height: 64, alignItems: 'center', justifyContent: 'center'}}>
+                    <Text style={[styles.join, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Close</Text>
+                  </ImageBackground>
                 </TouchableOpacity>
               </View>
             </ScrollView>
@@ -563,10 +565,9 @@ export default class Home extends React.Component {
           <ScrollView style={{flex: 1}}>
             <View style={{marginTop: 20, flexDirection: 'row', width: Dimensions.get('window').width}}>
               <Text style={[styles.welcome, {fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>Bullshit Bingo</Text>
-              <Text style={[styles.p, {fontSize: 16, marginTop: 'auto', marginBottom: 5, marginLeft: 7.5, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}>0.11</Text>
-              {/*<TouchableOpacity style={{marginRight: 40, marginLeft: 'auto', alignItems: 'center'}} onPress={() => {this.setState({infoModalVisible: true})}}>
-                  <Image source={require('./info.png')} style={{height: 25, width: 25, marginTop: 'auto', marginBottom: 'auto'}} />
-              </TouchableOpacity>*/}
+              <TouchableOpacity onPress={() => {this.setState({infoModalVisible: true})}}>
+                <Text style={{fontSize: 16, marginTop: 'auto', marginBottom: 5, marginLeft: 7.5, marginRight: 'auto', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}}>0.12 [i]</Text>
+              </TouchableOpacity>
             </View>
             <TouchableOpacity style={[styles.button, {marginTop: 10}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
               <ImageBackground source={require('./images/btn_wide.png')} style={{width: 330, height: 64, alignItems: 'center', justifyContent: 'center'}}>
