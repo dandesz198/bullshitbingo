@@ -100,11 +100,11 @@ export default class Home extends React.Component {
     }, 2000);
   }
 
-  async newId() {
+  newId() {
     var thus = this;
     firebase.database().ref('games/' + this.state.newGameID).once('value', function(snap) {
       //Check if the game exists
-      if(typeof snap.val() != "undefined" || snap.val() != null) {
+      if(typeof snap.val() != "undefined" && snap.val() != null) {
         thus.setState({newGameID: Math.floor(Math.random() * 899999 + 100000).toString()});
         thus.newId();
       } else {
@@ -592,21 +592,19 @@ export default class Home extends React.Component {
               <TouchableOpacity style={{marginLeft: 'auto', marginRight: 'auto', marginTop: 15}} onPress={()=>{Linking.openURL('https://paypal.me/dandesz198')}}>
                 <Image source={require('./coffee.png')} style={{height: 45, width: 225}}/>
               </TouchableOpacity>
-              <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={[styles.p, {fontSize: 20, textAlign: 'center', marginTop: 5}]}>Since the server isn't free, every single cent of your donation is going to be spent on the costs of running this game.</FontText>
-              <View style={{flex: 1, marginTop: 20, marginBottom: 40, height: 50}}>
-                <TouchableOpacity style={[styles.button, {flex: 1, shadowColor: 'transparent', backgroundColor: 'transparent'}]} onPress={()=>{this.setState({infoModalVisible: false})}}>
-                  <ImageBackground source={require('./images/btn_wide.png')} style={{width: 330, height: 64, alignItems: 'center', justifyContent: 'center'}}>
-                    <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.join}>Close</FontText>
-                  </ImageBackground>
-                </TouchableOpacity>
-              </View>
+              <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={[styles.p, {fontSize: 16, textAlign: 'center', marginTop: 5}]}>Since the server isn't free, every single cent of your donation is going to be spent on the costs of running this game.</FontText>
+              <TouchableOpacity style={[styles.button, {marginTop: 20, marginBottom: 40, width: 330, height: 64}]} onPress={()=>{this.setState({infoModalVisible: false})}}>
+                <ImageBackground source={require('./images/btn_wide.png')} style={{width: 330, height: 64, alignItems: 'center', justifyContent: 'center'}}>
+                  <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.join}>Close</FontText>
+                </ImageBackground>
+              </TouchableOpacity>
             </ScrollView>
           </Modal>
           <ScrollView style={{flex: 1}}>
             <View style={{marginTop: 20, flexDirection: 'row', width: Dimensions.get('window').width}}>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.welcome}>Bullshit Bingo</FontText>
               <TouchableOpacity onPress={() => {this.setState({infoModalVisible: true})}}>
-                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16, marginTop: 'auto', marginBottom: 5, marginLeft: 7.5, marginRight: 'auto'}}>0.12.2 [i]</FontText>
+                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16, marginTop: 'auto', marginBottom: 5, marginLeft: 7.5, marginRight: 'auto'}}>0.12.3 [i]</FontText>
               </TouchableOpacity>
             </View>
             <TouchableOpacity style={[styles.button, {marginTop: 10}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>

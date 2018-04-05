@@ -208,7 +208,7 @@ export default class Room extends React.Component {
   _handleIndexChange = index => this.setState({ index });
 
   _renderHeader = (props) => {
-    return(<TabBar indicatorStyle={{ backgroundColor: "black" }} labelStyle={{color: 'black', fontSize: 20}} style={{paddingTop: 25, backgroundColor: 'white'}} {...props}/>);
+    return(<TabBar indicatorStyle={{ backgroundColor: "black" }} labelStyle={{color: 'black', fontSize: 20, fontFamily: 'cabin-sketch'}} style={{paddingTop: 25, backgroundColor: 'white'}} {...props}/>);
   };
 
   _renderScene = ({ route }) => {
@@ -295,7 +295,7 @@ export default class Room extends React.Component {
             renderRow={(rowData) => 
             <View style={{flex: 1, paddingHorizontal: 20, height: 55, flexDirection: 'column', justifyContent: 'center'}}>
               <View style={{flexDirection: 'row', backgroundColor: 'white'}}>
-                <FontText isLoaded={true} isBold={true} style={[styles.membersListItem, {fontFamily: this.state.myName == rowData.name ? 'cabin-sketch-bold' : 'cabin-sketch'}]}><FontText isLoaded={true} isBold={true} style={styles.membersListItem}>{rowData.name}</FontText> | {rowData.points} XP</FontText>
+                <FontText isLoaded={true} isBold={this.state.myName == rowData.name} style={styles.membersListItem}><FontText isLoaded={true} isBold={false} style={styles.membersListItem}>{rowData.name}</FontText> | {rowData.points} XP</FontText>
                 <TouchableOpacity
                   style={{
                     display: this.state.myName != this.state.gameMaster && this.state.myName != rowData.name ? 'none' : 'flex',

@@ -29,7 +29,7 @@ class Card extends Component {
                         </ImageBackground>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={[style.buttonStyle, {display: this.props.isGameMaster ? 'flex' : 'none'}]} onPress={() => {this.props.onBingoPress()}}>
+                    <TouchableOpacity style={[style.buttonStyle, {display: this.props.isGameMaster ? 'flex' : (this.props.isBingo ? 'flex' : 'none')}]} onPress={() => {this.props.onBingoPress()}}>
                         <ImageBackground source={!this.props.isMatch && this.props.isBingo ? require('../images/btn_filled.png') : require('../images/btn.png')} style={{width: 84, height: 35, justifyContent: 'center'}}>
                             <Text style={{fontSize: 18, textAlign: 'center', fontFamily: 'cabin-sketch-bold', color: !this.props.isMatch && this.props.isBingo ? 'white' : 'black'}}>{this.props.isMatch ? 'Delete' : 'Bingo'}</Text>
                         </ImageBackground>
