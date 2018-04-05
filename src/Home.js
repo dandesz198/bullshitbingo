@@ -93,7 +93,6 @@ export default class Home extends React.Component {
     } catch (e) {
       // handle or log error
     }
-    
 
     //Save the games with 2s delay
     setTimeout(() => {
@@ -105,7 +104,7 @@ export default class Home extends React.Component {
     var thus = this;
     firebase.database().ref('games/' + this.state.newGameID).once('value', function(snap) {
       //Check if the game exists
-      if(typeof snap.val() != "undefined" && snap.val() != null) {
+      if(typeof snap.val() != "undefined" || snap.val() != null) {
         thus.setState({newGameID: Math.floor(Math.random() * 899999 + 100000).toString()});
         thus.newId();
       } else {
@@ -262,7 +261,7 @@ export default class Home extends React.Component {
 
     //Get the name and the master's name of the new room
     firebase.database().ref('games/' + this.state.joingameId).once('value', function(snap) {
-      if(typeof snap.val() != "undefined" && snap.val() != null) {
+      if(typeof snap.val() != "undefined" || snap.val() != null) {
         var newGameName = JSON.stringify(snap.val().name);
       }
       else {
@@ -351,6 +350,17 @@ export default class Home extends React.Component {
   }
 
   async saveName() {
+    firebase.database().ref('users/'+this.state.myName).once('value', (snap) => {
+      if(typeof snap.val() == "undefined" || snap.val() == null) {
+        firebase.database().ref('users/'+this.state.myName).set({
+          name: this.state.myName,
+          points: 0
+        });
+      } else {
+        return;
+      }
+    });
+
     if(this.state.myName.length == 0) {
       await this.setState({myName: this.state.myNameWB, myNameWB: ''});
 
@@ -361,11 +371,6 @@ export default class Home extends React.Component {
         // Error saving data
         console.log(error);
       }
-
-      firebase.database().ref('users/'+this.state.myName).set({
-        name: this.state.myName,
-        points: 0
-      });
     }
   }
 
@@ -601,7 +606,7 @@ export default class Home extends React.Component {
             <View style={{marginTop: 20, flexDirection: 'row', width: Dimensions.get('window').width}}>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.welcome}>Bullshit Bingo</FontText>
               <TouchableOpacity onPress={() => {this.setState({infoModalVisible: true})}}>
-                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16, marginTop: 'auto', marginBottom: 5, marginLeft: 7.5, marginRight: 'auto'}}>0.12 [i]</FontText>
+                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16, marginTop: 'auto', marginBottom: 5, marginLeft: 7.5, marginRight: 'auto'}}>0.12.2 [i]</FontText>
               </TouchableOpacity>
             </View>
             <TouchableOpacity style={[styles.button, {marginTop: 10}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
