@@ -350,9 +350,9 @@ export default class Home extends React.Component {
   }
 
   async saveName() {
-    firebase.database().ref('users/'+this.state.myName).once('value', (snap) => {
+    await firebase.database().ref('users/'+this.state.myNameWB).once('value', (snap) => {
       if(typeof snap.val() == "undefined" || snap.val() == null) {
-        firebase.database().ref('users/'+this.state.myName).set({
+        firebase.database().ref('users/'+this.state.myNameWB).set({
           name: this.state.myName,
           points: 0
         });
@@ -604,7 +604,7 @@ export default class Home extends React.Component {
             <View style={{marginTop: 20, flexDirection: 'row', width: Dimensions.get('window').width}}>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.welcome}>Bullshit Bingo</FontText>
               <TouchableOpacity onPress={() => {this.setState({infoModalVisible: true})}}>
-                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16, marginTop: 'auto', marginBottom: 5, marginLeft: 7.5, marginRight: 'auto'}}>0.12.3 [i]</FontText>
+                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16, marginTop: 'auto', marginBottom: 5, marginLeft: 7.5, marginRight: 'auto'}}>0.12.4 [i]</FontText>
               </TouchableOpacity>
             </View>
             <TouchableOpacity style={[styles.button, {marginTop: 10}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
