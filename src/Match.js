@@ -54,7 +54,7 @@ export default class Match extends React.Component {
     //Sync Firebase
     this.getData();
 
-    //this.refs._scrollView.scrollTo({x: 0, y: 145, animated: false})
+    this.scrollView.scrollTo({x: 0, y: 145, animated: true});
 
     analytics.hit(new PageHit('Match'));
   }
@@ -170,7 +170,7 @@ export default class Match extends React.Component {
       <ScrollView 
         style={styles.container} 
         decelerationRate={0}
-        ref="_scrollView"
+        ref={ref => this.scrollView = ref}
         >
         <View style={{width: Dimensions.get('window').width, backgroundColor: '#eee', paddingTop: 25}}>
           <TextInput

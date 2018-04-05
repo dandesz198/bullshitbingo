@@ -589,6 +589,16 @@ export default class Home extends React.Component {
               <Link text="GitHub" url="https://github.com/razor97" />
               <Link text="Facebook" url="https://fb.me/hajdupetke" />
               <Link text="Twitter" url="https://twitter.com/hajdupetke" />
+              <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 40, marginTop: 15}}>Legal notice</FontText>
+              <FontText isLoaded={this.state.fontsLoaded} isBold={false} style={{fontSize: 16}}>
+              Font family: Cabin Sketch {"\n"}
+              Drawn illustrations: Freepik
+              </FontText>
+              <Link text="Link to the vectors" url="https://www.flaticon.com/free-icon/poo_720965" />
+              <FontText isLoaded={this.state.fontsLoaded} isBold={false} style={{fontSize: 16}}>
+                Poop icon: Flaticon (by Freepik)
+              </FontText>
+              <Link text="Link to the icon" url="https://www.freepik.com/free-vector/sketchy-children_797063.htm" />
               <TouchableOpacity style={{marginLeft: 'auto', marginRight: 'auto', marginTop: 15}} onPress={()=>{Linking.openURL('https://paypal.me/dandesz198')}}>
                 <Image source={require('./coffee.png')} style={{height: 45, width: 225}}/>
               </TouchableOpacity>
@@ -604,7 +614,7 @@ export default class Home extends React.Component {
             <View style={{marginTop: 20, flexDirection: 'row', width: Dimensions.get('window').width}}>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.welcome}>Bullshit Bingo</FontText>
               <TouchableOpacity onPress={() => {this.setState({infoModalVisible: true})}}>
-                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16, marginTop: 'auto', marginBottom: 5, marginLeft: 7.5, marginRight: 'auto'}}>0.12.4 [i]</FontText>
+                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16, marginTop: 'auto', marginBottom: 5, marginLeft: 7.5, marginRight: 'auto'}}>0.12.5 [i]</FontText>
               </TouchableOpacity>
             </View>
             <TouchableOpacity style={[styles.button, {marginTop: 10}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
