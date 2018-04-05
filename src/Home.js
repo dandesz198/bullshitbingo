@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Animated, ScrollView, ListView, Modal, Alert, AsyncStorage, Image, Dimensions, Linking, BackHandler, Vibration, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Animated, ScrollView, ListView, Modal, Alert, AsyncStorage, Image, Dimensions, Linking, BackHandler, Vibration, ImageBackground, Platform } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import * as firebase from 'firebase';
 import md5 from 'md5';
@@ -167,25 +167,25 @@ export default class Home extends React.Component {
                 var count = 0;
 
                 members.forEach(lm => {
-                  if(lm == this.state.myName) {
+                  if(lm == thus.state.myName) {
                     count += 1;
                   }
                 });
               }
               else {
-                this.deleteGame(element.name);
+                thus.deleteGame(element.name);
               }
 
               //If member even exists
               if(members) {
                 //If room doesn't exist or player is kicked
                 if(members.length < 0 || count <= 0) {
-                  this.deleteGame(element.name);
+                  thus.deleteGame(element.name);
                 } else {
 
                 }
               } else {
-                this.deleteGame(element.name);
+                thus.deleteGame(element.name);
               }
             })
           });
@@ -223,9 +223,9 @@ export default class Home extends React.Component {
     //Upload the game itself to Firebase
     await firebase.database().ref('games/'+this.state.newGameID).set({
       name: this.state.newGameName,
-      master: this.state.myName,
+      master: this.state.myNameWB,
       masterPw: md5(this.state.pw),
-      members: [this.state.myName]
+      members: [this.state.myNameWB]
     });
 
     //Add the new game to the Games array (rendered in 'My rooms' section)
@@ -237,7 +237,7 @@ export default class Home extends React.Component {
     this.setState({games: games, newGameModalVisible: false});
     
     //Navigate to the new game's screen
-    this.props.navigation.navigate('Room', {gameName: this.state.newGameName, gameId: this.state.newGameID, myName: this.state.myName, returnData: this.returnData.bind(this)});
+    this.props.navigation.navigate('Room', {gameName: this.state.newGameName, gameId: this.state.newGameID, myName: this.state.myNameWB, returnData: this.returnData.bind(this)});
     BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
 
     //Save the new game to AsyncStorage
@@ -350,9 +350,13 @@ export default class Home extends React.Component {
   }
 
   async saveName() {
-    await firebase.database().ref('users/'+this.state.myNameWB).once('value', (snap) => {
+    if(this.state.myNameWB.length > 0) {
+      await this.setState({myName: this.state.myNameWB, myNameWB: ''});
+    }
+
+    firebase.database().ref('users/'+this.state.myName).once('value', (snap) => {
       if(typeof snap.val() == "undefined" || snap.val() == null) {
-        firebase.database().ref('users/'+this.state.myNameWB).set({
+        firebase.database().ref('users/'+this.state.myName).set({
           name: this.state.myName,
           points: 0
         });
@@ -361,9 +365,7 @@ export default class Home extends React.Component {
       }
     });
 
-    if(this.state.myName.length == 0) {
-      await this.setState({myName: this.state.myNameWB, myNameWB: ''});
-
+    if(this.state.myName.length > 0) {
       //Save name to AsyncStorage
       try {
         await AsyncStorage.setItem('@MySuperStore:name', this.state.myName);
@@ -393,27 +395,27 @@ export default class Home extends React.Component {
         <ScrollView style={{flex: 1}} pagingEnabled={true} horizontal={true} vertical={false}>
           <View style={[styles.onboardContainter, {backgroundColor: '#2f3542'}]}>
             <Image source={require('./poo.png')} style={{width: 125, height: 125}} />
-            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, fontWeight: 'bold', textAlign: 'center', marginTop: 10}}>Welcome to the {'\n'} Bullshit Bingo!</FontText>
+            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center', marginTop: 10}}>Welcome to the {'\n'} Bullshit Bingo!</FontText>
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center', marginTop: 5}}>We'll guide you trough the overcomplicated system of this game, or you can try to understand it on your own.</FontText>
           </View>
           <View style={[styles.onboardContainter, {backgroundColor: '#5352ed'}]}>
-            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>Rooms</FontText>
+            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>Rooms</FontText>
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>Inside rooms, you can find matches and other players. They are generally built around themes, like a Netflix show, a school class, or your workplace friend circle.</FontText>
           </View>
           <View style={[styles.onboardContainter, {backgroundColor: '#3742fa'}]}>
-            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>Matches</FontText>
+            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>Matches</FontText>
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>They got a question (e.g. "What's the next thing that's going to break in the office?"), and several cards (or answers) that you can vote on. If you vote on a card, and that thing breaks, you win. You can only have votes on a maximum of 2 cards.</FontText>
           </View>
           <View style={[styles.onboardContainter, {backgroundColor: '#1e90ff'}]}>
-            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>Cards</FontText>
+            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>Cards</FontText>
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>Cards are used to show you every information you may need ever: the text you can vote on, how much people voted on it, and that who created it. If you can't vote on a card, that can mean two things: 1., you exceeded your 2-card limit on the votes and/or the card already had a BINGO! on it. (Only the match master (the creator of the match) can give points for the players)</FontText>
           </View>
           <View style={[styles.onboardContainter, {backgroundColor: '#2ed573'}]}>
-            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>BINGO!</FontText>
+            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>BINGO!</FontText>
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>If the text you voted on occurs (eg. the room #42's windows broke), the match master can give points for the players who voted on the corresponding card.</FontText>
           </View>
           <View style={[styles.onboardContainter, {backgroundColor: '#ff4757'}]}>
-            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, fontWeight: 'bold', textAlign: 'center'}}>Let's get started!</FontText>
+            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>Let's get started!</FontText>
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>Now you're all set. Have fun!</FontText>
             <TouchableOpacity style={{marginTop: 15}} onPress={()=>{this.setState({isFirstOpen: false})}}>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>Play</FontText>
@@ -429,87 +431,85 @@ export default class Home extends React.Component {
             transparent={false}
             onRequestClose={()=>this.setState({newGameModalVisible: false})}
             visible={this.state.newGameModalVisible}>
-            <View style={{flex: 1, backgroundColor: 'white', padding: 20}}>
-              <ScrollView style={{flex: 1}}>
-                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={[styles.heading, {fontSize: 36, marginLeft: 0}]}>Create a new room</FontText>
-                <View style={{display: this.state.myName.length == 0 ? 'flex' : 'none'}}>
-                  <TextInput
-                    style={[styles.input, {marginTop: 5, marginBottom: 5, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}
-                    underlineColorAndroid='transparent'
-                    placeholder="Your name"
-                    placeholderTextColor="#222"
-                    onChangeText={(myNameWB) => this.setState({myNameWB})}
-                    value={this.state.myNameWB}
-                  />
-                  <Image source={require('./images/line_long.png')} />
-                  <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16, marginTop: 10, display: this.state.myName.length == 0 && this.state.myNameWB.length == 0 ? 'flex' : 'none'}}>Please don't leave any field empty.</FontText>
-                </View>
+            <ScrollView style={{flex: 1, padding: 20, backgroundColor: 'white'}}>
+              <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={[styles.heading, {fontSize: 36, marginLeft: 0}]}>Create a new room</FontText>
+              <View style={{display: this.state.myName.length == 0 ? 'flex' : 'none'}}>
                 <TextInput
-                  style={[styles.input, {marginTop: 20, marginBottom: 5, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}
+                  style={[styles.input, {marginTop: 5, marginBottom: 5, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : Platform.OS == "ios" ? "Arial" : "Roboto"}]}
                   underlineColorAndroid='transparent'
-                  placeholder="The name of the room"
+                  placeholder="Your name"
                   placeholderTextColor="#222"
-                  onChangeText={(newGameName) => this.setState({newGameName})}
-                  value={this.state.newGameName}
+                  onChangeText={(myNameWB) => this.setState({myNameWB})}
+                  value={this.state.myNameWB}
                 />
                 <Image source={require('./images/line_long.png')} />
-                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{color: '#ee5253', fontSize: 16, marginTop: 10, display: this.state.newGameName.length == 0 ? 'flex' : 'none'}}>Please don't leave any field empty.</FontText>
-                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={[styles.p, {marginTop: 20, fontWeight: 'bold'}]}>Password lock (for you only)</FontText>
-                <TextInput
-                  style={[styles.input, {marginTop: 5, marginBottom: 5, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}
-                  underlineColorAndroid='transparent'
-                  secureTextEntry={true}
-                  placeholder="Password"
-                  placeholderTextColor="#222"
-                  onChangeText={(pw) => this.setState({pw})}
-                  value={this.state.pw}
-                />
-                <Image source={require('./images/line_long.png')} />
-                <TextInput
-                  style={[styles.input, {marginTop: 5, marginBottom: 5, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}
-                  underlineColorAndroid='transparent'
-                  secureTextEntry={true}
-                  placeholder="Password again"
-                  placeholderTextColor="#222"
-                  onChangeText={(pwAgain) => this.setState({pwAgain})}
-                  value={this.state.pwAgain}
-                />
-                <Image source={require('./images/line_long.png')} />
-                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{color: '#ee5253', fontSize: 16, display: this.state.pw !== this.state.pwAgain ? 'flex' : 'none'}}>The passwords don't match.</FontText>
+                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16, marginTop: 10, display: this.state.myName.length == 0 && this.state.myNameWB.length == 0 ? 'flex' : 'none'}}>Please don't leave any field empty.</FontText>
+              </View>
+              <TextInput
+                style={[styles.input, {marginTop: 20, marginBottom: 5, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : Platform.OS == "ios" ? "Arial" : "Roboto"}]}
+                underlineColorAndroid='transparent'
+                placeholder="The name of the room"
+                placeholderTextColor="#222"
+                onChangeText={(newGameName) => this.setState({newGameName})}
+                value={this.state.newGameName}
+              />
+              <Image source={require('./images/line_long.png')} />
+              <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{color: '#ee5253', fontSize: 16, marginTop: 10, display: this.state.newGameName.length == 0 ? 'flex' : 'none'}}>Please don't leave any field empty.</FontText>
+              <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={[styles.p, {marginTop: 20}]}>Password lock</FontText>
+              <TextInput
+                style={[styles.input, {marginTop: 5, marginBottom: 5, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : Platform.OS == "ios" ? "Arial" : "Roboto"}]}
+                underlineColorAndroid='transparent'
+                secureTextEntry={true}
+                placeholder="Password"
+                placeholderTextColor="#222"
+                onChangeText={(pw) => this.setState({pw})}
+                value={this.state.pw}
+              />
+              <Image source={require('./images/line_long.png')} />
+              <TextInput
+                style={[styles.input, {marginTop: 5, marginBottom: 5, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : Platform.OS == "ios" ? "Arial" : "Roboto"}]}
+                underlineColorAndroid='transparent'
+                secureTextEntry={true}
+                placeholder="Password again"
+                placeholderTextColor="#222"
+                onChangeText={(pwAgain) => this.setState({pwAgain})}
+                value={this.state.pwAgain}
+              />
+              <Image source={require('./images/line_long.png')} />
+              <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{color: '#ee5253', fontSize: 16, display: this.state.pw !== this.state.pwAgain ? 'flex' : 'none'}}>The passwords don't match.</FontText>
+              <View style={{flexDirection: 'column'}}>
+                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={[styles.p, {marginTop: 20}]}>Room PIN:</FontText>
+                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.h2}>{this.state.newGameID}</FontText>
+              </View>
+              <View style={{flexDirection: 'row', alignContent: 'center', justifyContent: 'center', marginVertical: 30}}>
                 <View style={{flexDirection: 'column'}}>
-                  <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={[styles.p, {marginTop: 20}]}>Room PIN:</FontText>
-                  <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.h2}>{this.state.newGameID}</FontText>
-                </View>
-                <View style={{flexDirection: 'row', alignContent: 'center', justifyContent: 'center', marginTop: 30}}>
-                  <View style={{flexDirection: 'column'}}>
-                    <Image source={require('./images/create_child.png')} style={{height: 102, width: 140, marginBottom: -2.5}}/>
-                    <TouchableOpacity style={[styles.button, {marginRight: 25}]} onPress={()=>{this.createRoom()}}>
-                      <ImageBackground source={require('./images/btn.png')} style={{width: 140, height: 58, justifyContent: 'center'}}>
-                        <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.join}>Create</FontText>
-                      </ImageBackground>
-                    </TouchableOpacity>
-                  </View>
-                  <TouchableOpacity style={[styles.button, {marginTop: 99.5}]} onPress={()=>{this.setState({newGameModalVisible: false})}}>
+                  <Image source={require('./images/create_child.png')} style={{height: 102, width: 140, marginBottom: -2.5}}/>
+                  <TouchableOpacity style={[styles.button, {marginRight: 25}]} onPress={()=>{this.createRoom()}}>
                     <ImageBackground source={require('./images/btn.png')} style={{width: 140, height: 58, justifyContent: 'center'}}>
-                      <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.join}>Cancel</FontText>
+                      <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.join}>Create</FontText>
                     </ImageBackground>
                   </TouchableOpacity>
                 </View>
-              </ScrollView> 
-            </View>
+                <TouchableOpacity style={[styles.button, {marginTop: 99.5}]} onPress={()=>{this.setState({newGameModalVisible: false})}}>
+                  <ImageBackground source={require('./images/btn.png')} style={{width: 140, height: 58, justifyContent: 'center'}}>
+                    <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.join}>Cancel</FontText>
+                  </ImageBackground>
+                </TouchableOpacity>
+              </View>
+            </ScrollView> 
           </Modal>
           <Modal
             animationType="slide"
             transparent={false}
             onRequestClose={()=>this.setState({joinGameModalVisible: false})}
             visible={this.state.joinGameModalVisible}>
-            <View style={{flex: 1, backgroundColor: 'white', padding: 20}}>
+            <ScrollView style={{flex: 1, backgroundColor: 'white', padding: 20}}>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={[styles.heading, {fontSize: 40, marginBottom: 20}]}>Join "{this.state.joinGameName}"?</FontText>
               <View style={{flex: 1}}>
                 <View style={{flexDirection: 'column'}}>
                   <View style={{marginLeft: 20, display: this.state.myName.length == 0 ? 'flex' : 'none'}}>
                     <TextInput
-                      style={[styles.input, {color: '#666', borderColor: '#666', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}
+                      style={[styles.input, {color: '#666', borderColor: '#666', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : Platform.OS == "ios" ? "Arial" : "Roboto"}]}
                       underlineColorAndroid='transparent'
                       placeholder="Your name"
                       placeholderTextColor="#222"
@@ -521,7 +521,7 @@ export default class Home extends React.Component {
                   </View>
                   <View style={{marginLeft: 20, display: this.state.myName == this.state.joinMaster ? 'flex' : 'none'}}>
                     <TextInput
-                      style={[styles.input, {color: '#666', borderColor: '#666', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}
+                      style={[styles.input, {color: '#666', borderColor: '#666', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : Platform.OS == "ios" ? "Arial" : "Roboto"}]}
                       secureTextEntry={true}
                       placeholder="Room master password"
                       placeholderTextColor="#222"
@@ -533,7 +533,7 @@ export default class Home extends React.Component {
                     <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{color: '#ee5253', fontSize: 16, marginTop: 10, display: this.state.joinPw.length == 0 ? 'flex' : 'none'}}>Please don't leave any field empty.</FontText>
                   </View>
                 </View>
-                <Image source={require('./images/join_bg.png')} style={{width: 300, height: 295, marginVertical: 20, alignSelf: 'center'}} />
+                <Image source={require('./images/join_bg.png')} style={{height: Dimensions.get('window').height * (35 / 100), width: Dimensions.get('window').height * (35 / 100), marginVertical: 20, alignSelf: 'center'}} />
                 <View style={[styles.card, {flexDirection: 'row', alignItems: 'center', alignSelf: 'center'}]}>
                   <View style={[styles.button, {flex: 1, marginRight: 25}]}>
                     <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{this.joinRoom()}}>
@@ -549,7 +549,7 @@ export default class Home extends React.Component {
                   </TouchableOpacity>
                 </View>
               </View>
-            </View>
+            </ScrollView>
           </Modal>
           <Modal
             animationType="slide"
@@ -558,13 +558,13 @@ export default class Home extends React.Component {
             visible={this.state.infoModalVisible}>
             <ScrollView style={{flex: 1, padding: 25}}>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 40, marginTop: 20}}>Bullshit Bingo</FontText>
-              <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20}}>
+              <FontText isLoaded={this.state.fontsLoaded} isBold={false} style={{fontSize: 20}}>
                 Imagine the endless possibilities of creating a bingo game about anything. Who's going to marry next, what's the next thing that's going to break in the office, etc.{"\n"}{"\n"}
                 Well, that's what Bullshit Bingo is about.{"\n"}
                 Create a room, share it with your friends, and play together freely.
               </FontText>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 40, marginTop: 15}}>Rules</FontText>
-              <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20}}>
+              <FontText isLoaded={this.state.fontsLoaded} isBold={false} style={{fontSize: 20}}>
                 • You can only vote on 2 games{"\n"}
                 • Only the room master can delete cards and give points (via 'Bingo!' button){"\n"}
                 • The room master can kick anyone{"\n"}
@@ -603,7 +603,7 @@ export default class Home extends React.Component {
                 <Image source={require('./coffee.png')} style={{height: 45, width: 225}}/>
               </TouchableOpacity>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={[styles.p, {fontSize: 16, textAlign: 'center', marginTop: 5}]}>Since the server isn't free, every single cent of your donation is going to be spent on the costs of running this game.</FontText>
-              <TouchableOpacity style={[styles.button, {marginTop: 20, marginBottom: 40, width: 330, height: 64}]} onPress={()=>{this.setState({infoModalVisible: false})}}>
+              <TouchableOpacity style={[styles.button, {marginTop: 20, marginBottom: 40, width: 330, height: 64, marginLeft: 'auto', marginRight: 'auto'}]} onPress={()=>{this.setState({infoModalVisible: false})}}>
                 <ImageBackground source={require('./images/btn_wide.png')} style={{width: 330, height: 64, alignItems: 'center', justifyContent: 'center'}}>
                   <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.join}>Close</FontText>
                 </ImageBackground>
@@ -611,10 +611,10 @@ export default class Home extends React.Component {
             </ScrollView>
           </Modal>
           <ScrollView style={{flex: 1}}>
-            <View style={{marginTop: 20, flexDirection: 'row', width: Dimensions.get('window').width}}>
+            <View style={{marginTop: 20, flexDirection: 'row'}}>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.welcome}>Bullshit Bingo</FontText>
-              <TouchableOpacity onPress={() => {this.setState({infoModalVisible: true})}}>
-                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16, marginTop: 'auto', marginBottom: 5, marginLeft: 7.5, marginRight: 'auto'}}>0.12.5 [i]</FontText>
+              <TouchableOpacity style={{float: 'right', marginTop: 'auto', marginBottom: 5, marginLeft: 'auto', marginRight: 20}} onPress={() => {this.setState({infoModalVisible: true})}}>
+                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16}}>0.12.7 [i]</FontText>
               </TouchableOpacity>
             </View>
             <TouchableOpacity style={[styles.button, {marginTop: 10}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
@@ -627,7 +627,7 @@ export default class Home extends React.Component {
               <Image source={require('./images/home_child.png')} style={{height: 180, width: 105, marginTop: 10, marginLeft: 0, marginRight: 'auto'}} />
               <View style={{flexDirection: 'column', height: 140, alignItems: 'center', marginRight: 'auto', marginTop: 'auto', marginBottom: 'auto'}}>              
                 <TextInput
-                  style={[styles.input, {flex: 1, height: 40, width: 140, fontSize: 28, textAlign: 'center', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : 'Arial'}]}
+                  style={[styles.input, {flex: 1, height: 40, width: 140, fontSize: 28, textAlign: 'center', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : Platform.OS == "ios" ? "Arial" : "Roboto"}]}
                   placeholder="Room PIN"
                   placeholderTextColor="#222"
                   keyboardType="numeric"

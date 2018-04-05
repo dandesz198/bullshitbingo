@@ -55,7 +55,9 @@ export default class Room extends React.Component {
     //Sync Firebase
     this.getData();
 
-    this.scrollView.scrollTo({x: 0, y: 145, animated: true});
+    setTimeout(() => {
+      this.scrollView.scrollTo({x: 0, y: 145, animated: false});
+    }, 1)
 
     analytics.hit(new PageHit('Room'));
   }
@@ -80,7 +82,7 @@ export default class Room extends React.Component {
     }
   }
 
-  quitKick() {
+  quitKick(rowData) {
     var thus = this;
     Vibration.vibrate();
     Alert.alert(
@@ -174,11 +176,10 @@ export default class Room extends React.Component {
         snap.matches.forEach(element => {
           matches.push(element);
         });
+        thus.setState({gameMembers: members, gameMaster: snap.master, matches: matches});        
       } else {
         thus.setState({gameMembers: members, gameMaster: snap.master, matches: []});
-        return;
       }
-      thus.setState({gameMembers: members, gameMaster: snap.master, matches: matches});
     });
 
     //Add the user kicker listener
@@ -296,7 +297,7 @@ export default class Room extends React.Component {
             renderRow={(rowData) => 
             <View style={{flex: 1, paddingHorizontal: 20, height: 55, flexDirection: 'column', justifyContent: 'center'}}>
               <View style={{flexDirection: 'row', backgroundColor: 'white'}}>
-                <FontText isLoaded={true} isBold={this.state.myName == rowData.name} style={styles.membersListItem}><FontText isLoaded={true} isBold={false} style={styles.membersListItem}>{rowData.name}</FontText> | {rowData.points} XP</FontText>
+                <FontText isLoaded={true} isBold={this.state.myName == rowData.name} style={styles.membersListItem}>{rowData.name} | {rowData.points} XP</FontText>
                 <TouchableOpacity
                   style={{
                     display: this.state.myName != this.state.gameMaster && this.state.myName != rowData.name ? 'none' : 'flex',
@@ -307,7 +308,7 @@ export default class Room extends React.Component {
                     marginBottom: 'auto',
                     justifyContent: 'center'
                   }}
-                  onPress={()=>{this.quitKick()}}>
+                  onPress={()=>{this.quitKick(rowData)}}>
                   <ImageBackground source={require('./images/btn.png')} style={{width: 84, height: 35, justifyContent: 'center'}}>
                     <FontText isLoaded={true} isBold={true} style={{fontSize: 18, textAlign: 'center'}}>{this.state.myName == rowData.name ? 'Quit' : 'Kick'}</FontText>
                   </ImageBackground>

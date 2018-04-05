@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
-import { Text } from 'react-native';
+import { Text, Platform } from 'react-native';
 
 export default class FontText extends Component {
     render() {
-        return(
-            <Text style={[{fontFamily: this.props.isLoaded ?  (this.props.isBold ? 'cabin-sketch-bold' :  'cabin-sketch') :  'Arial'}, this.props.style]}>{this.props.children}</Text>
-        )
+        if(this.props.isLoaded) {
+            return(
+                <Text style={[{fontFamily: this.props.isBold ? 'cabin-sketch-bold' :  'cabin-sketch'}, this.props.style]}>{this.props.children}</Text>
+            )
+        } else {
+            return null;
+        }
     }
 }

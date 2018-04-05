@@ -54,7 +54,9 @@ export default class Match extends React.Component {
     //Sync Firebase
     this.getData();
 
-    this.scrollView.scrollTo({x: 0, y: 145, animated: true});
+    setTimeout(() => {
+      this.scrollView.scrollTo({x: 0, y: 145, animated: true});
+    }, 1)
 
     analytics.hit(new PageHit('Match'));
   }
@@ -197,7 +199,7 @@ export default class Match extends React.Component {
           <Image source={require('./images/add_child.png')} style={{width: 75, height: 59, marginRight: 20}}/>
           <FontText isLoaded={true} isBold={true} style={{padding: 1.25, width: '100%', flex: 1, textAlign: 'left', fontSize: 16}}>Pull down to create a new card</FontText>
         </View>
-        <FontText isLoaded={true} isBold={true} style={{marginLeft: 15, marginVertical: 10, fontWeight: 'bold', textAlign: 'left', fontSize: 36, color: '#555'}}>{this.state.gameName}</FontText>
+        <FontText isLoaded={true} isBold={true} style={{marginLeft: 15, marginVertical: 10, textAlign: 'left', fontSize: 36, color: '#555'}}>{this.state.gameName}</FontText>
         <ListView
           dataSource={ds.cloneWithRows(this.state.gameCards.sort(function(a,b) {return (a.voters < b.voters) ? 1 : ((b.voters < a.voters) ? -1 : 0);}))}
           enableEmptySections={true}
