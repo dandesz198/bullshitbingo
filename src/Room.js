@@ -6,6 +6,7 @@ import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import * as firebase from 'firebase';
 import Home from './Home.js';
 import Card from './Components/Card.js';
+import FontText from './Components/FontText.js';
 import { Analytics, PageHit, Event } from 'expo-analytics';
 
 let Environment = require('./environment.js')
@@ -18,8 +19,6 @@ let initialLayout = {
 let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
 let analytics = new Analytics(Environment.analytics);
-
-var isMounted = false;
 
 transitionConfig : () => ({
 	transitionSpec: {
@@ -61,12 +60,94 @@ export default class Room extends React.Component {
     analytics.hit(new PageHit('Room'));
   }
 
-  componentWillMount() {
-    isMounted = true;
+  createMatch() {
+    if (this.state.newMatchText.length > 0) {
+      //Declare variables
+      var matches = this.state.matches;
+      var newMatch = {name: this.state.newMatchText, master: this.state.myName, cards: []}
+
+      //Add new card to the start of the array
+      matches.unshift(newMatch);
+
+      this.setState({matches: matches});
+      this.setState({newMatchText: ''});
+
+      this.syncToFirebase();
+
+      analytics.event(new Event('NewMatch'));
+    } else {
+       return;
+    }
   }
 
-  componentWillUnmount() {
-    isMounted = false;
+  quitKick() {
+    var thus = this;
+    Vibration.vibrate();
+    Alert.alert(
+      'Are you sure?', 
+      this.state.myName == rowData.name ? 'Do you *really* want to quit the match '+this.state.gameName+'? You can still rejoin the match later.' : 'Do you *really* want to kick '+rowData.name+'? They can still rejoin the match.',
+      [ 
+        {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
+        {text: 'Yes', onPress: () => {
+          //Determine if the player is the match master
+          if(this.state.myName == this.state.gameMaster) {
+            //If match master AND kicking itself
+            if(this.state.myName == rowData.name) {
+              //But you are the match master - quitting will delete the match
+              Vibration.vibrate();
+              Alert.alert(
+                'Are you sure?', 
+                'You are the match master. If you quit, the match will be deleted.',
+                [ 
+                  {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
+                  {text: 'Yes, I want to delete the match', onPress: () => {
+                    //Delete match
+                    firebase.database().ref('games/' + this.state.gameId).remove();
+                    analytics.event(new Event('Delete game'));
+                    this.props.navigation.state.params.returnData(this.state.gameName);
+                    this.props.navigation.goBack();
+                  }, style: 'destructive'}
+                ],
+              );
+            }
+            else {
+              //Since it's not kicking itself, they can kick the player
+              analytics.event(new Event('Kick'));
+              let members = this.state.gameMembers;
+              members.splice(members.indexOf(rowData));
+              firebase.database().ref('games/' + this.state.gameId).update({
+                'members': members
+              });
+            }
+            
+          }
+          else {
+            if(rowData.name == this.state.myName) {
+              //Quit game
+              analytics.event(new Event('Quit'));
+              let members = this.state.gameMembers;
+              members.splice(members.indexOf(rowData));
+              firebase.database().ref('games/' + this.state.gameId).update({
+                'members': members
+              });
+              this.props.navigation.state.params.returnData(this.state.gameName);
+              this.props.navigation.goBack();
+            } else {
+              //Can't kick others
+              Vibration.vibrate();
+              Alert.alert(
+                'Error', 
+                "You aren't the match master. You can't kick other players.",
+                [ 
+                  {text: 'Ok', onPress: () => console.log('Cancel'), style: 'cancel'},
+                ],
+              );
+            }
+          }
+          thus.syncToFirebase();
+        }, style: 'destructive'}
+      ],
+    );
   }
 
   //Download match data from Firebase
@@ -127,7 +208,7 @@ export default class Room extends React.Component {
   _handleIndexChange = index => this.setState({ index });
 
   _renderHeader = (props) => {
-    return(<TabBar indicatorStyle={{ backgroundColor: "black" }} labelStyle={{color: 'black', fontFamily: 'cabin-sketch-bold', fontSize: 20}} style={{paddingTop: 25, backgroundColor: 'white'}} {...props}/>);
+    return(<TabBar indicatorStyle={{ backgroundColor: "black" }} labelStyle={{color: 'black', fontSize: 20}} style={{paddingTop: 25, backgroundColor: 'white'}} {...props}/>);
   };
 
   _renderScene = ({ route }) => {
@@ -151,35 +232,16 @@ export default class Room extends React.Component {
               justifyContent: 'center',
               marginLeft: 'auto',
               marginRight: 15,
-              marginBottom: 10,
-              fontFamily: 'cabin-sketch-bold'
-            }} onPress={() => {
-              if (this.state.newMatchText.length > 0) {
-                //Declare variables
-                var matches = this.state.matches;
-                var newMatch = {name: this.state.newMatchText, master: this.state.myName, cards: []}
-
-                //Add new card to the start of the array
-                matches.unshift(newMatch);
-
-                this.setState({matches: matches});
-                this.setState({newMatchText: ''});
-
-                this.syncToFirebase();
-
-                analytics.event(new Event('NewMatch'));
-              } else {
-                 return;
-              }
-            }}>
+              marginBottom: 10
+            }} onPress={() => this.createMatch()}>
               <ImageBackground source={require('./images/btn.png')} style={{width: 96, height: 40, justifyContent: 'center'}}>
-                <Text style={{fontSize: 20, textAlign: 'center', fontFamily: 'cabin-sketch-bold'}}>Create</Text>
+                <FontText isLoaded={true} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>Create</FontText>
               </ImageBackground>
             </TouchableOpacity>
           </View>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Image source={require('./images/add_child.png')} style={{width: 75, height: 59, marginRight: 20}}/>
-            <Text style={{padding: 1.25, textAlign: 'left', fontSize: 16, color: 'black', fontFamily: 'cabin-sketch'}}>Pull down to create a new match</Text>
+            <FontText isLoaded={true} isBold={true} style={{padding: 1.25, textAlign: 'left', fontSize: 16}}>Pull down to create a new match</FontText>
           </View>
           <ListView
             dataSource={ds.cloneWithRows(this.state.matches)}
@@ -211,21 +273,21 @@ export default class Room extends React.Component {
         <ScrollView style={{flex: 1, backgroundColor: 'white'}}>
           <View style={{flexDirection: 'row', justifyContent: 'center'}}>
             <View style={{flexDirection: 'column'}}>
-              <Text style={styles.p}>room name:</Text>
-              <Text style={styles.h2}>{this.state.gameName}</Text>
+              <FontText isLoaded={true} isBold={true} style={styles.p}>room name:</FontText>
+              <FontText isLoaded={true} isBold={true} style={styles.h2}>{this.state.gameName}</FontText>
             </View>
             <Image source={require('./images/info_right.png')} style={{marginLeft: 'auto', marginRight: 0, width: 80, height: 100}}/>
           </View>
-          <Text style={styles.p}>room master:</Text>
-          <Text style={styles.h2}>{this.state.gameMaster}</Text>
+          <FontText isLoaded={true} isBold={true} style={styles.p}>room master:</FontText>
+          <FontText isLoaded={true} isBold={true} style={styles.h2}>{this.state.gameMaster}</FontText>
           <View style={{flexDirection: 'row', justifyContent: 'center', marginLeft: 0, marginRight: 'auto'}}>
             <Image source={require('./images/info_left.png')} style={{marginLeft: 0, width: 80, height: 100}}/>
             <View style={{flexDirection: 'column'}}>
-              <Text style={[styles.p]}>room PIN:</Text>
-              <Text style={styles.h2}>{this.state.gameId}</Text>
+              <FontText isLoaded={true} isBold={true} style={[styles.p]}>room PIN:</FontText>
+              <FontText isLoaded={true} isBold={true} style={styles.h2}>{this.state.gameId}</FontText>
             </View>
           </View>
-          <Text style={styles.p}>members</Text>
+          <FontText isLoaded={true} isBold={true} style={styles.p}>members</FontText>
           <ListView
             dataSource={ds.cloneWithRows(this.state.gameMembers.sort(function(a,b) {return (a.points < b.points) ? 1 : ((b.points < a.points) ? -1 : 0);}))}
             enableEmptySections={true}
@@ -233,7 +295,7 @@ export default class Room extends React.Component {
             renderRow={(rowData) => 
             <View style={{flex: 1, paddingHorizontal: 20, height: 55, flexDirection: 'column', justifyContent: 'center'}}>
               <View style={{flexDirection: 'row', backgroundColor: 'white'}}>
-                <Text style={[styles.membersListItem, {color: 'black', fontFamily: this.state.myName == rowData.name ? 'cabin-sketch-bold' : 'cabin-sketch'}]}><Text style={[styles.membersListItem, {fontFamily: 'cabin-sketch'}]}>{rowData.name}</Text> | {rowData.points} XP</Text>
+                <FontText isLoaded={true} isBold={true} style={[styles.membersListItem, {fontFamily: this.state.myName == rowData.name ? 'cabin-sketch-bold' : 'cabin-sketch'}]}><FontText isLoaded={true} isBold={true} style={styles.membersListItem}>{rowData.name}</FontText> | {rowData.points} XP</FontText>
                 <TouchableOpacity
                   style={{
                     display: this.state.myName != this.state.gameMaster && this.state.myName != rowData.name ? 'none' : 'flex',
@@ -244,77 +306,9 @@ export default class Room extends React.Component {
                     marginBottom: 'auto',
                     justifyContent: 'center'
                   }}
-                  onPress={()=>{
-                    var thus = this;
-                    Vibration.vibrate();
-                    Alert.alert(
-                      'Are you sure?', 
-                      this.state.myName == rowData.name ? 'Do you *really* want to quit the match '+this.state.gameName+'? You can still rejoin the match later.' : 'Do you *really* want to kick '+rowData.name+'? They can still rejoin the match.',
-                      [ 
-                        {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
-                        {text: 'Yes', onPress: () => {
-                          //Determine if the player is the match master
-                          if(this.state.myName == this.state.gameMaster) {
-                            //If match master AND kicking itself
-                            if(this.state.myName == rowData.name) {
-                              //But you are the match master - quitting will delete the match
-                              Vibration.vibrate();
-                              Alert.alert(
-                                'Are you sure?', 
-                                'You are the match master. If you quit, the match will be deleted.',
-                                [ 
-                                  {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
-                                  {text: 'Yes, I want to delete the match', onPress: () => {
-                                    //Delete match
-                                    firebase.database().ref('games/' + this.state.gameId).remove();
-                                    analytics.event(new Event('Delete game'));
-                                    this.props.navigation.state.params.returnData(this.state.gameName);
-                                    this.props.navigation.goBack();
-                                  }, style: 'destructive'}
-                                ],
-                              );
-                            }
-                            else {
-                              //Since it's not kicking itself, they can kick the player
-                              analytics.event(new Event('Kick'));
-                              let members = this.state.gameMembers;
-                              members.splice(members.indexOf(rowData));
-                              firebase.database().ref('games/' + this.state.gameId).update({
-                                'members': members
-                              });
-                            }
-                            
-                          }
-                          else {
-                            if(rowData.name == this.state.myName) {
-                              //Quit game
-                              analytics.event(new Event('Quit'));
-                              let members = this.state.gameMembers;
-                              members.splice(members.indexOf(rowData));
-                              firebase.database().ref('games/' + this.state.gameId).update({
-                                'members': members
-                              });
-                              this.props.navigation.state.params.returnData(this.state.gameName);
-                              this.props.navigation.goBack();
-                            } else {
-                              //Can't kick others
-                              Vibration.vibrate();
-                              Alert.alert(
-                                'Error', 
-                                "You aren't the match master. You can't kick other players.",
-                                [ 
-                                  {text: 'Ok', onPress: () => console.log('Cancel'), style: 'cancel'},
-                                ],
-                              );
-                            }
-                          }
-                          thus.syncToFirebase();
-                        }, style: 'destructive'}
-                      ],
-                    );
-                  }}>
+                  onPress={()=>{this.quitKick()}}>
                   <ImageBackground source={require('./images/btn.png')} style={{width: 84, height: 35, justifyContent: 'center'}}>
-                    <Text style={{fontSize: 18, textAlign: 'center', fontFamily: 'cabin-sketch-bold'}}>{this.state.myName == rowData.name ? 'Quit' : 'Kick'}</Text>
+                    <FontText isLoaded={true} isBold={true} style={{fontSize: 18, textAlign: 'center'}}>{this.state.myName == rowData.name ? 'Quit' : 'Kick'}</FontText>
                   </ImageBackground>
                 </TouchableOpacity>
               </View>
@@ -349,8 +343,7 @@ let styles = StyleSheet.create({
   },
 
   heading: {
-    fontSize: 30,
-    fontFamily: 'cabin-sketch-bold'
+    fontSize: 30
   },
 
   input: {
@@ -369,20 +362,17 @@ let styles = StyleSheet.create({
 
   membersListItem: {
     fontSize: 28,
-    fontFamily: 'cabin-sketch-bold',
     marginTop: 'auto',
     marginBottom: 'auto'
   },
 
   h2: {
     fontSize: 40,
-    fontFamily: 'cabin-sketch-bold',
     marginLeft: 20
   },
 
   p: {
     fontSize: 26,
-    fontFamily: 'cabin-sketch',
     marginLeft: 20,
     marginTop: 20
   }

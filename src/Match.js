@@ -6,6 +6,7 @@ import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import * as firebase from 'firebase';
 import Home from './Home.js';
 import Card from './Components/Card.js';
+import FontText from './Components/FontText.js';
 import { Analytics, PageHit, Event } from 'expo-analytics';
 
 let Environment = require('./environment.js')
@@ -135,6 +136,25 @@ export default class Match extends React.Component {
     this.syncToFirebase();
   }
 
+  createCard() {
+    if (this.state.newCardText.length > 0) {
+      //Declare variables
+      var gameCards = this.state.gameCards;
+      var newCard = {text: this.state.newCardText, creator: this.state.myName, isBingo: false, voters: []}
+
+      //Add new card to the start of the array
+      gameCards.unshift(newCard);
+
+      this.setState({gameCards: gameCards});
+      this.vote(newCard);
+      this.setState({newCardText: ''});
+
+      analytics.event(new Event('NewCard'));
+    } else {
+      return;
+    }
+  }
+
   //Upload data to Firebase
   syncToFirebase() {
     //Upload every card to Firebase
@@ -163,36 +183,19 @@ export default class Match extends React.Component {
             justifyContent: 'center',
             marginLeft: 'auto',
             marginRight: 15,
-            marginBottom: 10,
-            fontFamily: 'cabin-sketch-bold'
-          }} onPress={() => {
-            if (this.state.newCardText.length > 0) {
-              //Declare variables
-              var gameCards = this.state.gameCards;
-              var newCard = {text: this.state.newCardText, creator: this.state.myName, isBingo: false, voters: []}
-
-              //Add new card to the start of the array
-              gameCards.unshift(newCard);
-
-              this.setState({gameCards: gameCards});
-              this.vote(newCard);
-              this.setState({newCardText: ''});
-
-              analytics.event(new Event('NewCard'));
-            } else {
-              return;
-            }
-          }}>
+            marginBottom: 10
+          }} 
+          onPress={() => {this.createCard()}}>
             <ImageBackground source={require('./images/btn.png')} style={{width: 96, height: 40, justifyContent: 'center'}}>
-              <Text style={{fontSize: 20, textAlign: 'center', fontFamily: 'cabin-sketch-bold'}}>Create</Text>
+              <FontText isLoaded={true} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>Create</FontText>
             </ImageBackground>
           </TouchableOpacity>
         </View>
         <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: 'white'}}>
           <Image source={require('./images/add_child.png')} style={{width: 75, height: 59, marginRight: 20}}/>
-          <Text style={{padding: 1.25, width: '100%', flex: 1, textAlign: 'left', fontSize: 16, color: 'black', fontFamily: 'cabin-sketch'}}>Pull down to create a new card</Text>
+          <FontText isLoaded={true} isBold={true} style={{padding: 1.25, width: '100%', flex: 1, textAlign: 'left', fontSize: 16}}>Pull down to create a new card</FontText>
         </View>
-        <Text style={{marginLeft: 15, marginVertical: 10, fontWeight: 'bold', textAlign: 'left', fontSize: 36, color: '#555'}}>{this.state.gameName}</Text>
+        <FontText isLoaded={true} isBold={true} style={{marginLeft: 15, marginVertical: 10, fontWeight: 'bold', textAlign: 'left', fontSize: 36, color: '#555'}}>{this.state.gameName}</FontText>
         <ListView
           dataSource={ds.cloneWithRows(this.state.gameCards.sort(function(a,b) {return (a.voters < b.voters) ? 1 : ((b.voters < a.voters) ? -1 : 0);}))}
           enableEmptySections={true}
