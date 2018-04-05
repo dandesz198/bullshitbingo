@@ -149,6 +149,8 @@ export default class Match extends React.Component {
       this.vote(newCard);
       this.setState({newCardText: ''});
 
+      this.syncToFirebase();
+
       analytics.event(new Event('NewCard'));
     } else {
       return;
@@ -174,10 +176,10 @@ export default class Match extends React.Component {
           <TextInput
             style={{width: '100%', height: 80, paddingHorizontal: 20, marginBottom: 10, color: '#555', fontSize: 20, fontFamily: 'cabin-sketch-bold'}}
             underlineColorAndroid='transparent'
-            placeholder="Create a new match"
+            placeholder="Create a new card"
             placeholderTextColor="#222"
-            onChangeText={(newMatchText) => this.setState({newMatchText})}
-            value={this.state.newMatchText}
+            onChangeText={(newCardText) => this.setState({newCardText})}
+            value={this.state.newCardText}
           />
           <TouchableOpacity style={{
             justifyContent: 'center',
