@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Linking, Dimensions } from 'react-native';
+import { Text } from 'react-native';
 
 export default class FontText extends Component {
     render() {
