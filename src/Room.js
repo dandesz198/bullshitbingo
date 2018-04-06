@@ -157,32 +157,42 @@ export default class Room extends React.Component {
   }
 
   //Download match data from Firebase
-  getData() {
+  async getData() {
     var thus = this;
     var members = [];
 
     //Get data and add listener
-    firebase.database().ref('games/' + this.state.gameId+'/').on('value', async function(snapshot) {
+    await firebase.database().ref('games/' + this.state.gameId+'/').on('value', async function(snapshot) {
       //Parse objects
       let snap = snapshot.val();
 
       let membersName = Object.values(snap.members);
       var members = [];
 
+      thus.setState({gameMaster: snap.master});
+
       membersName.forEach(element => {
+        console.log('step 2')
         firebase.database().ref('users/'+element+'/').once('value', function(snp) {
+          console.log('step 333')
+          console.log(snp.val())
           members.push(snp.val());
         });
       });
 
+      setTimeout(() => {
+        thus.setState({gameMembers: members});
+      }, 1000);
+
       var matches = [];
+
       if(snap.matches) {
         snap.matches.forEach(element => {
           matches.push(element);
         });
-        thus.setState({gameMembers: members, gameMaster: snap.master, matches: matches});        
+        thus.setState({matches: matches});        
       } else {
-        thus.setState({gameMembers: members, gameMaster: snap.master, matches: []});
+        thus.setState({matches: []});
       }
     });
 
@@ -298,7 +308,7 @@ export default class Room extends React.Component {
           </View>
           <FontText isLoaded={true} isBold={true} style={styles.p}>members</FontText>
           <ListView
-            dataSource={ds.cloneWithRows(this.state.gameMembers.sort(function(a,b) {return (a.points < b.points) ? 1 : ((b.points < a.points) ? -1 : 0);}))}
+            dataSource={ds.cloneWithRows(this.state.gameMembers/*.sort(function(a,b) {return (a.points < b.points) ? 1 : ((b.points < a.points) ? -1 : 0);})*/)}
             enableEmptySections={true}
             style={{marginTop: 10}}
             renderRow={(rowData) => 
