@@ -44,7 +44,7 @@ class Card extends Component {
 
 let style = StyleSheet.create({
     roomNameText: {
-        fontSize: 20,
+        fontSize: 18,
         fontFamily: 'cabin-sketch'
     },
 

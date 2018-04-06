@@ -242,9 +242,9 @@ export default class Room extends React.Component {
               </ImageBackground>
             </TouchableOpacity>
           </View>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Image source={require('./images/add_child.png')} style={{width: 75, height: 59, marginRight: 20}}/>
-            <FontText isLoaded={true} isBold={true} style={{padding: 1.25, textAlign: 'left', fontSize: 16}}>Pull down to create a new match</FontText>
+          <View style={{marginLeft: 'auto', marginRight: 'auto', flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+            <Image source={require('./images/add_child.png')} style={{width: 75, height: 64, marginRight: 20}}/>
+            <FontText isLoaded={true} isBold={true} style={{padding: 1.25, fontSize: 16}}>Pull down to create a new match</FontText>
           </View>
           <ListView
             dataSource={ds.cloneWithRows(this.state.matches)}
