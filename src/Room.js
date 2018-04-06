@@ -56,7 +56,7 @@ export default class Room extends React.Component {
     this.getData();
 
     setTimeout(() => {
-      this.scrollView.scrollTo({x: 0, y: 169, animated: false});
+      this.scrollView.scrollTo({x: 0, y: 120, animated: false});
     }, 1)
 
     analytics.hit(new PageHit('Room'));
@@ -223,20 +223,22 @@ export default class Room extends React.Component {
         >
           <View style={{width: Dimensions.get('window').width, backgroundColor: '#eee'}}>
             <TextInput
-              style={{width: '100%', height: 80, paddingHorizontal: 20, marginBottom: 10, color: '#555', fontSize: 20, fontFamily: 'cabin-sketch-bold'}}
+              style={{width: '100%', height: 60, paddingHorizontal: 20, marginBottom: 10, color: '#555', fontSize: 20, fontFamily: 'cabin-sketch-bold'}}
               underlineColorAndroid='transparent'
-              placeholder="Create a new match"
+              placeholder="Tap here to create a new match..."
               placeholderTextColor="#444"
               onChangeText={(newMatchText) => this.setState({newMatchText})}
               value={this.state.newMatchText}
             />
-            <Image source={require('./images/line_create.png')} style={{width: 280, height: 8, marginLeft: 20, marginBottom: 15}}/>
             <TouchableOpacity style={{
               justifyContent: 'center',
               marginLeft: 'auto',
               marginRight: 15,
-              marginBottom: 10
-            }} onPress={() => this.createMatch()}>
+              marginBottom: 10,
+              opacity: this.state.newMatchText.length <= 0 ? 0.2 : 1
+            }}
+            disabled={this.state.newMatchText.length <= 0 ? true : false}
+            onPress={() => this.createMatch()}>
               <ImageBackground source={require('./images/btn.png')} style={{width: 96, height: 40, justifyContent: 'center'}}>
                 <FontText isLoaded={true} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>Create</FontText>
               </ImageBackground>

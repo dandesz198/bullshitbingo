@@ -202,11 +202,7 @@ export default class Home extends React.Component {
 
   async createRoom() {
     if((this.state.myNameWB.length == 0 && this.state.myName.length == 0) || this.state.pw.length == 0 || this.state.pwAgain.length == 0 || this.state.newGameName.length == 0) {
-      this.setState({newGameModalVisible: false});
       Vibration.vibrate();
-      Alert.alert('Error', 'I saw terrible things... Empty fields. Please fill in the form to continue.', [
-        {text: 'OK', onPress: () => this.setState({newGameModalVisible: true})},
-      ]);
       return;
     }
 
@@ -262,9 +258,9 @@ export default class Home extends React.Component {
     }
 
     //Get the name and the master's name of the new room
-    firebase.database().ref('games/' + this.state.joingameId).once('value', function(snap) {      
-      if(!snap) {
-        var newGameName = JSON.stringify(snap.name);
+    firebase.database().ref('games/' + this.state.joingameId).once('value', function(snap) {
+      if(snap.val() != null && snap.val() && typeof snap.val() != 'undefined') {
+        var newGameName = JSON.stringify(snap.val().name);
       }
       else {
         //Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.");
@@ -482,7 +478,7 @@ export default class Home extends React.Component {
               <View style={{flexDirection: 'row', alignContent: 'center', justifyContent: 'center', marginVertical: 30}}>
                 <View style={{flexDirection: 'column'}}>
                   <Image source={require('./images/create_child.png')} style={{height: 102, width: 140, marginBottom: -2.5}}/>
-                  <TouchableOpacity style={[styles.button, {marginRight: 25}]} onPress={
+                  <TouchableOpacity style={[styles.button, {marginRight: 25, opacity: (this.state.myNameWB.length == 0 && this.state.myName.length == 0) || this.state.pw.length == 0 || this.state.pwAgain.length == 0 || this.state.newGameName.length == 0 ? 0.5 : 1}]} disabled={(this.state.myNameWB.length == 0 && this.state.myName.length == 0) || this.state.pw.length == 0 || this.state.pwAgain.length == 0 || this.state.newGameName.length == 0 ? true : false} onPress={
                     async() => {
                       if(this.state.myNameWB.length > 0) {
                         await this.setState({myName: this.state.myNameWB, myNameWB: ''});

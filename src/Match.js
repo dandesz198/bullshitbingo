@@ -55,7 +55,7 @@ export default class Match extends React.Component {
     this.getData();
 
     setTimeout(() => {
-      this.scrollView.scrollTo({x: 0, y: 169, animated: true});
+      this.scrollView.scrollTo({x: 0, y: 120, animated: false});
     }, 1)
 
     analytics.hit(new PageHit('Match'));
@@ -176,20 +176,21 @@ export default class Match extends React.Component {
         >
         <View style={{width: Dimensions.get('window').width, backgroundColor: '#eee', paddingTop: 25}}>
           <TextInput
-            style={{width: '100%', height: 80, paddingHorizontal: 20, marginBottom: 10, color: '#555', fontSize: 20, fontFamily: 'cabin-sketch-bold'}}
+            style={{width: '100%', height: 60, paddingHorizontal: 20, marginBottom: 10, color: '#555', fontSize: 20, fontFamily: 'cabin-sketch-bold'}}
             underlineColorAndroid='transparent'
-            placeholder="Create a new card"
+            placeholder="Tap here to create a new card..."
             placeholderTextColor="#444"
             onChangeText={(newCardText) => this.setState({newCardText})}
             value={this.state.newCardText}
           />
-          <Image source={require('./images/line_create.png')} style={{width: 280, height: 8, marginLeft: 20, marginBottom: 15}}/>
           <TouchableOpacity style={{
             justifyContent: 'center',
             marginLeft: 'auto',
             marginRight: 15,
-            marginBottom: 10
-          }} 
+            marginBottom: 10,
+            opacity: this.state.newCardText.length <= 0 ? 0.2 : 1
+          }}
+          disabled={this.state.newCardText.length <= 0 ? true : false}
           onPress={() => {this.createCard()}}>
             <ImageBackground source={require('./images/btn.png')} style={{width: 96, height: 40, justifyContent: 'center'}}>
               <FontText isLoaded={true} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>Create</FontText>

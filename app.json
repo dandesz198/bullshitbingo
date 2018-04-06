@@ -15,5 +15,16 @@
    },
    "updates": {
     "checkAutomatically": "ON_ERROR_RECOVERY"
-   }
+   },
+   "loading": {
+    "backgroundImage": "./src/images/icon.png",
+    "splash": {
+      "backgroundColor": "#fff",
+      "image": {
+        "ios": {
+          "backgroundImage": "./src/images/icon.png"
+        }
+      }
+    }
+  }
  }
