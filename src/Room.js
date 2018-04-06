@@ -116,9 +116,13 @@ export default class Room extends React.Component {
               //Since it's not kicking itself, they can kick the player
               analytics.event(new Event('Kick'));
               let members = this.state.gameMembers;
-              members.splice(members.indexOf(rowData));
+              var memb = [];
+              members.forEach(element => {
+                memb.push(element.name);
+              });
+              memb.splice(memb.indexOf(rowData.name));
               firebase.database().ref('games/' + this.state.gameId).update({
-                'members': members
+                'members': memb
               });
             }
             
