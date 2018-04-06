@@ -56,7 +56,7 @@ export default class Room extends React.Component {
     this.getData();
 
     setTimeout(() => {
-      this.scrollView.scrollTo({x: 0, y: 145, animated: false});
+      this.scrollView.scrollTo({x: 0, y: 169, animated: false});
     }, 1)
 
     analytics.hit(new PageHit('Room'));
@@ -226,10 +226,11 @@ export default class Room extends React.Component {
               style={{width: '100%', height: 80, paddingHorizontal: 20, marginBottom: 10, color: '#555', fontSize: 20, fontFamily: 'cabin-sketch-bold'}}
               underlineColorAndroid='transparent'
               placeholder="Create a new match"
-              placeholderTextColor="#222"
+              placeholderTextColor="#444"
               onChangeText={(newMatchText) => this.setState({newMatchText})}
               value={this.state.newMatchText}
             />
+            <Image source={require('./images/line_create.png')} style={{width: 280, height: 8, marginLeft: 20, marginBottom: 15}}/>
             <TouchableOpacity style={{
               justifyContent: 'center',
               marginLeft: 'auto',

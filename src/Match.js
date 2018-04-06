@@ -55,7 +55,7 @@ export default class Match extends React.Component {
     this.getData();
 
     setTimeout(() => {
-      this.scrollView.scrollTo({x: 0, y: 145, animated: true});
+      this.scrollView.scrollTo({x: 0, y: 169, animated: true});
     }, 1)
 
     analytics.hit(new PageHit('Match'));
@@ -179,10 +179,11 @@ export default class Match extends React.Component {
             style={{width: '100%', height: 80, paddingHorizontal: 20, marginBottom: 10, color: '#555', fontSize: 20, fontFamily: 'cabin-sketch-bold'}}
             underlineColorAndroid='transparent'
             placeholder="Create a new card"
-            placeholderTextColor="#222"
+            placeholderTextColor="#444"
             onChangeText={(newCardText) => this.setState({newCardText})}
             value={this.state.newCardText}
           />
+          <Image source={require('./images/line_create.png')} style={{width: 280, height: 8, marginLeft: 20, marginBottom: 15}}/>
           <TouchableOpacity style={{
             justifyContent: 'center',
             marginLeft: 'auto',

@@ -6,7 +6,7 @@ import md5 from 'md5';
 import { Analytics, PageHit, Event } from 'expo-analytics';
 import Link from './Components/Link.js';
 import FontText from './Components/FontText.js';
-import { Updates, Font } from 'expo';
+import { Updates, Font, ScreenOrientation } from 'expo';
 
 let Environment = require('./environment.js')
 
@@ -74,6 +74,8 @@ export default class Home extends React.Component {
     });
 
     this.setState({fontsLoaded: true});
+
+    Expo.ScreenOrientation.allow(Expo.ScreenOrientation.Orientation.PORTRAIT);
 
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
 
@@ -223,9 +225,9 @@ export default class Home extends React.Component {
     //Upload the game itself to Firebase
     await firebase.database().ref('games/'+this.state.newGameID).set({
       name: this.state.newGameName,
-      master: this.state.myNameWB,
+      master: this.state.myName,
       masterPw: md5(this.state.pw),
-      members: [this.state.myNameWB]
+      members: [this.state.myName]
     });
 
     //Add the new game to the Games array (rendered in 'My rooms' section)
@@ -237,7 +239,7 @@ export default class Home extends React.Component {
     this.setState({games: games, newGameModalVisible: false});
     
     //Navigate to the new game's screen
-    this.props.navigation.navigate('Room', {gameName: this.state.newGameName, gameId: this.state.newGameID, myName: this.state.myNameWB, returnData: this.returnData.bind(this)});
+    this.props.navigation.navigate('Room', {gameName: this.state.newGameName, gameId: this.state.newGameID, myName: this.state.myName, returnData: this.returnData.bind(this)});
     BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
 
     //Save the new game to AsyncStorage
@@ -260,9 +262,9 @@ export default class Home extends React.Component {
     }
 
     //Get the name and the master's name of the new room
-    firebase.database().ref('games/' + this.state.joingameId).once('value', function(snap) {
-      if(typeof snap.val() != "undefined" || snap.val() != null) {
-        var newGameName = JSON.stringify(snap.val().name);
+    firebase.database().ref('games/' + this.state.joingameId).once('value', function(snap) {      
+      if(!snap) {
+        var newGameName = JSON.stringify(snap.name);
       }
       else {
         //Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.");
@@ -291,7 +293,7 @@ export default class Home extends React.Component {
   }
 
   async joinRoom() {
-    if(this.state.myNameWB.length == 0 && this.state.myName.length == 0) {
+    if(this.state.myName.length == 0) {
       this.setState({joinGameModalVisible: false});
       Vibration.vibrate();
       Alert.alert('Error', 'I saw terrible things... Empty fields. Please fill in the form to continue.', [
@@ -350,10 +352,6 @@ export default class Home extends React.Component {
   }
 
   async saveName() {
-    if(this.state.myNameWB.length > 0) {
-      await this.setState({myName: this.state.myNameWB, myNameWB: ''});
-    }
-
     firebase.database().ref('users/'+this.state.myName).once('value', (snap) => {
       if(typeof snap.val() == "undefined" || snap.val() == null) {
         firebase.database().ref('users/'+this.state.myName).set({
@@ -438,30 +436,30 @@ export default class Home extends React.Component {
                   style={[styles.input, {marginTop: 5, marginBottom: 5, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : Platform.OS == "ios" ? "Arial" : "Roboto"}]}
                   underlineColorAndroid='transparent'
                   placeholder="Your name"
-                  placeholderTextColor="#222"
+                  placeholderTextColor="#444"
                   onChangeText={(myNameWB) => this.setState({myNameWB})}
                   value={this.state.myNameWB}
                 />
                 <Image source={require('./images/line_long.png')} />
-                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16, marginTop: 10, display: this.state.myName.length == 0 && this.state.myNameWB.length == 0 ? 'flex' : 'none'}}>Please don't leave any field empty.</FontText>
+                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16, color: '#ee5253', marginTop: 7.5, display: this.state.myNameWB.length == 0 ? 'flex' : 'none'}}>Please don't leave any field empty.</FontText>
               </View>
               <TextInput
                 style={[styles.input, {marginTop: 20, marginBottom: 5, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : Platform.OS == "ios" ? "Arial" : "Roboto"}]}
                 underlineColorAndroid='transparent'
                 placeholder="The name of the room"
-                placeholderTextColor="#222"
+                placeholderTextColor="#444"
                 onChangeText={(newGameName) => this.setState({newGameName})}
                 value={this.state.newGameName}
               />
               <Image source={require('./images/line_long.png')} />
-              <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{color: '#ee5253', fontSize: 16, marginTop: 10, display: this.state.newGameName.length == 0 ? 'flex' : 'none'}}>Please don't leave any field empty.</FontText>
+              <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{color: '#ee5253', fontSize: 16, marginTop: 7.5, display: this.state.newGameName.length == 0 ? 'flex' : 'none'}}>Please don't leave any field empty.</FontText>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={[styles.p, {marginTop: 20}]}>Password lock</FontText>
               <TextInput
                 style={[styles.input, {marginTop: 5, marginBottom: 5, fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : Platform.OS == "ios" ? "Arial" : "Roboto"}]}
                 underlineColorAndroid='transparent'
                 secureTextEntry={true}
                 placeholder="Password"
-                placeholderTextColor="#222"
+                placeholderTextColor="#444"
                 onChangeText={(pw) => this.setState({pw})}
                 value={this.state.pw}
               />
@@ -471,7 +469,7 @@ export default class Home extends React.Component {
                 underlineColorAndroid='transparent'
                 secureTextEntry={true}
                 placeholder="Password again"
-                placeholderTextColor="#222"
+                placeholderTextColor="#444"
                 onChangeText={(pwAgain) => this.setState({pwAgain})}
                 value={this.state.pwAgain}
               />
@@ -484,7 +482,14 @@ export default class Home extends React.Component {
               <View style={{flexDirection: 'row', alignContent: 'center', justifyContent: 'center', marginVertical: 30}}>
                 <View style={{flexDirection: 'column'}}>
                   <Image source={require('./images/create_child.png')} style={{height: 102, width: 140, marginBottom: -2.5}}/>
-                  <TouchableOpacity style={[styles.button, {marginRight: 25}]} onPress={()=>{this.createRoom()}}>
+                  <TouchableOpacity style={[styles.button, {marginRight: 25}]} onPress={
+                    async() => {
+                      if(this.state.myNameWB.length > 0) {
+                        await this.setState({myName: this.state.myNameWB, myNameWB: ''});
+                      }
+                      this.createRoom();
+                    }
+                  }>
                     <ImageBackground source={require('./images/btn.png')} style={{width: 140, height: 58, justifyContent: 'center'}}>
                       <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.join}>Create</FontText>
                     </ImageBackground>
@@ -512,31 +517,38 @@ export default class Home extends React.Component {
                       style={[styles.input, {color: '#666', borderColor: '#666', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : Platform.OS == "ios" ? "Arial" : "Roboto"}]}
                       underlineColorAndroid='transparent'
                       placeholder="Your name"
-                      placeholderTextColor="#222"
-                      onChangeText={(myNameWB) => this.setState({myNameWB})}
-                      value={this.state.myNameWB}
+                      placeholderTextColor="#444"
+                      onChangeText={(myName) => this.setState({myName})}
+                      value={this.state.myName}
                     />
                     <Image source={require('./images/line_long.png')} />
-                    <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{color: '#ee5253', fontSize: 16, marginTop: 10, display: this.state.myNameWB.length == 0 ? 'flex' : 'none'}}>Please don't leave any field empty.</FontText>
+                    <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{color: '#ee5253', fontSize: 16, marginTop: 7.5, display: this.state.myNameWB.length == 0 ? 'flex' : 'none'}}>Please don't leave any field empty.</FontText>
                   </View>
                   <View style={{marginLeft: 20, display: this.state.myName == this.state.joinMaster ? 'flex' : 'none'}}>
                     <TextInput
                       style={[styles.input, {color: '#666', borderColor: '#666', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : Platform.OS == "ios" ? "Arial" : "Roboto"}]}
                       secureTextEntry={true}
                       placeholder="Room master password"
-                      placeholderTextColor="#222"
+                      placeholderTextColor="#444"
                       underlineColorAndroid='transparent'
                       onChangeText={(joinPw) => this.setState({joinPw})}
                       value={this.state.joinPw}
                     />
                     <Image source={require('./images/line_long.png')} />
-                    <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{color: '#ee5253', fontSize: 16, marginTop: 10, display: this.state.joinPw.length == 0 ? 'flex' : 'none'}}>Please don't leave any field empty.</FontText>
+                    <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{color: '#ee5253', fontSize: 16, marginTop: 7.5, display: this.state.joinPw.length == 0 ? 'flex' : 'none'}}>Please don't leave any field empty.</FontText>
                   </View>
                 </View>
                 <Image source={require('./images/join_bg.png')} style={{height: Dimensions.get('window').height * (35 / 100), width: Dimensions.get('window').height * (35 / 100), marginVertical: 20, alignSelf: 'center'}} />
                 <View style={[styles.card, {flexDirection: 'row', alignItems: 'center', alignSelf: 'center'}]}>
                   <View style={[styles.button, {flex: 1, marginRight: 25}]}>
-                    <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={()=>{this.joinRoom()}}>
+                    <TouchableOpacity style={[styles.button, {flex: 1, backgroundColor: 'transparent'}]} onPress={
+                      async() => {
+                        if(this.state.myNameWB.length > 0) {
+                          await this.setState({myName: this.state.myNameWB, myNameWB: ''});
+                        }
+                        this.joinRoom();
+                      }
+                    }>
                       <ImageBackground source={require('./images/btn.png')} style={{width: 140, height: 58, justifyContent: 'center'}}>
                         <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.join}>Join</FontText>
                       </ImageBackground>
@@ -613,8 +625,8 @@ export default class Home extends React.Component {
           <ScrollView style={{flex: 1}}>
             <View style={{marginTop: 20, flexDirection: 'row'}}>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.welcome}>Bullshit Bingo</FontText>
-              <TouchableOpacity style={{float: 'right', marginTop: 'auto', marginBottom: 5, marginLeft: 'auto', marginRight: 20}} onPress={() => {this.setState({infoModalVisible: true})}}>
-                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16}}>0.12.7 [i]</FontText>
+              <TouchableOpacity style={{marginTop: 'auto', marginBottom: 5, marginLeft: 'auto', marginRight: 20}} onPress={() => {this.setState({infoModalVisible: true})}}>
+                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16}}>0.12.8 [i]</FontText>
               </TouchableOpacity>
             </View>
             <TouchableOpacity style={[styles.button, {marginTop: 10}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
@@ -625,19 +637,21 @@ export default class Home extends React.Component {
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.heading}>Join a room</FontText>
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
               <Image source={require('./images/home_child.png')} style={{height: 180, width: 105, marginTop: 10, marginLeft: 0, marginRight: 'auto'}} />
-              <View style={{flexDirection: 'column', height: 140, alignItems: 'center', marginRight: 'auto', marginTop: 'auto', marginBottom: 'auto'}}>              
-                <TextInput
-                  style={[styles.input, {flex: 1, height: 40, width: 140, fontSize: 28, textAlign: 'center', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : Platform.OS == "ios" ? "Arial" : "Roboto"}]}
-                  placeholder="Room PIN"
-                  placeholderTextColor="#222"
-                  keyboardType="numeric"
-                  underlineColorAndroid='transparent'
-                  onChangeText={(joingameId) => this.setState({joingameId})}
-                  value={this.state.joingameId}
-                />
-                <Image source={require('./images/line_short.png')} style={{width: 140, marginTop: 5, marginBottom: 10}} />
+              <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginTop: 'auto', marginBottom: 'auto', marginRight: 'auto', marginLeft: 'auto'}}>
+                <View style={{height: 60, alignItems: 'center', justifyContent: 'center'}}>
+                  <TextInput
+                    style={[styles.input, {flex: 1, marginBottom: 2.5, height: 40, width: 180, fontSize: 28, textAlign: 'center', fontFamily: this.state.fontsLoaded ? 'cabin-sketch-bold' : Platform.OS == "ios" ? "Arial" : "Roboto"}]}
+                    placeholder="Room PIN"
+                    placeholderTextColor="#444"
+                    keyboardType="numeric"
+                    underlineColorAndroid='transparent'
+                    onChangeText={(joingameId) => this.setState({joingameId})}
+                    value={this.state.joingameId}
+                  />
+                  <Image source={require('./images/line_short.png')} style={{width: 140}} />
+                </View>
                 <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{color: '#ee5253', fontSize: 16, display: this.state.isNewGameIDCorrect ? 'none' : 'flex'}}>Please check the PIN.</FontText>
-                <TouchableOpacity style={[styles.button, {marginTop: 5}]}
+                <TouchableOpacity style={[styles.button, {marginTop: 10, marginBottom: 'auto'}]}
                 onPress={()=>{this.preJoin()}}
                   >
                   <ImageBackground source={require('./images/btn.png')} style={{width: 140, height: 58, justifyContent: 'center'}}>
