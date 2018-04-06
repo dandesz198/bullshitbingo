@@ -392,7 +392,7 @@ export default class Home extends React.Component {
       return (
         <ScrollView style={{flex: 1}} pagingEnabled={true} horizontal={true} vertical={false}>
           <View style={[styles.onboardContainter, {backgroundColor: '#2f3542'}]}>
-            <Image source={require('./poo.png')} style={{width: 125, height: 125}} />
+            <Image source={require('./images/icon.png')} style={{width: 125, height: 125}} />
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center', marginTop: 10}}>Welcome to the {'\n'} Bullshit Bingo!</FontText>
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center', marginTop: 5}}>We'll guide you trough the overcomplicated system of this game, or you can try to understand it on your own.</FontText>
           </View>
@@ -612,7 +612,7 @@ export default class Home extends React.Component {
               </FontText>
               <Link text="Link to the icon" url="https://www.freepik.com/free-vector/sketchy-children_797063.htm" />
               <TouchableOpacity style={{marginLeft: 'auto', marginRight: 'auto', marginTop: 15}} onPress={()=>{Linking.openURL('https://paypal.me/dandesz198')}}>
-                <Image source={require('./coffee.png')} style={{height: 45, width: 225}}/>
+                <Image source={require('./images/coffee.png')} style={{height: 45, width: 225}}/>
               </TouchableOpacity>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={[styles.p, {fontSize: 16, textAlign: 'center', marginTop: 5}]}>Since the server isn't free, every single cent of your donation is going to be spent on the costs of running this game.</FontText>
               <TouchableOpacity style={[styles.button, {marginTop: 20, marginBottom: 40, width: 330, height: 64, marginLeft: 'auto', marginRight: 'auto'}]} onPress={()=>{this.setState({infoModalVisible: false})}}>

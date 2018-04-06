@@ -18,7 +18,7 @@ class Card extends Component {
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                         <Text style={[style.nameText, {width: Dimensions.get('window').width * (75 / 100)}]} numberOfLines={1}>{this.props.cardText}</Text>
                         <TouchableOpacity style={{marginRight: 0, marginLeft: 'auto', display: this.props.isGameMaster && !this.props.isMatch ? 'flex' : 'none'}} onPress={() => {this.props.onDeletePress(); analytics.event(new Event(this.props.isMatch ? 'Delete match' :  'Delete card'));}}>
-                            <Image source={require('./trash.png')} style={{height: 30, width: 21, marginVertical: 'auto'}} />
+                            <Image source={require('../images/trash.png')} style={{height: 30, width: 21, marginVertical: 'auto'}} />
                         </TouchableOpacity>
                     </View>
                 </View>
