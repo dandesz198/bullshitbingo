@@ -77,6 +77,19 @@ export default class Home extends React.Component {
 
     Expo.ScreenOrientation.allow(Expo.ScreenOrientation.Orientation.PORTRAIT);
 
+    try {
+      let value = await AsyncStorage.getItem('@MySuperStore:isFirst');
+      if (value !== null){
+        // We have data
+        this.setState({isFirstOpen: false});
+      } else {
+        this.setState({isFirstOpen: true});
+      }
+    } catch (error) {
+      // Error retrieving data
+      console.log(error);
+    }
+
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
 
     analytics.hit(new PageHit('Home'));
@@ -387,33 +400,49 @@ export default class Home extends React.Component {
     if(this.state.isFirstOpen) {
       return (
         <ScrollView style={{flex: 1}} pagingEnabled={true} horizontal={true} vertical={false}>
-          <View style={[styles.onboardContainter, {backgroundColor: '#2f3542'}]}>
-            <Image source={require('./images/icon.png')} style={{width: 125, height: 125}} />
-            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center', marginTop: 10}}>Welcome to the {'\n'} Bullshit Bingo!</FontText>
+          <View style={styles.onboardContainter}>
+            <Image source={require('./images/icon.png')} style={{width: 125, height: 125, marginBottom: 20}} />
+            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>Welcome to the {'\n'} Bullshit Bingo!</FontText>
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center', marginTop: 5}}>We'll guide you trough the overcomplicated system of this game, or you can try to understand it on your own.</FontText>
           </View>
-          <View style={[styles.onboardContainter, {backgroundColor: '#5352ed'}]}>
+          <View style={styles.onboardContainter}>
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>Rooms</FontText>
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>Inside rooms, you can find matches and other players. They are generally built around themes, like a Netflix show, a school class, or your workplace friend circle.</FontText>
           </View>
-          <View style={[styles.onboardContainter, {backgroundColor: '#3742fa'}]}>
-            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>Matches</FontText>
-            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>They got a question (e.g. "What's the next thing that's going to break in the office?"), and several cards (or answers) that you can vote on. If you vote on a card, and that thing breaks, you win. You can only have votes on a maximum of 2 cards.</FontText>
+          <View style={[styles.onboardContainter, {padding: 0}]}>
+            <View style={[styles.onboardContainter, {marginTop: 'auto', marginBottom: 'auto'}]}>
+              <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>Matches</FontText>
+              <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>One match tries to answer one question (e.g. "What's the next thing that's going to break in the office?"), with several possible answers (or cards) that you can vote on. If you vote on a card (eg. the window), and the window breaks, you get one point. You can only have votes on a maximum of 2 cards.</FontText>
+            </View>
+            <Image source={require('./images/create_child.png')} style={{width: 120, height: 87, marginTop: 'auto', marginBottom: 0}}/>
           </View>
-          <View style={[styles.onboardContainter, {backgroundColor: '#1e90ff'}]}>
+          <View style={styles.onboardContainter}>
+            <Image source={require('./images/tutorial_card.png')} style={{width: 300, height: 125, marginBottom: 20}} />
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>Cards</FontText>
-            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>Cards are used to show you every information you may need ever: the text you can vote on, how much people voted on it, and that who created it. If you can't vote on a card, that can mean two things: 1., you exceeded your 2-card limit on the votes and/or the card already had a BINGO! on it. (Only the match master (the creator of the match) can give points for the players)</FontText>
+            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>Cards are used to show you every information you may need: the text you can vote on (eg. the windows will broke), how much people voted on it, and the creator of it.</FontText>
           </View>
-          <View style={[styles.onboardContainter, {backgroundColor: '#2ed573'}]}>
+          <View style={styles.onboardContainter}>
+            <Image source={require('./images/firework.png')} style={{width: 125, height: 125, marginBottom: 20}} />
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>BINGO!</FontText>
-            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>If the text you voted on occurs (eg. the room #42's windows broke), the match master can give points for the players who voted on the corresponding card.</FontText>
+            <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>If the event you voted on occurs (eg. the window breaks), the creator (master) of the match can give points for the players who voted on the corresponding card.</FontText>
           </View>
-          <View style={[styles.onboardContainter, {backgroundColor: '#ff4757'}]}>
+          <View style={styles.onboardContainter}>
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>Let's get started!</FontText>
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>Now you're all set. Have fun!</FontText>
-            <TouchableOpacity style={{marginTop: 15}} onPress={()=>{this.setState({isFirstOpen: false})}}>
-              <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>Play</FontText>
+            <TouchableOpacity style={{marginTop: 15}} onPress={async()=>{
+              this.setState({isFirstOpen: false});
+              try {
+                await AsyncStorage.setItem('@MySuperStore:isFirst', 'false');
+              } catch (error) {
+                // Error saving data
+                console.log(error);
+              }
+              }}>
+              <ImageBackground source={require('./images/btn.png')} style={{width: 140, height: 58, justifyContent: 'center'}}>
+                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.join}>Play</FontText>
+              </ImageBackground>
             </TouchableOpacity>
+            <Image source={require('./images/add_child.png')} style={{width: 70, height: 59, marginTop: -2.5}}/>
           </View>
         </ScrollView>
       )
@@ -478,7 +507,7 @@ export default class Home extends React.Component {
               <View style={{flexDirection: 'row', alignContent: 'center', justifyContent: 'center', marginVertical: 30}}>
                 <View style={{flexDirection: 'column'}}>
                   <Image source={require('./images/create_child.png')} style={{height: 102, width: 140, marginBottom: -2.5}}/>
-                  <TouchableOpacity style={[styles.button, {marginRight: 25, opacity: (this.state.myNameWB.length == 0 && this.state.myName.length == 0) || this.state.pw.length == 0 || this.state.pwAgain.length == 0 || this.state.newGameName.length == 0 ? 0.5 : 1}]} disabled={(this.state.myNameWB.length == 0 && this.state.myName.length == 0) || this.state.pw.length == 0 || this.state.pwAgain.length == 0 || this.state.newGameName.length == 0 ? true : false} onPress={
+                  <TouchableOpacity style={[styles.button, {marginRight: 25}]} disabled={(this.state.myNameWB.length == 0 && this.state.myName.length == 0) || this.state.pw.length == 0 || this.state.pwAgain.length == 0 || this.state.newGameName.length == 0 ? true : false} onPress={
                     async() => {
                       if(this.state.myNameWB.length > 0) {
                         await this.setState({myName: this.state.myNameWB, myNameWB: ''});
@@ -486,7 +515,7 @@ export default class Home extends React.Component {
                       this.createRoom();
                     }
                   }>
-                    <ImageBackground source={require('./images/btn.png')} style={{width: 140, height: 58, justifyContent: 'center'}}>
+                    <ImageBackground source={require('./images/btn.png')} style={{width: 140, height: 58, justifyContent: 'center', opacity: (this.state.myNameWB.length == 0 && this.state.myName.length == 0) || this.state.pw.length == 0 || this.state.pwAgain.length == 0 || this.state.newGameName.length == 0 ? 0.5 : 1}}>
                       <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.join}>Create</FontText>
                     </ImageBackground>
                   </TouchableOpacity>
@@ -573,9 +602,9 @@ export default class Home extends React.Component {
               </FontText>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 40, marginTop: 15}}>Rules</FontText>
               <FontText isLoaded={this.state.fontsLoaded} isBold={false} style={{fontSize: 20}}>
-                • You can only vote on 2 games{"\n"}
-                • Only the room master can delete cards and give points (via 'Bingo!' button){"\n"}
-                • The room master can kick anyone{"\n"}
+                • You can only vote on 2 cards{"\n"}
+                • Only the match's master (or creator) can delete cards and give points (via 'Bingo!' button){"\n"}
+                • The creators can kick anyone{"\n"}
                 • Both the kicked players and the quitters can rejoin every room{"\n"}
                 • Once the room master exits, the game is going to be deleted, permanently.{"\n"}
                 • Have fun! ;)
@@ -622,7 +651,7 @@ export default class Home extends React.Component {
             <View style={{marginTop: 20, flexDirection: 'row'}}>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.welcome}>Bullshit Bingo</FontText>
               <TouchableOpacity style={{marginTop: 'auto', marginBottom: 5, marginLeft: 'auto', marginRight: 20}} onPress={() => {this.setState({infoModalVisible: true})}}>
-                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16}}>0.12.11 [i]</FontText>
+                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16}}>0.13.1 [i]</FontText>
               </TouchableOpacity>
             </View>
             <TouchableOpacity style={[styles.button, {marginTop: 10}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
@@ -731,7 +760,8 @@ let styles = StyleSheet.create({
     height: Dimensions.get('window').height, 
     justifyContent: 'center', 
     alignItems: 'center', 
-    padding: 30
+    padding: 30,
+    backgroundColor: 'white'
   },
 
   card: {

@@ -187,12 +187,11 @@ export default class Match extends React.Component {
             justifyContent: 'center',
             marginLeft: 'auto',
             marginRight: 15,
-            marginBottom: 10,
-            opacity: this.state.newCardText.length <= 0 ? 0.2 : 1
+            marginBottom: 10
           }}
           disabled={this.state.newCardText.length <= 0 ? true : false}
           onPress={() => {this.createCard()}}>
-            <ImageBackground source={require('./images/btn.png')} style={{width: 96, height: 40, justifyContent: 'center'}}>
+            <ImageBackground source={require('./images/btn.png')} style={{width: 96, height: 40, justifyContent: 'center', opacity: this.state.newCardText.length <= 0 ? 0.2 : 1}}>
               <FontText isLoaded={true} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>Create</FontText>
             </ImageBackground>
           </TouchableOpacity>

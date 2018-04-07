@@ -172,10 +172,7 @@ export default class Room extends React.Component {
       thus.setState({gameMaster: snap.master});
 
       membersName.forEach(element => {
-        console.log('step 2')
         firebase.database().ref('users/'+element+'/').once('value', function(snp) {
-          console.log('step 333')
-          console.log(snp.val())
           members.push(snp.val());
         });
       });
@@ -248,12 +245,11 @@ export default class Room extends React.Component {
               justifyContent: 'center',
               marginLeft: 'auto',
               marginRight: 15,
-              marginBottom: 10,
-              opacity: this.state.newMatchText.length <= 0 ? 0.2 : 1
+              marginBottom: 10
             }}
             disabled={this.state.newMatchText.length <= 0 ? true : false}
             onPress={() => this.createMatch()}>
-              <ImageBackground source={require('./images/btn.png')} style={{width: 96, height: 40, justifyContent: 'center'}}>
+              <ImageBackground source={require('./images/btn.png')} style={{width: 96, height: 40, justifyContent: 'center', opacity: this.state.newMatchText.length <= 0 ? 0.2 : 1}}>
                 <FontText isLoaded={true} isBold={true} style={{fontSize: 20, textAlign: 'center'}}>Create</FontText>
               </ImageBackground>
             </TouchableOpacity>
