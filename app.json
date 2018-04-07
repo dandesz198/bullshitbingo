@@ -13,6 +13,10 @@
       "package": "com.funbyte.bullshitbingo",
       "permissions": ["VIBRATE"],
       "versionCode": 131
+    },
+    "ios": {
+      "bundleIdentifier": "com.funbyte.bullshitbingo",
+      "icon": "./src/images/icon_ios.png"
     }
    },
    "updates": {
