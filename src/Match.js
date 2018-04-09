@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Animated, ScrollView, ListView, Dimensions, Platform, Alert, Vibration, Image, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Animated, ScrollView, ListView, Dimensions, Platform, Alert, Vibration, Image, ImageBackground, StatusBar } from 'react-native';
 import { StackNavigator, NavigationActions } from 'react-navigation';
 import * as GestureHandler from 'react-native-gesture-handler';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
@@ -174,6 +174,8 @@ export default class Match extends React.Component {
         decelerationRate={0}
         ref={ref => this.scrollView = ref}
         >
+        <StatusBar
+            barStyle={'dark-content'}/>
         <View style={{width: Dimensions.get('window').width, backgroundColor: '#eee', paddingTop: 25}}>
           <TextInput
             style={{width: '100%', height: 60, paddingHorizontal: 20, marginBottom: 10, color: '#555', fontSize: 20, fontFamily: 'cabin-sketch-bold'}}

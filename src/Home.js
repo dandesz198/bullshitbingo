@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Animated, ScrollView, ListView, Modal, Alert, AsyncStorage, Image, Dimensions, Linking, BackHandler, Vibration, ImageBackground, Platform } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Animated, ScrollView, ListView, Modal, Alert, AsyncStorage, Image, Dimensions, Linking, BackHandler, Vibration, ImageBackground, Platform, StatusBar } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import * as firebase from 'firebase';
 import md5 from 'md5';
@@ -400,6 +400,8 @@ export default class Home extends React.Component {
     if(this.state.isFirstOpen) {
       return (
         <ScrollView style={{flex: 1}} pagingEnabled={true} horizontal={true} vertical={false}>
+          <StatusBar
+            barStyle={'dark-content'}/>
           <View style={styles.onboardContainter}>
             <Image source={require('./images/icon.png')} style={{width: 125, height: 125, marginBottom: 20}} />
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>Welcome to the {'\n'} Bullshit Bingo!</FontText>
@@ -449,6 +451,8 @@ export default class Home extends React.Component {
     } else {
       return (
         <View style={[styles.container, {backgroundColor: 'white'}]}>
+          <StatusBar
+            barStyle={'dark-content'}/>
           <Modal
             animationType="slide"
             transparent={false}
@@ -651,7 +655,7 @@ export default class Home extends React.Component {
             <View style={{marginTop: 20, flexDirection: 'row'}}>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.welcome}>Bullshit Bingo</FontText>
               <TouchableOpacity style={{marginTop: 'auto', marginBottom: 5, marginLeft: 'auto', marginRight: 20}} onPress={() => {this.setState({infoModalVisible: true})}}>
-                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16}}>0.13.1 [i]</FontText>
+                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16}}>0.13.2 [i]</FontText>
               </TouchableOpacity>
             </View>
             <TouchableOpacity style={[styles.button, {marginTop: 10}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>

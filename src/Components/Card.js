@@ -9,14 +9,14 @@ let analytics = new Analytics(Environment.analytics);
 class Card extends Component {
     render() {
         return(
-            <ImageBackground resizeMode='stretch' source={require('../images/card.png')} style={{width: Dimensions.get('window').width * (95 / 100), minHeight: 100, marginLeft: 'auto', marginRight: 'auto', padding: 20, marginTop: 20}}>
+            <ImageBackground resizeMode='stretch' source={require('../images/card.png')} style={{width: Dimensions.get('window').width * (95 / 100), minHeight: 100, marginLeft: 'auto', marginRight: 'auto', padding: 25, marginTop: 20}}>
                 <View style={style.textBoxStyle}>
                     <View style={{flexDirection: 'row', height: 20}}>
                         <Text numberOfLines={1} style={[style.roomNameText, {maxWidth: Dimensions.get('window').width * (50 / 100)}]}>{this.props.matchName}</Text>
                         <Text style={[style.roomNameText, {marginRight: 0, marginLeft: 'auto'}]}>{this.props.creatorName}</Text>
                     </View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text style={[style.nameText, {width: Dimensions.get('window').width * (75 / 100)}]} numberOfLines={1}>{this.props.cardText}</Text>
+                        <Text style={[style.nameText, {width: Dimensions.get('window').width * (75 / 100)}]}>{this.props.cardText}</Text>
                         <TouchableOpacity style={{marginRight: 0, marginLeft: 'auto', display: this.props.isGameMaster && !this.props.isMatch ? 'flex' : 'none'}} onPress={() => {this.props.onDeletePress(); analytics.event(new Event(this.props.isMatch ? 'Delete match' :  'Delete card'));}}>
                             <Image source={require('../images/trash.png')} style={{height: 30, width: 21, marginVertical: 'auto'}} />
                         </TouchableOpacity>
