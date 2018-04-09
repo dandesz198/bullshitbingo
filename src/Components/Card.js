@@ -9,7 +9,7 @@ let analytics = new Analytics(Environment.analytics);
 class Card extends Component {
     render() {
         return(
-            <ImageBackground resizeMode='stretch' source={require('../images/card.png')} style={{width: Dimensions.get('window').width * (95 / 100), minHeight: 100, marginLeft: 'auto', marginRight: 'auto', padding: 25, marginTop: 20}}>
+            <ImageBackground resizeMode='stretch' source={require('../images/card.png')} style={{width: Dimensions.get('window').width * (95 / 100), minHeight: 100, marginLeft: 'auto', marginRight: 'auto', padding: 20, marginTop: 20}}>
                 <View style={style.textBoxStyle}>
                     <View style={{flexDirection: 'row', height: 20}}>
                         <Text numberOfLines={1} style={[style.roomNameText, {maxWidth: Dimensions.get('window').width * (50 / 100)}]}>{this.props.matchName}</Text>
@@ -49,7 +49,7 @@ let style = StyleSheet.create({
     },
 
     nameText: {
-        fontSize: 35,
+        fontSize: 32,
         marginVertical: 5,
         fontFamily: 'cabin-sketch-bold'
     },

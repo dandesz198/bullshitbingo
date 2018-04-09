@@ -202,6 +202,7 @@ export default class Match extends React.Component {
           <Image source={require('./images/add_child.png')} style={{width: 75, height: 64, marginRight: 20}}/>
           <FontText isLoaded={true} isBold={true} style={{padding: 1.25, fontSize: 16}}>Pull down to create a new card</FontText>
         </View>
+        <FontText isLoaded={true} isBold={true} style={{fontSize: 30, marginHorizontal: 20, marginVertical: 5}}>{this.state.matchName}</FontText>
         <ListView
           dataSource={ds.cloneWithRows(this.state.gameCards.sort(function(a,b) {return (a.voters < b.voters) ? 1 : ((b.voters < a.voters) ? -1 : 0);}))}
           enableEmptySections={true}
