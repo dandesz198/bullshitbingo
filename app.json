@@ -5,10 +5,6 @@
     "version": "0.13.6",
     "slug": "bullshitbingo",
     "sdkVersion": "25.0.0",
-    "ios": {
-      "bundleIdentifier": "com.funbyte.bullshitbingo",
-      "loadJSInBackgroundExperimental": true
-    },
     "android": {
       "package": "com.funbyte.bullshitbingo",
       "permissions": ["VIBRATE"],
@@ -16,7 +12,8 @@
     },
     "ios": {
       "bundleIdentifier": "com.funbyte.bullshitbingo",
-      "icon": "./src/images/icon_ios.png"
+      "icon": "./src/images/icon_ios.png",
+      "loadJSInBackgroundExperimental": true
     }
    },
    "updates": {
