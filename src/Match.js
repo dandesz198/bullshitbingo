@@ -100,13 +100,10 @@ export default class Match extends React.Component {
     //Add the user kicker listener
     firebase.database().ref('games/'+this.state.gameId+'/members').on('child_removed', async function(snap) {
       if(snap.val() == thus.state.myName) {
-        console.log(thus.state.myName+' got kicked from'+thus.state.matchName)
         thus.props.navigation.state.params.returnData({id: thus.state.gameId, name: thus.state.matchName});
         thus.props.navigation.goBack();
         Vibration.vibrate();
         Alert.alert('Kicked', "You were kicked from the game. You can still rejoin if you'd like to.");        
-      } else {
-        console.log('Someone else got kicked')
       }
     });
   }

@@ -390,15 +390,10 @@ export default class Home extends React.Component {
 
   //Delete a game from the 'My rooms' list
   deleteGame(name) {
-    console.log('delete - before');
-    console.log(this.state.games);
     var games = this.state.games;
-    console.log(games.indexOf(name));
     games.splice(games.indexOf(name), 1);
     this.setState({games: games});
     this.saveGames();
-    console.log('delete - after');
-    console.log(this.state.games);
   }
 
   render() {
