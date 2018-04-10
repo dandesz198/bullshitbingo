@@ -42,7 +42,7 @@ export default class Room extends React.Component {
 
     gameName: this.props.navigation.state.params.gameName,
     gameId: this.props.navigation.state.params.gameId,
-    gameMaster: '',
+    roomMaster: '',
 
     matches: [],
 
@@ -92,7 +92,7 @@ export default class Room extends React.Component {
         {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
         {text: 'Yes', onPress: () => {
           //Determine if the player is the match master
-          if(this.state.myName == this.state.gameMaster) {
+          if(this.state.myName == this.state.roomMaster) {
             //If match master AND kicking itself
             if(this.state.myName == rowData.name) {
               //But you are the match master - quitting will delete the match
@@ -176,7 +176,7 @@ export default class Room extends React.Component {
       let membersName = Object.values(snap.members);
       var members = [];
 
-      thus.setState({gameMaster: snap.master});
+      thus.setState({roomMaster: snap.master});
 
       membersName.forEach(element => {
         firebase.database().ref('users/'+element+'/').once('value', function(snp) {
@@ -274,9 +274,9 @@ export default class Room extends React.Component {
             dataSource={ds.cloneWithRows(this.state.matches)}
             enableEmptySections={true}
             style={[styles.membersList, {minHeight: Dimensions.get('window').height}]}
-            renderRow={(rowData) => <Card isMatch={true} matchName={this.state.gameName} cardText={rowData.name} creatorName={rowData.master} bgColor={'white'} isGameMaster={rowData.master == this.state.myName ? true : false} 
+            renderRow={(rowData) => <Card isMatch={true} matchName={this.state.gameName} cardText={rowData.name} creatorName={rowData.master} bgColor={'white'} isMaster={rowData.master == this.state.myName || this.state.roomMaster == this.state.myName ? true : false} 
             onVotePress={()=>{
-                this.props.navigation.navigate('Match', {matchName: rowData.name, gameId: this.state.gameId, myName: this.state.myName, matchId: this.state.matches.indexOf(rowData), matchMaster: rowData.master, returnData: this.returnData.bind(this)});
+                this.props.navigation.navigate('Match', {matchName: rowData.name, gameId: this.state.gameId, myName: this.state.myName, matchId: this.state.matches.indexOf(rowData), matchMaster: rowData.master, roomMaster: this.state.roomMaster, returnData: this.returnData.bind(this)});
             }}
             onBingoPress={()=>{
               Vibration.vibrate();
@@ -308,7 +308,7 @@ export default class Room extends React.Component {
             <Image source={require('./images/info_right.png')} style={{marginLeft: 'auto', marginRight: 0, width: 80, height: 100}}/>
           </View>
           <FontText isLoaded={true} isBold={true} style={styles.p}>room master:</FontText>
-          <FontText isLoaded={true} isBold={true} style={styles.h2}>{this.state.gameMaster}</FontText>
+          <FontText isLoaded={true} isBold={true} style={styles.h2}>{this.state.roomMaster}</FontText>
           <View style={{flexDirection: 'row', justifyContent: 'center', marginLeft: 0, marginRight: 'auto'}}>
             <Image source={require('./images/info_left.png')} style={{marginLeft: 0, width: 80, height: 100}}/>
             <View style={{flexDirection: 'column'}}>
@@ -327,7 +327,7 @@ export default class Room extends React.Component {
                 <Text numberOfLines={1} style={{fontFamily: this.state.myName == rowData.name ? 'cabin-sketch-bold' :  'cabin-sketch', fontSize: 24}}>{rowData.name} | {rowData.points} XP</Text>
                 <TouchableOpacity
                   style={{
-                    display: this.state.myName != this.state.gameMaster && this.state.myName != rowData.name ? 'none' : 'flex',
+                    display: this.state.myName != this.state.roomMaster && this.state.myName != rowData.name ? 'none' : 'flex',
                     alignSelf: 'flex-end',
                     marginRight: 0,
                     marginLeft: 'auto',

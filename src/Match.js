@@ -38,6 +38,8 @@ export default class Match extends React.Component {
 
     myName: this.props.navigation.state.params.myName,
 
+    roomMaster: this.props.navigation.state.params.roomMaster,
+
     matchName: this.props.navigation.state.params.matchName,
     matchMaster: this.props.navigation.state.params.matchMaster,
     matchId: this.props.navigation.state.params.matchId,
@@ -208,7 +210,7 @@ export default class Match extends React.Component {
           dataSource={ds.cloneWithRows(this.state.gameCards.sort(function(a,b) {return (a.voters < b.voters) ? 1 : ((b.voters < a.voters) ? -1 : 0);}))}
           enableEmptySections={true}
           style={[styles.membersList, {minHeight: Dimensions.get('window').height}]}
-          renderRow={(rowData) => <Card isMatch={false} matchName={this.state.matchName} cardText={rowData.text} voteCount={rowData.voters.length} creatorName={rowData.creator} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} isBingo={rowData.isBingo} bgColor={'white'} isGameMaster={this.state.matchMaster == this.state.myName ? true : false} 
+          renderRow={(rowData) => <Card isMatch={false} matchName={this.state.matchName} cardText={rowData.text} voteCount={rowData.voters.length} creatorName={rowData.creator} voted={rowData.voters.indexOf(this.state.myName) > -1 ? true : false} isBingo={rowData.isBingo} bgColor={'white'} isMaster={this.state.matchMaster == this.state.myName || this.state.roomMaster == this.state.myName ? true : false} 
           onVotePress={()=>{
             //Declare variables
             var cards = this.state.gameCards;

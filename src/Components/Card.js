@@ -17,7 +17,7 @@ class Card extends Component {
                     </View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                         <Text style={[style.nameText, {width: Dimensions.get('window').width * (75 / 100)}]}>{this.props.cardText}</Text>
-                        <TouchableOpacity style={{marginRight: 0, marginLeft: 'auto', display: this.props.isGameMaster && !this.props.isMatch ? 'flex' : 'none'}} onPress={() => {this.props.onDeletePress(); analytics.event(new Event(this.props.isMatch ? 'Delete match' :  'Delete card'));}}>
+                        <TouchableOpacity style={{marginRight: 0, marginLeft: 'auto', display: this.props.isMaster && !this.props.isMatch ? 'flex' : 'none'}} onPress={() => {this.props.onDeletePress(); analytics.event(new Event(this.props.isMatch ? 'Delete match' :  'Delete card'));}}>
                             <Image source={require('../images/trash.png')} style={{height: 30, width: 21, marginVertical: 'auto'}} />
                         </TouchableOpacity>
                     </View>
@@ -29,7 +29,7 @@ class Card extends Component {
                         </ImageBackground>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={[style.buttonStyle, {display: this.props.isGameMaster ? 'flex' : (this.props.isBingo ? 'flex' : 'none')}]} onPress={() => {this.props.onBingoPress()}}>
+                    <TouchableOpacity style={[style.buttonStyle, {display: this.props.isMaster ? 'flex' : (this.props.isBingo ? 'flex' : 'none')}]} onPress={() => {this.props.onBingoPress()}}>
                         <ImageBackground source={!this.props.isMatch && this.props.isBingo ? require('../images/btn_filled.png') : require('../images/btn.png')} style={{width: 84, height: 35, justifyContent: 'center'}}>
                             <Text style={{fontSize: 18, textAlign: 'center', fontFamily: 'cabin-sketch-bold', color: !this.props.isMatch && this.props.isBingo ? 'white' : 'black'}}>{this.props.isMatch ? 'Delete' : 'Bingo'}</Text>
                         </ImageBackground>
