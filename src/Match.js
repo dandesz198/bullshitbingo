@@ -262,16 +262,23 @@ export default class Match extends React.Component {
 
                   rowData.isBingo = true;
 
+                  this.setState({gameCards: cards});
+                  this.syncToFirebase();
+
+                  if(rowData.voters.length == 1 && rowData.voters[0] == this.state.myName) {
+                    Alert.alert('Sorry', "Since only you voted, you won't get your points. Say thank you to the cheaters who tried to boost themself by creating empty cards and BINGO-ing them.");
+                    return;
+                  }
+
+                  if(rowData.voters.length <= 0) { return; }
+
                   rowData.voters.forEach(element => {
                     firebase.database().ref('users/'+element+'/points').once('value').then((snap) => {
                       firebase.database().ref('users/'+element+'/').update({
                         points: snap.val() + 1
                       });
                     })
-                  });
-
-                  this.setState({gameCards: cards});
-                  this.syncToFirebase();
+                  }); 
                 }
               },
               { text: 'Nah, false alarm', style: 'cancel' }
