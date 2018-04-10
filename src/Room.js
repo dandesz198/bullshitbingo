@@ -277,8 +277,12 @@ export default class Room extends React.Component {
               Alert.alert('Are you sure?', 'You are now deleting the match "'+rowData.name+'". This action is irreversible. Are you sure?', [
                 {
                   text: "I'll delete it",
-                  onPress: ()=>{ 
-                    firebase.database().ref('games/'+this.state.gameId+'/matches/'+this.state.matches.indexOf(rowData)).remove();
+                  onPress: () => {
+                    var matches = this.state.matches;
+                    matches.splice(matches.indexOf(rowData), 1);
+                    firebase.database().ref('games/' + this.state.gameId).update({
+                      'matches': matches
+                    });
                   }
                 },
                 { text: 'Nah', style: 'cancel' }
