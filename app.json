@@ -2,7 +2,7 @@
    "expo": {
     "name": "Bullshit Bingo",
     "icon": "./src/images/icon.png",
-    "version": "0.13.4",
+    "version": "0.13.5",
     "slug": "bullshitbingo",
     "sdkVersion": "25.0.0",
     "ios": {
@@ -12,7 +12,7 @@
     "android": {
       "package": "com.funbyte.bullshitbingo",
       "permissions": ["VIBRATE"],
-      "versionCode": 134
+      "versionCode": 135
     },
     "ios": {
       "bundleIdentifier": "com.funbyte.bullshitbingo",

@@ -104,6 +104,7 @@ export default class Room extends React.Component {
                   {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
                   {text: 'Yes, I want to delete the match', onPress: () => {
                     //Delete match
+                    console.log('delete')
                     firebase.database().ref('games/' + this.state.gameId).remove();
                     analytics.event(new Event('Delete game'));
                     this.props.navigation.state.params.returnData(this.state.gameName);
@@ -114,6 +115,7 @@ export default class Room extends React.Component {
             }
             else {
               //Since it's not kicking itself, they can kick the player
+              console.log('kick buttowsky')
               analytics.event(new Event('Kick'));
               let members = this.state.gameMembers;
               var memb = [];
@@ -130,6 +132,7 @@ export default class Room extends React.Component {
           else {
             if(rowData.name == this.state.myName) {
               //Quit game
+              console.log('quit')
               analytics.event(new Event('Quit'));              
               let members = this.state.gameMembers;
               var memb = [];
@@ -194,6 +197,19 @@ export default class Room extends React.Component {
         thus.setState({matches: matches});        
       } else {
         thus.setState({matches: []});
+      }
+    });
+
+    //Add the user kicker listener
+    firebase.database().ref('games/'+this.state.gameId+'/members').on('child_removed', async function(snap) {
+      if(snap.val() == thus.state.myName) {
+        console.log(thus.state.myName+' got kicked from '+thus.state.matchName)
+        thus.props.navigation.state.params.returnData({id: thus.state.gameId, name: thus.state.matchName});
+        thus.props.navigation.goBack();
+        Vibration.vibrate();
+        Alert.alert('Kicked', "You were kicked from the game. You can still rejoin if you'd like to.");        
+      } else {
+        console.log('Someone else got kicked')
       }
     });
   }
