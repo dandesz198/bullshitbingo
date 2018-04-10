@@ -130,11 +130,15 @@ export default class Room extends React.Component {
           else {
             if(rowData.name == this.state.myName) {
               //Quit game
-              analytics.event(new Event('Quit'));
+              analytics.event(new Event('Quit'));              
               let members = this.state.gameMembers;
-              members.splice(members.indexOf(rowData));
+              var memb = [];
+              members.forEach(element => {
+                memb.push(element.name);
+              });
+              memb.splice(memb.indexOf(rowData.name));
               firebase.database().ref('games/' + this.state.gameId).update({
-                'members': members
+                'members': memb
               });
               this.props.navigation.state.params.returnData(this.state.gameName);
               this.props.navigation.goBack();
@@ -190,16 +194,6 @@ export default class Room extends React.Component {
         thus.setState({matches: matches});        
       } else {
         thus.setState({matches: []});
-      }
-    });
-
-    //Add the user kicker listener
-    firebase.database().ref('games/' + this.state.gameId+'/members').on('child_removed', async function(snap) {
-      if(snap.val() == thus.state.myName) {
-        thus.props.navigation.state.params.returnData(thus.state.gameName);
-        thus.props.navigation.goBack();
-        Vibration.vibrate();
-        Alert.alert('Kicked', "You were kicked from the game. You can still rejoin if you'd like to.");        
       }
     });
   }
@@ -308,13 +302,13 @@ export default class Room extends React.Component {
           </View>
           <FontText isLoaded={true} isBold={true} style={styles.p}>members</FontText>
           <ListView
-            dataSource={ds.cloneWithRows(this.state.gameMembers/*.sort(function(a,b) {return (a.points < b.points) ? 1 : ((b.points < a.points) ? -1 : 0);})*/)}
+            dataSource={ds.cloneWithRows(this.state.gameMembers.sort(function(a,b) {return (a.points < b.points) ? 1 : ((b.points < a.points) ? -1 : 0);}))}
             enableEmptySections={true}
             style={{marginTop: 10}}
             renderRow={(rowData) => 
             <View style={{flex: 1, paddingHorizontal: 20, height: 55, flexDirection: 'column', justifyContent: 'center'}}>
               <View style={{flexDirection: 'row', backgroundColor: 'white'}}>
-                <FontText isLoaded={true} isBold={this.state.myName == rowData.name} style={styles.membersListItem}>{rowData.name} | {rowData.points} XP</FontText>
+                <Text numberOfLines={1} style={{fontFamily: this.state.myName == rowData.name ? 'cabin-sketch-bold' :  'cabin-sketch', fontSize: 24}}>{rowData.name} | {rowData.points} XP</Text>
                 <TouchableOpacity
                   style={{
                     display: this.state.myName != this.state.gameMaster && this.state.myName != rowData.name ? 'none' : 'flex',

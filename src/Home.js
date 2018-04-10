@@ -390,10 +390,15 @@ export default class Home extends React.Component {
 
   //Delete a game from the 'My rooms' list
   deleteGame(name) {
+    console.log('delete - before');
+    console.log(this.state.games);
     var games = this.state.games;
+    console.log(games.indexOf(name));
     games.splice(games.indexOf(name), 1);
     this.setState({games: games});
     this.saveGames();
+    console.log('delete - after');
+    console.log(this.state.games);
   }
 
   render() {
@@ -406,6 +411,7 @@ export default class Home extends React.Component {
             <Image source={require('./images/icon.png')} style={{width: 125, height: 125, marginBottom: 20}} />
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>Welcome to the {'\n'} Bullshit Bingo!</FontText>
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 20, textAlign: 'center', marginTop: 5}}>We'll guide you trough the overcomplicated system of this game, or you can try to understand it on your own.</FontText>
+            <FontText isLoaded={this.state.fontsLoaded} isBold={false} style={{fontSize: 30, textAlign: 'center', marginTop: 20}}>Swipe to continue ></FontText>
           </View>
           <View style={styles.onboardContainter}>
             <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 30, textAlign: 'center'}}>Rooms</FontText>
@@ -547,8 +553,8 @@ export default class Home extends React.Component {
                       underlineColorAndroid='transparent'
                       placeholder="Your name"
                       placeholderTextColor="#444"
-                      onChangeText={(myName) => this.setState({myName})}
-                      value={this.state.myName}
+                      onChangeText={(myNameWB) => this.setState({myNameWB})}
+                      value={this.state.myNameWB}
                     />
                     <Image source={require('./images/line_long.png')} />
                     <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{color: '#ee5253', fontSize: 16, marginTop: 7.5, display: this.state.myNameWB.length == 0 ? 'flex' : 'none'}}>Please don't leave any field empty.</FontText>
@@ -655,7 +661,7 @@ export default class Home extends React.Component {
             <View style={{marginTop: 20, flexDirection: 'row'}}>
               <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={styles.welcome}>Bullshit Bingo</FontText>
               <TouchableOpacity style={{marginTop: 'auto', marginBottom: 5, marginLeft: 'auto', marginRight: 20}} onPress={() => {this.setState({infoModalVisible: true})}}>
-                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16}}>0.13.3 [i]</FontText>
+                <FontText isLoaded={this.state.fontsLoaded} isBold={true} style={{fontSize: 16}}>0.13.4 [i]</FontText>
               </TouchableOpacity>
             </View>
             <TouchableOpacity style={[styles.button, {marginTop: 10}]} onPress={()=>{this.setState({newGameModalVisible: true})}}>
