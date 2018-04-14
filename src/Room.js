@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Animated, ScrollView, ListView, Dimensions, Platform, Alert, Vibration, Image, ImageBackground, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, ListView, Dimensions, Platform, Alert, Vibration, Image, ImageBackground, StatusBar } from 'react-native';
 import { StackNavigator, NavigationActions } from 'react-navigation';
 import * as GestureHandler from 'react-native-gesture-handler';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
@@ -16,17 +16,9 @@ let initialLayout = {
   width: Dimensions.get('window').width,
 };
 
-let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
 let analytics = new Analytics(Environment.analytics);
-
-transitionConfig : () => ({
-	transitionSpec: {
-		duration: 0,
-		timing: Animated.timing,
-		easing: Easing.step0,
-	},
-})
 
 export default class Room extends React.Component {
   state = {
@@ -35,7 +27,6 @@ export default class Room extends React.Component {
       { key: '1', title: 'Matches' },
       { key: '2', title: 'Room info' }
     ],
-    x: new Animated.Value(0),
     value: 0,
 
     myName: this.props.navigation.state.params.myName,
@@ -56,7 +47,7 @@ export default class Room extends React.Component {
     this.getData();
 
     setTimeout(() => {
-      this.scrollView.scrollTo({x: 0, y: 120, animated: false});
+      this.scrollView.scrollTo({ x: 0, y: 120, animated: false });
     }, 1)
 
     analytics.hit(new PageHit('Room'));
@@ -66,19 +57,19 @@ export default class Room extends React.Component {
     if (this.state.newMatchText.length > 0) {
       //Declare variables
       var matches = this.state.matches;
-      var newMatch = {name: this.state.newMatchText, master: this.state.myName, cards: []}
+      var newMatch = { name: this.state.newMatchText, master: this.state.myName, cards: [] }
 
       //Add new card to the start of the array
       matches.unshift(newMatch);
 
-      this.setState({matches: matches});
-      this.setState({newMatchText: ''});
+      this.setState({ matches: matches });
+      this.setState({ newMatchText: '' });
 
       this.syncToFirebase();
 
       analytics.event(new Event('NewMatch'));
     } else {
-       return;
+      return;
     }
   }
 
@@ -86,124 +77,128 @@ export default class Room extends React.Component {
     var thus = this;
     Vibration.vibrate();
     Alert.alert(
-      'Are you sure?', 
-      this.state.myName == rowData.name ? 'Do you *really* want to quit the match '+this.state.gameName+'? You can still rejoin the match later.' : 'Do you *really* want to kick '+rowData.name+'? They can still rejoin the match.',
-      [ 
-        {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
-        {text: 'Yes', onPress: () => {
-          //Determine if the player is the match master
-          if(this.state.myName == this.state.roomMaster) {
-            //If match master AND kicking itself
-            if(this.state.myName == rowData.name) {
-              //But you are the match master - quitting will delete the match
-              Vibration.vibrate();
-              Alert.alert(
-                'Are you sure?', 
-                'You are the match master. If you quit, the match will be deleted.',
-                [ 
-                  {text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel'},
-                  {text: 'Yes, I want to delete the match', onPress: () => {
-                    //Delete match
-                    firebase.database().ref('games/' + this.state.gameId).remove();
-                    analytics.event(new Event('Delete game'));
-                    this.props.navigation.state.params.returnData(this.state.gameName);
-                    this.props.navigation.goBack();
-                  }, style: 'destructive'}
-                ],
-              );
+      'Are you sure?',
+      this.state.myName == rowData.name ? 'Do you *really* want to quit the match ' + this.state.gameName + '? You can still rejoin the match later.' : 'Do you *really* want to kick ' + rowData.name + '? They can still rejoin the match.',
+      [
+        { text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel' },
+        {
+          text: 'Yes', onPress: () => {
+            //Determine if the player is the match master
+            if (this.state.myName == this.state.roomMaster) {
+              //If match master AND kicking itself
+              if (this.state.myName == rowData.name) {
+                //But you are the match master - quitting will delete the match
+                Vibration.vibrate();
+                Alert.alert(
+                  'Are you sure?',
+                  'You are the match master. If you quit, the match will be deleted.',
+                  [
+                    { text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel' },
+                    {
+                      text: 'Yes, I want to delete the match', onPress: () => {
+                        //Delete match
+                        firebase.database().ref('games/' + this.state.gameId).remove();
+                        analytics.event(new Event('Delete game'));
+                        this.props.navigation.state.params.returnData(this.state.gameName);
+                        this.props.navigation.goBack();
+                      }, style: 'destructive'
+                    }
+                  ],
+                );
+              }
+              else {
+                //Since it's not kicking itself, they can kick the player
+                analytics.event(new Event('Kick'));
+                let members = this.state.gameMembers;
+                var memb = [];
+                members.forEach(element => {
+                  memb.push(element.name);
+                });
+                memb.splice(memb.indexOf(rowData.name));
+                firebase.database().ref('games/' + this.state.gameId).update({
+                  'members': memb
+                });
+              }
+
             }
             else {
-              //Since it's not kicking itself, they can kick the player
-              analytics.event(new Event('Kick'));
-              let members = this.state.gameMembers;
-              var memb = [];
-              members.forEach(element => {
-                memb.push(element.name);
-              });
-              memb.splice(memb.indexOf(rowData.name));
-              firebase.database().ref('games/' + this.state.gameId).update({
-                'members': memb
-              });
+              if (rowData.name == this.state.myName) {
+                //Quit game
+                analytics.event(new Event('Quit'));
+                let members = this.state.gameMembers;
+                var memb = [];
+                members.forEach(element => {
+                  memb.push(element.name);
+                });
+                memb.splice(memb.indexOf(rowData.name));
+                firebase.database().ref('games/' + this.state.gameId).update({
+                  'members': memb
+                });
+                this.props.navigation.state.params.returnData(this.state.gameName);
+                this.props.navigation.goBack();
+              } else {
+                //Can't kick others
+                Vibration.vibrate();
+                Alert.alert(
+                  'Error',
+                  "You aren't the match master. You can't kick other players.",
+                  [
+                    { text: 'Ok', onPress: () => console.log('Cancel'), style: 'cancel' },
+                  ],
+                );
+              }
             }
-            
-          }
-          else {
-            if(rowData.name == this.state.myName) {
-              //Quit game
-              analytics.event(new Event('Quit'));              
-              let members = this.state.gameMembers;
-              var memb = [];
-              members.forEach(element => {
-                memb.push(element.name);
-              });
-              memb.splice(memb.indexOf(rowData.name));
-              firebase.database().ref('games/' + this.state.gameId).update({
-                'members': memb
-              });
-              this.props.navigation.state.params.returnData(this.state.gameName);
-              this.props.navigation.goBack();
-            } else {
-              //Can't kick others
-              Vibration.vibrate();
-              Alert.alert(
-                'Error', 
-                "You aren't the match master. You can't kick other players.",
-                [ 
-                  {text: 'Ok', onPress: () => console.log('Cancel'), style: 'cancel'},
-                ],
-              );
-            }
-          }
-          thus.syncToFirebase();
-        }, style: 'destructive'}
+            thus.syncToFirebase();
+          }, style: 'destructive'
+        }
       ],
     );
   }
 
   //Download match data from Firebase
   async getData() {
-    var thus = this;
+    var thus  = this;
     var members = [];
 
     //Get data and add listener
-    await firebase.database().ref('games/' + this.state.gameId+'/').on('value', async function(snapshot) {
+    await firebase.database().ref('games/' + this.state.gameId + '/').on('value', async function (snapshot) {
       //Parse objects
       let snap = snapshot.val();
 
       let membersName = Object.values(snap.members);
       var members = [];
 
-      thus.setState({roomMaster: snap.master});
+      thus.setState({ roomMaster: snap.master });
 
       membersName.forEach(element => {
-        firebase.database().ref('users/'+element+'/').once('value', function(snp) {
+        firebase.database().ref('users/' + element + '/').once('value', function (snp) {
           members.push(snp.val());
         });
       });
 
       setTimeout(() => {
-        thus.setState({gameMembers: members});
+        thus.setState({ gameMembers: members });
       }, 1000);
 
       var matches = [];
 
-      if(snap.matches) {
+      if (snap.matches) {
         snap.matches.forEach(element => {
           matches.push(element);
         });
-        thus.setState({matches: matches});        
+        thus.setState({ matches: matches });
       } else {
-        thus.setState({matches: []});
+        thus.setState({ matches: [] });
       }
     });
 
     //Add the user kicker listener
-    firebase.database().ref('games/'+this.state.gameId+'/members').on('child_removed', async function(snap) {
-      if(snap.val() == thus.state.myName) {
-        thus.props.navigation.state.params.returnData({id: thus.state.gameId, name: thus.state.matchName});
+    firebase.database().ref('games/' + this.state.gameId + '/members').on('child_removed', async function (snap) {
+      if (snap.val() == thus.state.myName) {
+        thus.props.navigation.state.params.returnData({ id: thus.state.gameId, name: thus.state.matchName });
         thus.props.navigation.goBack();
         Vibration.vibrate();
-        Alert.alert('Kicked', "You were kicked from the game. You can still rejoin if you'd like to.");        
+        Alert.alert('Kicked', "You were kicked from the game. You can still rejoin if you'd like to.");
       }
     });
   }
@@ -216,7 +211,7 @@ export default class Room extends React.Component {
   //Upload data to Firebase
   syncToFirebase() {
     //Upload every card to Firebase
-    firebase.database().ref('games/'+this.state.gameId+'/').update({
+    firebase.database().ref('games/' + this.state.gameId + '/').update({
       matches: this.state.matches
     });
   }

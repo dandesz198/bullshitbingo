@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Animated, ScrollView, ListView, Dimensions, Platform, Alert, Vibration, Image, ImageBackground, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, ListView, Dimensions, Platform, Alert, Vibration, Image, ImageBackground, StatusBar } from 'react-native';
 import { StackNavigator, NavigationActions } from 'react-navigation';
 import * as GestureHandler from 'react-native-gesture-handler';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
@@ -16,24 +16,13 @@ let initialLayout = {
   width: Dimensions.get('window').width,
 };
 
-let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
 let analytics = new Analytics(Environment.analytics);
-
-var isMounted = false;
-
-transitionConfig : () => ({
-	transitionSpec: {
-		duration: 0,
-		timing: Animated.timing,
-		easing: Easing.step0,
-	},
-})
 
 export default class Match extends React.Component {
   state = {
     index: 0,
-    x: new Animated.Value(0),
     value: 0,
 
     myName: this.props.navigation.state.params.myName,
@@ -57,53 +46,45 @@ export default class Match extends React.Component {
     this.getData();
 
     setTimeout(() => {
-      this.scrollView.scrollTo({x: 0, y: 120, animated: false});
+      this.scrollView.scrollTo({ x: 0, y: 120, animated: false });
     }, 1)
 
     analytics.hit(new PageHit('Match'));
   }
 
-  componentWillMount() {
-    isMounted = true;
-  }
-
-  componentWillUnmount() {
-    isMounted = false;
-  }
-
   //Download match data from Firebase
   getData() {
-    var thus = this;
+    var thus  = this;
     var members = [];
 
     //Get data and add listener
-    firebase.database().ref('games/'+this.state.gameId+'/matches/'+this.state.matchId+'/').on('value', async function(snap) {
+    firebase.database().ref('games/' + this.state.gameId + '/matches/' + this.state.matchId + '/').on('value', async function (snap) {
       //Parse objects
       var snapshot = snap.val();
 
       var gameCards = [];
-      if(snapshot.cards != null) {
+      if (snapshot.cards != null) {
         snapshot.cards.forEach(element => {
-          if(!element.voters) {
+          if (!element.voters) {
             element.voters = [];
           }
           gameCards.push(element);
         });
       } else {
-        thus.setState({gameCards: []});
+        thus.setState({ gameCards: [] });
         return;
       }
 
-      thus.setState({gameCards: gameCards});
+      thus.setState({ gameCards: gameCards });
     });
 
     //Add the user kicker listener
-    firebase.database().ref('games/'+this.state.gameId+'/members').on('child_removed', async function(snap) {
-      if(snap.val() == thus.state.myName) {
-        thus.props.navigation.state.params.returnData({id: thus.state.gameId, name: thus.state.matchName});
+    firebase.database().ref('games/' + this.state.gameId + '/members').on('child_removed', async function (snap) {
+      if (snap.val() == thus.state.myName) {
+        thus.props.navigation.state.params.returnData({ id: thus.state.gameId, name: thus.state.matchName });
         thus.props.navigation.goBack();
         Vibration.vibrate();
-        Alert.alert('Kicked', "You were kicked from the game. You can still rejoin if you'd like to.");        
+        Alert.alert('Kicked', "You were kicked from the game. You can still rejoin if you'd like to.");
       }
     });
   }
@@ -116,13 +97,13 @@ export default class Match extends React.Component {
 
     //Check every card for votes
     cards.forEach(element => {
-      if(element.voters.indexOf(this.state.myName) > -1 && !element.isBingo) {
+      if (element.voters.indexOf(this.state.myName) > -1 && !element.isBingo) {
         //Already voted for an active card
         votes += 1;
       }
     });
 
-    if(votes >= 2) {
+    if (votes >= 2) {
       Vibration.vibrate();
       Alert.alert('Error', 'You have more than 2 votes placed. Please unvote atleast one card to vote on this one.');
       analytics.event(new Event('UnsuccessfulVote'));
@@ -132,7 +113,7 @@ export default class Match extends React.Component {
     }
 
     cards[cards.indexOf(cardToVoteOn)] = card;
-    this.setState({gameCards: cards});
+    this.setState({ gameCards: cards });
 
     //Time to sync to Firebase
     this.syncToFirebase();
@@ -142,14 +123,14 @@ export default class Match extends React.Component {
     if (this.state.newCardText.length > 0) {
       //Declare variables
       var gameCards = this.state.gameCards;
-      var newCard = {text: this.state.newCardText, creator: this.state.myName, isBingo: false, voters: []}
+      var newCard = { text: this.state.newCardText, creator: this.state.myName, isBingo: false, voters: [] }
 
       //Add new card to the start of the array
       gameCards.unshift(newCard);
 
-      this.setState({gameCards: gameCards});
+      this.setState({ gameCards: gameCards });
       this.vote(newCard);
-      this.setState({newCardText: ''});
+      this.setState({ newCardText: '' });
 
       this.syncToFirebase();
 
@@ -162,7 +143,7 @@ export default class Match extends React.Component {
   //Upload data to Firebase
   syncToFirebase() {
     //Upload every card to Firebase
-    firebase.database().ref('games/'+this.state.gameId+'/matches/'+this.state.matchId).update({
+    firebase.database().ref('games/' + this.state.gameId + '/matches/' + this.state.matchId).update({
       cards: this.state.gameCards
     });
   }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Animated, ScrollView, ListView, Modal, Alert, AsyncStorage, Image, Dimensions, Linking, BackHandler, Vibration, ImageBackground, Platform, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, ListView, Modal, Alert, AsyncStorage, Image, Dimensions, Linking, BackHandler, Vibration, ImageBackground, Platform, StatusBar } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import * as firebase from 'firebase';
 import md5 from 'md5';
@@ -22,8 +22,6 @@ let config = {
 let analytics = new Analytics(Environment.analytics);
 
 let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-
-console.disableYellowBox = true
 
 export default class Home extends React.Component {
     state = {
@@ -73,17 +71,23 @@ export default class Home extends React.Component {
       'cabin-sketch-bold': require('./fonts/CabinSketch-Bold.ttf')
     });
 
-    this.setState({fontsLoaded: true});
+    this.setState({
+      fontsLoaded: true
+    });
 
     Expo.ScreenOrientation.allow(Expo.ScreenOrientation.Orientation.PORTRAIT);
 
     try {
       let value = await AsyncStorage.getItem('@MySuperStore:isFirst');
-      if (value !== null){
+      if (value !== null) {
         // We have data
-        this.setState({isFirstOpen: false});
+        this.setState({
+          isFirstOpen: false
+        });
       } else {
-        this.setState({isFirstOpen: true});
+        this.setState({
+          isFirstOpen: true
+        });
       }
     } catch (error) {
       // Error retrieving data
@@ -99,10 +103,19 @@ export default class Home extends React.Component {
       if (update.isAvailable) {
         await Expo.Updates.fetchUpdateAsync();
         Vibration.vibrate();
-        this.setState({joinGameModalVisible: false, newGameModalVisible: false, infoModalVisible: false})
-        Alert.alert('Update avaliable', "Please update the app in order to get the latest Bullshit Bingo experience. (It won't take more than 5 seconds, I swear)", [
-          {text: 'OK', onPress: () => Expo.Updates.reload()},
-          {text: 'GTFO', onPress: () => console.log('no update for you')},
+        this.setState({
+          joinGameModalVisible: false,
+          newGameModalVisible: false,
+          infoModalVisible: false
+        })
+        Alert.alert('Update avaliable', "Please update the app in order to get the latest Bullshit Bingo experience. (It won't take more than 5 seconds, I swear)", [{
+            text: 'OK',
+            onPress: () => Expo.Updates.reload()
+          },
+          {
+            text: 'GTFO',
+            onPress: () => console.log('no update for you')
+          },
         ]);
       }
     } catch (e) {
@@ -117,10 +130,12 @@ export default class Home extends React.Component {
 
   newId() {
     var thus = this;
-    firebase.database().ref('games/' + this.state.newGameID).once('value', function(snap) {
+    firebase.database().ref('games/' + this.state.newGameID).once('value', function (snap) {
       //Check if the game exists
-      if(typeof snap.val() != "undefined" && snap.val() != null) {
-        thus.setState({newGameID: Math.floor(Math.random() * 899999 + 100000).toString()});
+      if (typeof snap.val() != "undefined" && snap.val() != null) {
+        thus.setState({
+          newGameID: Math.floor(Math.random() * 899999 + 100000).toString()
+        });
         thus.newId();
       } else {
         return;
@@ -128,8 +143,12 @@ export default class Home extends React.Component {
     });
   }
 
-  onBackPress () {
-    this.setState({joinGameModalVisible: false, newGameModalVisible: false, infoModalVisible: false});
+  onBackPress() {
+    this.setState({
+      joinGameModalVisible: false,
+      newGameModalVisible: false,
+      infoModalVisible: false
+    });
     return true;
   }
 
@@ -149,62 +168,65 @@ export default class Home extends React.Component {
     //Get name from AsyncStorage
     try {
       let value = await AsyncStorage.getItem('@MySuperStore:name');
-      if (value !== null){
+      if (value !== null) {
         // We have data
-        this.setState({myName: value});
+        this.setState({
+          myName: value
+        });
       }
     } catch (error) {
       // Error retrieving data
       console.log(error);
     }
 
-    setTimeout(async() => {
+    setTimeout(async () => {
       //Get games from AsyncStorage
       try {
         let value = await AsyncStorage.getItem('@MySuperStore:games');
-        if (value !== null){
+        if (value !== null) {
           // We have data
           var array = JSON.parse(value);
           var thus = this;
 
-          array.forEach(async(element) => {
+          array.forEach(async (element) => {
             //Remove the " from the start and end of the string
-            if(element.name[0] == '"') {
+            if (element.name[0] == '"') {
               element.name = element.name.slice(1, -1);
             }
-            
+
             //Check if room still exists
-            firebase.database().ref('games/'+element.id+'/members/')
-            .once('value')
-            .then((snap) => {
-              if(snap.val()) {
-                var members = Object.values(snap.val());
-                var count = 0;
+            firebase.database().ref('games/' + element.id + '/members/')
+              .once('value')
+              .then((snap) => {
+                if (snap.val()) {
+                  var members = Object.values(snap.val());
+                  var count = 0;
 
-                members.forEach(lm => {
-                  if(lm == thus.state.myName) {
-                    count += 1;
-                  }
-                });
-              }
-              else {
-                thus.deleteGame(element.name);
-              }
-
-              //If member even exists
-              if(members) {
-                //If room doesn't exist or player is kicked
-                if(members.length < 0 || count <= 0) {
-                  thus.deleteGame(element.name);
+                  members.forEach(lm => {
+                    if (lm == thus.state.myName) {
+                      count += 1;
+                    }
+                  });
                 } else {
-
+                  thus.deleteGame(element.name);
                 }
-              } else {
-                thus.deleteGame(element.name);
-              }
-            })
+
+                //If member even exists
+                if (members) {
+                  //If room doesn't exist or player is kicked
+                  if (members.length < 0 || count <= 0) {
+                    thus.deleteGame(element.name);
+                  } else {
+
+                  }
+                } else {
+                  thus.deleteGame(element.name);
+                }
+              })
           });
-          this.setState({games: array});
+          this.setState({
+            games: array
+          });
         }
       } catch (error) {
         // Error retrieving data
@@ -214,7 +236,7 @@ export default class Home extends React.Component {
   }
 
   async createRoom() {
-    if((this.state.myNameWB.length == 0 && this.state.myName.length == 0) || this.state.pw.length == 0 || this.state.pwAgain.length == 0 || this.state.newGameName.length == 0) {
+    if ((this.state.myNameWB.length == 0 && this.state.myName.length == 0) || this.state.pw.length == 0 || this.state.pwAgain.length == 0 || this.state.newGameName.length == 0) {
       Vibration.vibrate();
       return;
     }
@@ -222,17 +244,22 @@ export default class Home extends React.Component {
     this.saveName();
 
     //Check the password
-    if(this.state.pw != this.state.pwAgain) {
-      this.setState({newGameModalVisible: false});
+    if (this.state.pw != this.state.pwAgain) {
+      this.setState({
+        newGameModalVisible: false
+      });
       Vibration.vibrate();
-      Alert.alert('Error', "The passowrds don't look the same for me.", [
-        {text: 'OK', onPress: () => this.setState({newGameModalVisible: true})},
-      ]);
+      Alert.alert('Error', "The passowrds don't look the same for me.", [{
+        text: 'OK',
+        onPress: () => this.setState({
+          newGameModalVisible: true
+        })
+      }, ]);
       return;
     }
-    
+
     //Upload the game itself to Firebase
-    await firebase.database().ref('games/'+this.state.newGameID).set({
+    await firebase.database().ref('games/' + this.state.newGameID).set({
       name: this.state.newGameName,
       master: this.state.myName,
       masterPw: md5(this.state.pw),
@@ -241,21 +268,37 @@ export default class Home extends React.Component {
 
     //Add the new game to the Games array (rendered in 'My rooms' section)
     var games = this.state.games;
-    var game = {id: this.state.newGameID, name: this.state.newGameName};
+    var game = {
+      id: this.state.newGameID,
+      name: this.state.newGameName
+    };
 
     games.push(game);
 
-    this.setState({games: games, newGameModalVisible: false});
-    
+    this.setState({
+      games: games,
+      newGameModalVisible: false
+    });
+
     //Navigate to the new game's screen
-    this.props.navigation.navigate('Room', {gameName: this.state.newGameName, gameId: this.state.newGameID, myName: this.state.myName, returnData: this.returnData.bind(this)});
+    this.props.navigation.navigate('Room', {
+      gameName: this.state.newGameName,
+      gameId: this.state.newGameID,
+      myName: this.state.myName,
+      returnData: this.returnData.bind(this)
+    });
     BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
 
     //Save the new game to AsyncStorage
     this.saveGames();
 
     //Create new game ID for the next game, empty the screen
-    this.setState({pw: '', pwAgain: '', newGameName: '', newGameID: Math.floor(Math.random() * 899999 + 100000).toString()});
+    this.setState({
+      pw: '',
+      pwAgain: '',
+      newGameName: '',
+      newGameID: Math.floor(Math.random() * 899999 + 100000).toString()
+    });
 
     analytics.event(new Event('Createroom'));
   }
@@ -263,27 +306,28 @@ export default class Home extends React.Component {
   preJoin() {
     var thus = this;
 
-    if(this.state.joingameId.length < 6) {
-      //Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.");
-      this.setState({isNewGameIDCorrect: false});
+    if (this.state.joingameId.length < 6) {
+      this.setState({
+        isNewGameIDCorrect: false
+      });
       Vibration.vibrate();
       return;
     }
 
     //Get the name and the master's name of the new room
-    firebase.database().ref('games/' + this.state.joingameId).once('value', function(snap) {
-      if(snap.val() != null && snap.val() && typeof snap.val() != 'undefined') {
+    firebase.database().ref('games/' + this.state.joingameId).once('value', function (snap) {
+      if (snap.val() != null && snap.val() && typeof snap.val() != 'undefined') {
         var newGameName = JSON.stringify(snap.val().name);
-      }
-      else {
-        //Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.");
-        thus.setState({isNewGameIDCorrect: false});
+      } else {
+        thus.setState({
+          isNewGameIDCorrect: false
+        });
         Vibration.vibrate();
         return;
       }
 
       //Check if the game exists
-      if(newGameName.length > 1 && newGameName != "null") {
+      if (newGameName.length > 1 && newGameName != "null") {
         var masterName = JSON.stringify(snap.val().master);
         var masterPw = JSON.stringify(snap.val().masterPw);
 
@@ -293,7 +337,12 @@ export default class Home extends React.Component {
         masterPw = masterPw.slice(1, -1);
 
         //Open the connection modal
-        thus.setState({joinGameName: newGameName, joinMaster: masterName, roomPw: masterPw, joinGameModalVisible: true});
+        thus.setState({
+          joinGameName: newGameName,
+          joinMaster: masterName,
+          roomPw: masterPw,
+          joinGameModalVisible: true
+        });
       } else {
         Alert.alert("Error", "Something bad happened (maybe). Please check the game PIN and/or try again later.");
         Vibration.vibrate();
@@ -302,19 +351,24 @@ export default class Home extends React.Component {
   }
 
   async joinRoom() {
-    if(this.state.myName.length == 0) {
-      this.setState({joinGameModalVisible: false});
+    if (this.state.myName.length == 0) {
+      this.setState({
+        joinGameModalVisible: false
+      });
       Vibration.vibrate();
-      Alert.alert('Error', 'I saw terrible things... Empty fields. Please fill in the form to continue.', [
-        {text: 'OK', onPress: () => this.setState({joinGameModalVisible: true})},
-      ]);
+      Alert.alert('Error', 'I saw terrible things... Empty fields. Please fill in the form to continue.', [{
+        text: 'OK',
+        onPress: () => this.setState({
+          joinGameModalVisible: true
+        })
+      }, ]);
       return;
     }
 
     this.saveName();
 
     //Check the password
-    if(this.state.myName == this.state.joinMaster && this.state.roomPw != md5(this.state.joinPw)) {
+    if (this.state.myName == this.state.joinMaster && this.state.roomPw != md5(this.state.joinPw)) {
       Vibration.vibrate();
       Alert.alert('Error', 'The password is incorrect.');
       return;
@@ -323,34 +377,49 @@ export default class Home extends React.Component {
     var thus = this;
 
     //Add the user to Firebase
-    await firebase.database().ref('games/'+this.state.joingameId+'/members/').once('value', (snap) => {
+    await firebase.database().ref('games/' + this.state.joingameId + '/members/').once('value', (snap) => {
       var members = Object.values(snap.val());
-      if(members.indexOf(thus.state.myName) == -1) {
-        firebase.database().ref('games/'+thus.state.joingameId+'/members/').push(thus.state.myName);
+      if (members.indexOf(thus.state.myName) == -1) {
+        firebase.database().ref('games/' + thus.state.joingameId + '/members/').push(thus.state.myName);
       }
     })
 
     //Add the new game to the games array (rendered in the 'My rooms' section in Home.js)
     var games = this.state.games;
-    var game = {id: this.state.joingameId, name: this.state.joinGameName};
+    var game = {
+      id: this.state.joingameId,
+      name: this.state.joinGameName
+    };
     var alreadyAdded = false;
 
     games.forEach(element => {
-      if(element.id == this.state.joingameId) {
+      if (element.id == this.state.joingameId) {
         alreadyAdded = true;
       }
     });
 
-    if(!alreadyAdded) {
+    if (!alreadyAdded) {
       games.push(game);
     }
 
-    this.setState({joinGameModalVisible: false, games: games});
+    this.setState({
+      joinGameModalVisible: false,
+      games: games
+    });
 
     //Navigate to the game
-    this.props.navigation.navigate('Room', {gameName: this.state.joinGameName, gameId: this.state.joingameId, myName: this.state.myName, returnData: this.returnData.bind(this)});
+    this.props.navigation.navigate('Room', {
+      gameName: this.state.joinGameName,
+      gameId: this.state.joingameId,
+      myName: this.state.myName,
+      returnData: this.returnData.bind(this)
+    });
 
-    this.setState({joingameId: '', joinPw: '', roomPw: ''});
+    this.setState({
+      joingameId: '',
+      joinPw: '',
+      roomPw: ''
+    });
 
     BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
 
@@ -361,9 +430,9 @@ export default class Home extends React.Component {
   }
 
   async saveName() {
-    firebase.database().ref('users/'+this.state.myName).once('value', (snap) => {
-      if(typeof snap.val() == "undefined" || snap.val() == null) {
-        firebase.database().ref('users/'+this.state.myName).set({
+    firebase.database().ref('users/' + this.state.myName).once('value', (snap) => {
+      if (typeof snap.val() == "undefined" || snap.val() == null) {
+        firebase.database().ref('users/' + this.state.myName).set({
           name: this.state.myName,
           points: 0
         });
@@ -372,7 +441,7 @@ export default class Home extends React.Component {
       }
     });
 
-    if(this.state.myName.length > 0) {
+    if (this.state.myName.length > 0) {
       //Save name to AsyncStorage
       try {
         await AsyncStorage.setItem('@MySuperStore:name', this.state.myName);
@@ -392,7 +461,9 @@ export default class Home extends React.Component {
   deleteGame(name) {
     var games = this.state.games;
     games.splice(games.indexOf(name), 1);
-    this.setState({games: games});
+    this.setState({
+      games: games
+    });
     this.saveGames();
   }
 
