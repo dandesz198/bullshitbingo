@@ -1,3 +1,5 @@
+'use strict'
+
 import React from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, ListView, Dimensions, Platform, Alert, Vibration, Image, ImageBackground, StatusBar } from 'react-native';
 import { StackNavigator, NavigationActions } from 'react-navigation';
@@ -82,7 +84,7 @@ export default class Room extends React.Component {
       [
         { text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel' },
         {
-          text: 'Yes', onPress: () => {
+          text: 'Yes', onPress: async () => {
             //Determine if the player is the match master
             if (this.state.myName == this.state.roomMaster) {
               //If match master AND kicking itself
@@ -108,32 +110,32 @@ export default class Room extends React.Component {
               }
               else {
                 //Since it's not kicking itself, they can kick the player
-                analytics.event(new Event('Kick'));
                 let members = this.state.gameMembers;
                 var memb = [];
-                members.forEach(element => {
+                await members.forEach(element => {
                   memb.push(element.name);
                 });
-                memb.splice(memb.indexOf(rowData.name));
+                memb.splice(memb.indexOf(rowData.name), 1);
                 firebase.database().ref('games/' + this.state.gameId).update({
                   'members': memb
                 });
+                analytics.event(new Event('Kick'));
               }
 
             }
             else {
               if (rowData.name == this.state.myName) {
                 //Quit game
-                analytics.event(new Event('Quit'));
                 let members = this.state.gameMembers;
                 var memb = [];
-                members.forEach(element => {
+                await members.forEach(element => {
                   memb.push(element.name);
                 });
                 memb.splice(memb.indexOf(rowData.name));
                 firebase.database().ref('games/' + this.state.gameId).update({
                   'members': memb
                 });
+                analytics.event(new Event('Quit'));
                 this.props.navigation.state.params.returnData(this.state.gameName);
                 this.props.navigation.goBack();
               } else {

@@ -1,3 +1,5 @@
+'use strict'
+
 import React from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, ListView, Dimensions, Platform, Alert, Vibration, Image, ImageBackground, StatusBar } from 'react-native';
 import { StackNavigator, NavigationActions } from 'react-navigation';

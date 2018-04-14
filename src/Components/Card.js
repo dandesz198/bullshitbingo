@@ -1,3 +1,5 @@
+'use strict'
+
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ImageBackground, Dimensions } from 'react-native';
 import * as firebase from 'firebase';
