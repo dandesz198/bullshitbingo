@@ -122,8 +122,8 @@ export default {
   kick_error: "You aren't the match master. You can't kick other players.",
 
   tap_to_create_match: 'Tap here to create a new match...',
-  pull_to_create_match: 'Pul down to create a new match',
+  pull_to_create_match: 'Pull down to create a new match',
 
   tap_to_create_card: 'Tap here to create a new card...',
-  pull_to_create_card: 'Pul down to create a new card',
+  pull_to_create_card: 'Pull down to create a new card',
 };
