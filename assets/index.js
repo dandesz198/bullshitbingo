@@ -1,6 +1,8 @@
 /* eslint global-require: 0 */
 
-export default {
+export default {};
+
+export const Images = {
   add_child: require('./images/add_child.png'),
   btn_filled: require('./images/btn_filled.png'),
   btn_wide: require('./images/btn_wide.png'),
@@ -21,4 +23,9 @@ export default {
   line_short: require('./images/line_short.png'),
   trash: require('./images/trash.png'),
   tutorial_card: require('./images/tutorial_card.png'),
+};
+
+export const Fonts = {
+  cabin_bold: require('./fonts/CabinSketch-Bold.ttf'),
+  cabin_regular: require('./fonts/CabinSketch-Regular.ttf'),
 };

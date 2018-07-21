@@ -22,7 +22,7 @@ import sha256 from 'crypto-js/sha256';
 import { Analytics, PageHit, Event } from 'expo-analytics';
 import { Expo, Font } from 'expo';
 import { Link, Text } from '@components';
-import Images from '@assets';
+import { Images, Fonts } from '@assets';
 import styles from './styles';
 import I18n from '../../i18n';
 
@@ -85,8 +85,8 @@ export default class Home extends React.Component {
   async componentDidMount() {
     // Starts the first loop in color changing
     await Font.loadAsync({
-      'cabin-sketch': require('./fonts/CabinSketch-Regular.ttf'),
-      'cabin-sketch-bold': require('./fonts/CabinSketch-Bold.ttf'),
+      'cabin-sketch': Fonts.cabin_regular,
+      'cabin-sketch-bold': Fonts.cabin_bold,
     });
 
     this.setState({
