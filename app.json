@@ -4,7 +4,7 @@
     "icon": "./assets/images/icon.png",
     "version": "0.14.0",
     "slug": "bullshitbingo",
-    "sdkVersion": "25.0.0",
+    "sdkVersion": "28.0.0",
     "android": {
       "package": "com.funbyte.bullshitbingo",
       "permissions": ["VIBRATE"],
