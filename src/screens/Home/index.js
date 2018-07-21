@@ -1315,7 +1315,7 @@ export default class Home extends React.Component {
               }}
             >
               <Text isLoaded={fontsLoaded} isBold style={{ fontSize: 16 }}>
-                0.13.8 [i]
+                0.14 [i]
               </Text>
             </TouchableOpacity>
           </View>
