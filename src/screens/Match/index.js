@@ -17,6 +17,7 @@ import { Analytics, PageHit, Event } from 'expo-analytics';
 import { Card, Text } from '@components';
 import Images from '@assets';
 import styles from './styles';
+import I18n from '../../i18n';
 
 const Environment = require('../../config/environment');
 
@@ -101,10 +102,7 @@ export default class Match extends React.Component {
           });
           thus.props.navigation.goBack();
           Vibration.vibrate();
-          Alert.alert(
-            'Kicked',
-            "You were kicked from the game. You can still rejoin if you'd like to."
-          );
+          Alert.alert(I18n.t('kicked'), I18n.t('kicked_desc'));
         }
       });
   };
@@ -125,10 +123,7 @@ export default class Match extends React.Component {
 
     if (votes >= 2) {
       Vibration.vibrate();
-      Alert.alert(
-        'Error',
-        'You have more than 2 votes placed. Please unvote atleast one card to vote on this one.'
-      );
+      Alert.alert(I18n.t('error'), I18n.t('too_many_votes'));
       analytics.event(new Event('UnsuccessfulVote'));
     } else {
       card.voters.push(myName);
@@ -212,7 +207,7 @@ export default class Match extends React.Component {
               fontFamily: 'cabin-sketch-bold',
             }}
             underlineColorAndroid="transparent"
-            placeholder="Tap here to create a new card..."
+            placeholder={I18n.t('tap_to_create_card')}
             placeholderTextColor="#444"
             onChangeText={newCardText => this.setState({ newCardText })}
             value={newCardText}
@@ -243,7 +238,7 @@ export default class Match extends React.Component {
                 isBold
                 style={{ fontSize: 20, textAlign: 'center' }}
               >
-                Create
+                {I18n.t('create')}
               </Text>
             </ImageBackground>
           </TouchableOpacity>
@@ -262,7 +257,7 @@ export default class Match extends React.Component {
             style={{ width: 75, height: 64, marginRight: 20 }}
           />
           <Text isLoaded isBold style={{ padding: 1.25, fontSize: 16 }}>
-            Pull down to create a new card
+            {I18n.t('pull_to_create_card')}
           </Text>
         </View>
         <Text
@@ -315,13 +310,13 @@ export default class Match extends React.Component {
               onDeletePress={() => {
                 Vibration.vibrate();
                 Alert.alert(
-                  'Are you sure?',
-                  `Are you sure want to delete the card "${
-                    rowData.text
-                  }"? This action is irreversible.`,
+                  I18n.t('are_you_sure'),
+                  `${I18n.t('del_card')} "${rowData.text}"? ${I18n.t(
+                    'irreversible'
+                  )}`,
                   [
                     {
-                      text: 'Yep, delete it',
+                      text: I18n.t('delete_it'),
                       onPress: () => {
                         // Declare variables
                         const cards = gameCards;
@@ -334,7 +329,7 @@ export default class Match extends React.Component {
                       },
                       style: 'destructive',
                     },
-                    { text: 'Nah', style: 'cancel' },
+                    { text: I18n.t('cancel'), style: 'cancel' },
                   ]
                 );
               }}
@@ -344,13 +339,13 @@ export default class Match extends React.Component {
                 }
                 Vibration.vibrate();
                 Alert.alert(
-                  'Are you sure?',
-                  `You are now going to give points to the voters of the card "${
-                    rowData.text
-                  }". This action is irreversible. Are you sure?`,
+                  I18n.t('are_you_sure'),
+                  `${I18n.t('give_points')} "${rowData.text}". ${I18n.t(
+                    'irreversible'
+                  )}`,
                   [
                     {
-                      text: "It's BINGO!, I'm pretty sure",
+                      text: I18n.t('its_bingo'),
                       onPress: () => {
                         // Declare variables
                         const cards = gameCards;
@@ -364,10 +359,7 @@ export default class Match extends React.Component {
                           rowData.voters.length === 1 &&
                           rowData.voters[0] === myName
                         ) {
-                          Alert.alert(
-                            'Sorry',
-                            "Since only you voted, you won't get your points. Say thank you to the cheaters who tried to boost themself by creating empty cards and BINGO-ing them."
-                          );
+                          Alert.alert(I18n.t('error'), I18n.t('one_voter'));
                           return;
                         }
 
@@ -391,7 +383,7 @@ export default class Match extends React.Component {
                         });
                       },
                     },
-                    { text: 'Nah, false alarm', style: 'cancel' },
+                    { text: I18n.t('cancel'), style: 'cancel' },
                   ]
                 );
               }}

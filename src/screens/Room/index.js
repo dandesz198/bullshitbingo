@@ -18,6 +18,7 @@ import { Analytics, PageHit, Event } from 'expo-analytics';
 import { Card, Text } from '@components';
 import Images from '@assets';
 import styles from './styles';
+import I18n from '../../i18n';
 
 const Environment = require('../../config/environment');
 
@@ -88,16 +89,18 @@ export default class Room extends React.Component {
     const thus = this;
     Vibration.vibrate();
     Alert.alert(
-      'Are you sure?',
+      I18n.t('are_you_sure'),
       myName === rowData.name
-        ? `Do you *really* want to quit the match ${gameName}? You can still rejoin the match later.`
-        : `Do you *really* want to kick ${
-            rowData.name
-          }? They can still rejoin the match.`,
+        ? `${I18n.t('really_quit')} ${gameName}? ${I18n.t('rejoin')}`
+        : `${I18n.t('really_kick')} ${rowData.name}? ${I18n.t('rejoin_kick')}`,
       [
-        { text: 'Nope', onPress: () => console.log('Cancel'), style: 'cancel' },
         {
-          text: 'Yes',
+          text: I18n.t('cancel'),
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: I18n.t('yes'),
           onPress: async () => {
             // Determine if the player is the match master
             if (myName === roomMaster) {
@@ -106,16 +109,16 @@ export default class Room extends React.Component {
                 // But you are the match master - quitting will delete the match
                 Vibration.vibrate();
                 Alert.alert(
-                  'Are you sure?',
-                  'You are the match master. If you quit, the match will be deleted.',
+                  I18n.t('are_you_sure'),
+                  I18n.t('matchmaster_quit'),
                   [
                     {
-                      text: 'Nope',
+                      text: I18n.t('cancel'),
                       onPress: () => console.log('Cancel'),
                       style: 'cancel',
                     },
                     {
-                      text: 'Yes, I want to delete the match',
+                      text: I18n.t('matchmaster_quit_ok'),
                       onPress: () => {
                         // Delete match
                         firebase
@@ -166,17 +169,13 @@ export default class Room extends React.Component {
             } else {
               // Can't kick others
               Vibration.vibrate();
-              Alert.alert(
-                'Error',
-                "You aren't the match master. You can't kick other players.",
-                [
-                  {
-                    text: 'Ok',
-                    onPress: () => console.log('Cancel'),
-                    style: 'cancel',
-                  },
-                ]
-              );
+              Alert.alert(I18n.t('error'), I18n.t('kick_error'), [
+                {
+                  text: I18n.t('ok'),
+                  onPress: () => console.log('Cancel'),
+                  style: 'cancel',
+                },
+              ]);
             }
             thus.syncToFirebase();
           },
@@ -241,10 +240,7 @@ export default class Room extends React.Component {
           });
           thus.props.navigation.goBack();
           Vibration.vibrate();
-          Alert.alert(
-            'Kicked',
-            "You were kicked from the game. You can still rejoin if you'd like to."
-          );
+          Alert.alert(I18n.t('kicked'), I18n.t('kicked_desc'));
         }
       });
   };
@@ -316,7 +312,7 @@ export default class Room extends React.Component {
                   fontFamily: 'cabin-sketch-bold',
                 }}
                 underlineColorAndroid="transparent"
-                placeholder="Tap here to create a new match..."
+                placeholder={I18n.t('tap_to_create_match')}
                 placeholderTextColor="#444"
                 onChangeText={newMatchText => this.setState({ newMatchText })}
                 value={newMatchText}
@@ -345,7 +341,7 @@ export default class Room extends React.Component {
                     isBold
                     style={{ fontSize: 20, textAlign: 'center' }}
                   >
-                    Create
+                    {I18n.t('create')}
                   </Text>
                 </ImageBackground>
               </TouchableOpacity>
@@ -364,7 +360,7 @@ export default class Room extends React.Component {
                 style={{ width: 75, height: 64, marginRight: 20 }}
               />
               <Text isLoaded isBold style={{ padding: 1.25, fontSize: 16 }}>
-                Pull down to create a new match
+                {I18n.t('pull_to_create_match')}
               </Text>
             </View>
             <ListView
@@ -398,13 +394,13 @@ export default class Room extends React.Component {
                   onBingoPress={() => {
                     Vibration.vibrate();
                     Alert.alert(
-                      'Are you sure?',
-                      `You are now deleting the match "${
-                        rowData.name
-                      }". This action is irreversible. Are you sure?`,
+                      I18n.t('are_you_sure'),
+                      `${I18n.t('del_match')}: "${rowData.name}". ${I18n.t(
+                        'irreversible'
+                      )}`,
                       [
                         {
-                          text: "I'll delete it",
+                          text: I18n.t('delete_it'),
                           onPress: () => {
                             matches.splice(matches.indexOf(rowData), 1);
                             firebase
@@ -415,7 +411,7 @@ export default class Room extends React.Component {
                               });
                           },
                         },
-                        { text: 'Nah', style: 'cancel' },
+                        { text: I18n.t('cancel'), style: 'cancel' },
                       ]
                     );
                   }}
@@ -431,7 +427,7 @@ export default class Room extends React.Component {
             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
               <View style={{ flexDirection: 'column' }}>
                 <Text isLoaded isBold style={styles.p}>
-                  room name:
+                  {`${I18n.t('room_name')}: `}
                 </Text>
                 <Text isLoaded isBold style={styles.h2}>
                   {gameName}
@@ -448,7 +444,7 @@ export default class Room extends React.Component {
               />
             </View>
             <Text isLoaded isBold style={styles.p}>
-              room master:
+              {`${I18n.t('room_master')}: `}
             </Text>
             <Text isLoaded isBold style={styles.h2}>
               {roomMaster}
@@ -467,7 +463,7 @@ export default class Room extends React.Component {
               />
               <View style={{ flexDirection: 'column' }}>
                 <Text isLoaded isBold style={[styles.p]}>
-                  room PIN:
+                  {`${I18n.t('room_pin')}: `}
                 </Text>
                 <Text isLoaded isBold style={styles.h2}>
                   {gameId}
@@ -475,7 +471,7 @@ export default class Room extends React.Component {
               </View>
             </View>
             <Text isLoaded isBold style={styles.p}>
-              members
+              {I18n.t('members')}
             </Text>
             <ListView
               dataSource={ds.cloneWithRows(
@@ -541,7 +537,9 @@ export default class Room extends React.Component {
                           isBold
                           style={{ fontSize: 18, textAlign: 'center' }}
                         >
-                          {myName === rowData.name ? 'Quit' : 'Kick'}
+                          {myName === rowData.name
+                            ? I18n.t('quit')
+                            : I18n.t('kick')}
                         </Text>
                       </ImageBackground>
                     </TouchableOpacity>

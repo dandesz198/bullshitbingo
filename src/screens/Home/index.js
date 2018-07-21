@@ -24,6 +24,7 @@ import { Expo, Font } from 'expo';
 import { Link, Text } from '@components';
 import Images from '@assets';
 import styles from './styles';
+import I18n from '../../i18n';
 
 const Environment = require('../../config/environment');
 
@@ -126,15 +127,15 @@ export default class Home extends React.Component {
           infoModalVisible: false,
         });
         Alert.alert(
-          'Update avaliable',
-          "Please update the app in order to get the latest Bullshit Bingo experience. (It won't take more than 5 seconds, I swear)",
+          I18n.t('update_avaliable'),
+          I18n.t('update_description')
           [
             {
-              text: 'OK',
+              text: I18n.t('ok'),
               onPress: () => Expo.Updates.reload(),
             },
             {
-              text: 'GTFO',
+              text: I18n.t('cancel'),
               onPress: () => console.log('no update for you'),
             },
           ]
@@ -290,9 +291,9 @@ export default class Home extends React.Component {
         newGameModalVisible: false,
       });
       Vibration.vibrate();
-      Alert.alert('Error', "The passowrds don't look the same for me.", [
+      Alert.alert(I18n.t('error'), I18n.t('password_error'), [
         {
-          text: 'OK',
+          text: I18n.t('ok'),
           onPress: () =>
             this.setState({
               newGameModalVisible: true,
@@ -397,10 +398,7 @@ export default class Home extends React.Component {
             joinGameModalVisible: true,
           });
         } else {
-          Alert.alert(
-            'Error',
-            'Something bad happened (maybe). Please check the game PIN and/or try again later.'
-          );
+          Alert.alert(I18n.t('error'), I18n.t('prejoin_error'));
           Vibration.vibrate();
         }
       });
@@ -423,11 +421,11 @@ export default class Home extends React.Component {
       });
       Vibration.vibrate();
       Alert.alert(
-        'Error',
-        'I saw terrible things... Empty fields. Please fill in the form to continue.',
+        I18n.t('error'),
+        I18n.t('empty_fields')
         [
           {
-            text: 'OK',
+            text: I18n.t('ok'),
             onPress: () =>
               this.setState({
                 joinGameModalVisible: true,
@@ -443,7 +441,7 @@ export default class Home extends React.Component {
     // Check the password
     if (myName === joinMaster && roomPw !== sha256(joinPw)) {
       Vibration.vibrate();
-      Alert.alert('Error', 'The password is incorrect.');
+      Alert.alert(I18n.t('error'), I18n.t('wrong_password'));
       return;
     }
 
@@ -572,7 +570,7 @@ export default class Home extends React.Component {
             isBold
             style={[styles.heading, { fontSize: 36, marginLeft: 0 }]}
           >
-            Create a new room
+            {I18n.t('create_room')}
           </Text>
           <View
             style={{
@@ -593,7 +591,7 @@ export default class Home extends React.Component {
                 },
               ]}
               underlineColorAndroid="transparent"
-              placeholder="Your name"
+              placeholder={I18n.t('your_name')}
               placeholderTextColor="#444"
               onChangeText={myNameWB => this.setState({ myNameWB })}
               value={myNameWB}
@@ -609,7 +607,7 @@ export default class Home extends React.Component {
                 display: myNameWB.length === 0 ? 'flex' : 'none',
               }}
             >
-              Please don't leave any field empty.
+              {I18n.t('no_empty_please')}
             </Text>
           </View>
           <TextInput
@@ -626,7 +624,7 @@ export default class Home extends React.Component {
               },
             ]}
             underlineColorAndroid="transparent"
-            placeholder="The name of the room"
+            placeholder={I18n.t('name_of_room')}
             placeholderTextColor="#444"
             onChangeText={newGameName => this.setState({ newGameName })}
             value={newGameName}
@@ -642,14 +640,14 @@ export default class Home extends React.Component {
               display: newGameName.length === 0 ? 'flex' : 'none',
             }}
           >
-            Please don't leave any field empty.
+            {I18n.t('no_empty_please')}
           </Text>
           <Text
             isLoaded={fontsLoaded}
             isBold
             style={[styles.p, { marginTop: 20 }]}
           >
-            Password lock
+            {I18n.t('password_lock')}
           </Text>
           <TextInput
             style={[
@@ -666,7 +664,7 @@ export default class Home extends React.Component {
             ]}
             underlineColorAndroid="transparent"
             secureTextEntry
-            placeholder="Password"
+            placeholder={I18n.t('password')}
             placeholderTextColor="#444"
             onChangeText={pw => this.setState({ pw })}
             value={pw}
@@ -687,7 +685,7 @@ export default class Home extends React.Component {
             ]}
             underlineColorAndroid="transparent"
             secureTextEntry
-            placeholder="Password again"
+            placeholder={I18n.t('password_again')}
             placeholderTextColor="#444"
             onChangeText={pwAgain => this.setState({ pwAgain })}
             value={pwAgain}
@@ -702,7 +700,7 @@ export default class Home extends React.Component {
               display: pw !== pwAgain ? 'flex' : 'none',
             }}
           >
-            The passwords don't match.
+            {I18n.t('password_error')}
           </Text>
           <View style={{ flexDirection: 'column' }}>
             <Text
@@ -710,7 +708,7 @@ export default class Home extends React.Component {
               isBold
               style={[styles.p, { marginTop: 20 }]}
             >
-              Room PIN:
+              {I18n.t('room_pin')}
             </Text>
             <Text isLoaded={fontsLoaded} isBold style={styles.h2}>
               {newGameID}
@@ -765,7 +763,7 @@ export default class Home extends React.Component {
                   }}
                 >
                   <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                    Create
+                  {I18n.t('create')}
                   </Text>
                 </ImageBackground>
               </TouchableOpacity>
@@ -781,7 +779,7 @@ export default class Home extends React.Component {
                 style={{ width: 140, height: 58, justifyContent: 'center' }}
               >
                 <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                  Cancel
+                {I18n.t('cancel')}
                 </Text>
               </ImageBackground>
             </TouchableOpacity>
@@ -814,7 +812,7 @@ export default class Home extends React.Component {
             isBold
             style={[styles.heading, { fontSize: 40, marginBottom: 20 }]}
           >
-            {`Join "${joinGameName}"?`}
+            {`${I18n.t('join')} "${joinGameName}"?`}
           </Text>
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'column' }}>
@@ -838,7 +836,7 @@ export default class Home extends React.Component {
                     },
                   ]}
                   underlineColorAndroid="transparent"
-                  placeholder="Your name"
+                  placeholder={I18n.t('your_name')}
                   placeholderTextColor="#444"
                   onChangeText={myNameWB => this.setState({ myNameWB })}
                   value={myNameWB}
@@ -854,7 +852,7 @@ export default class Home extends React.Component {
                     display: myNameWB.length === 0 ? 'flex' : 'none',
                   }}
                 >
-                  Please don't leave any field empty.
+                  {I18n.t('no_empty_please')}
                 </Text>
               </View>
               <View
@@ -877,7 +875,7 @@ export default class Home extends React.Component {
                     },
                   ]}
                   secureTextEntry
-                  placeholder="Room master password"
+                  placeholder={I18n.t('room_master_password')}
                   placeholderTextColor="#444"
                   underlineColorAndroid="transparent"
                   onChangeText={joinPw => this.setState({ joinPw })}
@@ -894,7 +892,7 @@ export default class Home extends React.Component {
                     display: joinPw.length === 0 ? 'flex' : 'none',
                   }}
                 >
-                  Please don't leave any field empty.
+                  {I18n.t('no_empty_please')}
                 </Text>
               </View>
             </View>
@@ -942,7 +940,7 @@ export default class Home extends React.Component {
                     }}
                   >
                     <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                      Join
+                      {I18n.t('join')}
                     </Text>
                   </ImageBackground>
                 </TouchableOpacity>
@@ -958,7 +956,7 @@ export default class Home extends React.Component {
                   style={{ width: 140, height: 58, justifyContent: 'center' }}
                 >
                   <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                    Cancel
+                    {I18n.t('cancel')}
                   </Text>
                 </ImageBackground>
               </TouchableOpacity>
@@ -985,52 +983,48 @@ export default class Home extends React.Component {
             isBold
             style={{ fontSize: 40, marginTop: 20 }}
           >
-            Bullshit Bingo
+            {I18n.t('bullshit_bingo')}
           </Text>
           <Text isLoaded={fontsLoaded} isBold={false} style={{ fontSize: 20 }}>
-            Imagine the endless possibilities of creating a bingo game about
-            anything. Who's going to marry next, what's the next thing that's
-            going to break in the office, etc.
+            {I18n.t('desc_1')}
             {'\n'}
             {'\n'}
-            Well, that's what Bullshit Bingo is about.
+            {I18n.t('desc_2')}
             {'\n'}
-            Create a room, share it with your friends, and play together freely.
+            {I18n.t('desc_3')}
           </Text>
           <Text
             isLoaded={fontsLoaded}
             isBold
             style={{ fontSize: 40, marginTop: 15 }}
           >
-            Rules
+            {I18n.t('rules')}
           </Text>
           <Text isLoaded={fontsLoaded} isBold={false} style={{ fontSize: 20 }}>
-            • You can only vote on 2 cards
+            • {I18n.t('rule_1')}
             {'\n'}
-            • Only the match's master (or creator) can delete cards and give
-            points (via 'Bingo!' button)
+            • {I18n.t('rule_2')}
             {'\n'}
-            • The creators can kick anyone
+            • {I18n.t('rule_3')}
             {'\n'}
-            • Both the kicked players and the quitters can rejoin every room
+            • {I18n.t('rule_4')}
             {'\n'}
-            • Once the room master exits, the game is going to be deleted,
-            permanently.
+            • {I18n.t('rule_5')}
             {'\n'}
-            • Have fun! ;)
+            • {I18n.t('rule_6')}
           </Text>
           <Text
             isLoaded={fontsLoaded}
             isBold
             style={{ fontSize: 40, marginTop: 15 }}
           >
-            Creator
+            {I18n.t('creator')}
           </Text>
           <Text isLoaded={fontsLoaded} isBold style={{ fontSize: 20 }}>
-            This project is fully open-source.
+            {I18n.t('open_source')}
           </Text>
           <Link
-            text="Bullshit Bingo on GitHub"
+            text={I18n.t('github')}
             url="https://github.com/dandesz198/bullshitbingo"
           />
           <Text
@@ -1038,7 +1032,7 @@ export default class Home extends React.Component {
             isBold
             style={{ fontSize: 20, marginTop: 10 }}
           >
-            Daniel Gergely
+            {I18n.t('daniel_g')}
           </Text>
           <Link text="GitHub" url="https://github.com/dandesz198" />
           <Link text="Facebook" url="https://fb.me/dandesz198" />
@@ -1049,10 +1043,10 @@ export default class Home extends React.Component {
             isBold
             style={{ fontSize: 40, marginTop: 15 }}
           >
-            Contributor
+            {I18n.t('contributors')}
           </Text>
           <Text isLoaded={fontsLoaded} isBold style={{ fontSize: 20 }}>
-            Péter Hajdu
+            {I18n.t('peter_h')}
           </Text>
           <Link text="GitHub" url="https://github.com/razor97" />
           <Link text="Facebook" url="https://fb.me/hajdupetke" />
@@ -1062,23 +1056,20 @@ export default class Home extends React.Component {
             isBold
             style={{ fontSize: 40, marginTop: 15 }}
           >
-            Legal notice
+            {I18n.t('legal')}
           </Text>
           <Text isLoaded={fontsLoaded} isBold={false} style={{ fontSize: 16 }}>
-            Font family: Cabin Sketch 
-{' '}
-{'\n'}
-            Drawn illustrations: Freepik
+            {`${I18n.t('font_family')}: Cabin Sketch {'\n'} ${I18n.t('illustrator')} : Freepik`}
           </Text>
           <Link
-            text="Link to the vectors"
+            text={I18n.t('link_to_vector')}
             url="https://www.flaticon.com/free-icon/poo_720965"
           />
           <Text isLoaded={fontsLoaded} isBold={false} style={{ fontSize: 16 }}>
-            Poop icon: Flaticon (by Freepik)
+            {`${I18n.t('poop')}: Flaticon (by Freepik)`}
           </Text>
           <Link
-            text="Link to the icon"
+            text={I18n.t('link_to_poop')}
             url="https://www.freepik.com/free-vector/sketchy-children_797063.htm"
           />
           <TouchableOpacity
@@ -1097,8 +1088,7 @@ export default class Home extends React.Component {
               { fontSize: 16, textAlign: 'center', marginTop: 5 },
             ]}
           >
-            Since the server isn't free, every single cent of your donation is
-            going to be spent on the costs of running this game.
+            {I18n.t('server_donate')}
           </Text>
           <TouchableOpacity
             style={[
@@ -1126,7 +1116,7 @@ export default class Home extends React.Component {
               }}
             >
               <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                Close
+                {I18n.t('close')}
               </Text>
             </ImageBackground>
           </TouchableOpacity>
@@ -1150,22 +1140,21 @@ export default class Home extends React.Component {
             isBold
             style={{ fontSize: 30, textAlign: 'center' }}
           >
-            Welcome to the Bullshit Bingo!
+            {I18n.t('onboard_welcome')}
           </Text>
           <Text
             isLoaded={fontsLoaded}
             isBold
             style={{ fontSize: 20, textAlign: 'center', marginTop: 5 }}
           >
-            We'll guide you trough the overcomplicated system of this game, or
-            you can try to understand it on your own.
+            {I18n.t('onboard_welcome_desc')}
           </Text>
           <Text
             isLoaded={fontsLoaded}
             isBold={false}
             style={{ fontSize: 30, textAlign: 'center', marginTop: 20 }}
           >
-            Swipe to continue >
+            {I18n.t('onboard_welcome_swipe')}
           </Text>
         </View>
         <View style={styles.onboardContainter}>
@@ -1174,16 +1163,14 @@ export default class Home extends React.Component {
             isBold
             style={{ fontSize: 30, textAlign: 'center' }}
           >
-            Rooms
+            {I18n.t('onboard_rooms')}
           </Text>
           <Text
             isLoaded={fontsLoaded}
             isBold
             style={{ fontSize: 20, textAlign: 'center' }}
           >
-            Inside rooms, you can find matches and other players. They are
-            generally built around themes, like a Netflix show, a school class,
-            or your workplace friend circle.
+            {I18n.t('onboard_rooms_desc')}
           </Text>
         </View>
         <View style={[styles.onboardContainter, { padding: 0 }]}>
@@ -1198,18 +1185,14 @@ export default class Home extends React.Component {
               isBold
               style={{ fontSize: 30, textAlign: 'center' }}
             >
-              Matches
+              {I18n.t('onboard_matches')}
             </Text>
             <Text
               isLoaded={fontsLoaded}
               isBold
               style={{ fontSize: 20, textAlign: 'center' }}
             >
-              One match tries to answer one question (e.g. "What's the next
-              thing that's going to break in the office?"), with several
-              possible answers (or cards) that you can vote on. If you vote on a
-              card (eg. the window), and the window breaks, you get one point.
-              You can only have votes on a maximum of 2 cards.
+              {I18n.t('onboard_matches_desc')}
             </Text>
           </View>
           <Image
@@ -1232,16 +1215,14 @@ export default class Home extends React.Component {
             isBold
             style={{ fontSize: 30, textAlign: 'center' }}
           >
-            Cards
+            {I18n.t('onboard_cards')}
           </Text>
           <Text
             isLoaded={fontsLoaded}
             isBold
             style={{ fontSize: 20, textAlign: 'center' }}
           >
-            Cards are used to show you every information you may need: the text
-            you can vote on (eg. the windows will broke), how much people voted
-            on it, and the creator of it.
+            {I18n.t('onboard_cards_desc')}
           </Text>
         </View>
         <View style={styles.onboardContainter}>
@@ -1254,16 +1235,14 @@ export default class Home extends React.Component {
             isBold
             style={{ fontSize: 30, textAlign: 'center' }}
           >
-            BINGO!
+            {I18n.t('onboard_bingo')}
           </Text>
           <Text
             isLoaded={fontsLoaded}
             isBold
             style={{ fontSize: 20, textAlign: 'center' }}
           >
-            If the event you voted on occurs (eg. the window breaks), the
-            creator (master) of the match can give points for the players who
-            voted on the corresponding card.
+            {I18n.t('onboard_bingo_desc')}
           </Text>
         </View>
         <View style={styles.onboardContainter}>
@@ -1272,14 +1251,14 @@ export default class Home extends React.Component {
             isBold
             style={{ fontSize: 30, textAlign: 'center' }}
           >
-            Let's get started!
+            {I18n.t('onboard_start')}
           </Text>
           <Text
             isLoaded={fontsLoaded}
             isBold
             style={{ fontSize: 20, textAlign: 'center' }}
           >
-            Now you're all set. Have fun!
+            {I18n.t('onboard_start_desc')}
           </Text>
           <TouchableOpacity
             style={{ marginTop: 15 }}
@@ -1298,7 +1277,7 @@ export default class Home extends React.Component {
               style={{ width: 140, height: 58, justifyContent: 'center' }}
             >
               <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                Play
+                {I18n.t('onboard_start_btn')}
               </Text>
             </ImageBackground>
           </TouchableOpacity>
@@ -1333,7 +1312,7 @@ export default class Home extends React.Component {
         <ScrollView style={{ flex: 1 }}>
           <View style={{ marginTop: 20, flexDirection: 'row' }}>
             <Text isLoaded={fontsLoaded} isBold style={styles.welcome}>
-              Bullshit Bingo
+              {I18n.t('bullshit_bingo')}
             </Text>
             <TouchableOpacity
               style={{
@@ -1367,12 +1346,12 @@ export default class Home extends React.Component {
               }}
             >
               <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                Create a new room
+                {I18n.t('create_room')}
               </Text>
             </ImageBackground>
           </TouchableOpacity>
           <Text isLoaded={fontsLoaded} isBold style={styles.heading}>
-            Join a room
+            {I18n.t('join_room')}
           </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
             <Image
@@ -1420,7 +1399,7 @@ export default class Home extends React.Component {
                           : 'Roboto',
                     },
                   ]}
-                  placeholder="Room PIN"
+                  placeholder={I18n.t('room_pin')}
                   placeholderTextColor="#444"
                   keyboardType="numeric"
                   underlineColorAndroid="transparent"
@@ -1438,7 +1417,7 @@ export default class Home extends React.Component {
                   display: isNewGameIDCorrect ? 'none' : 'flex',
                 }}
               >
-                Please check the PIN.
+                {I18n.t('check_pin')}
               </Text>
               <TouchableOpacity
                 style={[styles.button, { marginTop: 10, marginBottom: 'auto' }]}
@@ -1451,14 +1430,14 @@ export default class Home extends React.Component {
                   style={{ width: 140, height: 58, justifyContent: 'center' }}
                 >
                   <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                    Join
+                    {I18n.t('join')}
                   </Text>
                 </ImageBackground>
               </TouchableOpacity>
             </View>
           </View>
           <Text isLoaded={fontsLoaded} isBold style={styles.heading}>
-            My rooms
+            {I18n.t('my_rooms')}
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <ListView

@@ -11,6 +11,7 @@ import { Analytics, Event } from 'expo-analytics';
 import PropTypes from 'prop-types';
 import styles from './styles';
 import Images from '@assets';
+import I18n from '../../i18n';
 
 const Environment = require('../../config/environment');
 
@@ -113,7 +114,7 @@ const Card = ({
               color: !isMatch && voted ? 'white' : 'black',
             }}
           >
-            {isMatch ? 'Join' : 'Vote'}
+            {isMatch ? I18n.t('join') : I18n.t('vote')}
           </Text>
         </ImageBackground>
       </TouchableOpacity>
@@ -141,7 +142,7 @@ const Card = ({
               color: !isMatch && isBingo ? 'white' : 'black',
             }}
           >
-            {isMatch ? 'Delete' : 'Bingo'}
+            {isMatch ? I18n.t('delete') : I18n.t('bingo')}
           </Text>
         </ImageBackground>
       </TouchableOpacity>
@@ -149,7 +150,7 @@ const Card = ({
       <Text
         style={[styles.voteNumberStyle, { display: isMatch ? 'none' : 'flex' }]}
       >
-        {`${voteCount} votes`}
+        {`${voteCount} ${I18n.t('votes')}`}
       </Text>
     </View>
   </ImageBackground>
