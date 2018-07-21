@@ -264,9 +264,9 @@ export default class Room extends React.Component {
       });
   };
 
-  _handleIndexChange = index => this.setState({ index });
+  handleIndexChange = index => this.setState({ index });
 
-  _renderHeader = props => (
+  renderHeader = props => (
     <TabBar
       indicatorStyle={{ backgroundColor: 'black' }}
       labelStyle={{ color: 'black', fontSize: 20, fontFamily: 'cabin-sketch' }}
@@ -275,7 +275,7 @@ export default class Room extends React.Component {
     />
   );
 
-  _renderScene = ({ route }) => {
+  renderScene = ({ route }) => {
     const {
       newMatchText,
       matches,
@@ -562,9 +562,9 @@ export default class Room extends React.Component {
     return (
       <TabViewAnimated
         navigationState={this.state}
-        renderScene={this._renderScene}
-        renderHeader={this._renderHeader}
-        onIndexChange={this._handleIndexChange}
+        renderScene={this.renderScene}
+        renderHeader={this.renderHeader}
+        onIndexChange={this.handleIndexChange}
         initialLayout={initialLayout}
       />
     );

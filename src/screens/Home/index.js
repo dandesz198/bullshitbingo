@@ -126,20 +126,16 @@ export default class Home extends React.Component {
           newGameModalVisible: false,
           infoModalVisible: false,
         });
-        Alert.alert(
-          I18n.t('update_avaliable'),
-          I18n.t('update_description')
-          [
-            {
-              text: I18n.t('ok'),
-              onPress: () => Expo.Updates.reload(),
-            },
-            {
-              text: I18n.t('cancel'),
-              onPress: () => console.log('no update for you'),
-            },
-          ]
-        );
+        Alert.alert(I18n.t('update_avaliable'), I18n.t('update_description'), [
+          {
+            text: I18n.t('ok'),
+            onPress: () => Expo.Updates.reload(),
+          },
+          {
+            text: I18n.t('cancel'),
+            onPress: () => console.log('no update for you'),
+          },
+        ]);
       }
     } catch (e) {
       // handle or log error
@@ -420,19 +416,15 @@ export default class Home extends React.Component {
         joinGameModalVisible: false,
       });
       Vibration.vibrate();
-      Alert.alert(
-        I18n.t('error'),
-        I18n.t('empty_fields')
-        [
-          {
-            text: I18n.t('ok'),
-            onPress: () =>
-              this.setState({
-                joinGameModalVisible: true,
-              }),
-          },
-        ]
-      );
+      Alert.alert(I18n.t('error'), I18n.t('empty_fields'), [
+        {
+          text: I18n.t('ok'),
+          onPress: () =>
+            this.setState({
+              joinGameModalVisible: true,
+            }),
+        },
+      ]);
       return;
     }
 
@@ -763,7 +755,7 @@ export default class Home extends React.Component {
                   }}
                 >
                   <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                  {I18n.t('create')}
+                    {I18n.t('create')}
                   </Text>
                 </ImageBackground>
               </TouchableOpacity>
@@ -779,7 +771,7 @@ export default class Home extends React.Component {
                 style={{ width: 140, height: 58, justifyContent: 'center' }}
               >
                 <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                {I18n.t('cancel')}
+                  {I18n.t('cancel')}
                 </Text>
               </ImageBackground>
             </TouchableOpacity>
@@ -1001,17 +993,12 @@ export default class Home extends React.Component {
             {I18n.t('rules')}
           </Text>
           <Text isLoaded={fontsLoaded} isBold={false} style={{ fontSize: 20 }}>
-            • {I18n.t('rule_1')}
-            {'\n'}
-            • {I18n.t('rule_2')}
-            {'\n'}
-            • {I18n.t('rule_3')}
-            {'\n'}
-            • {I18n.t('rule_4')}
-            {'\n'}
-            • {I18n.t('rule_5')}
-            {'\n'}
-            • {I18n.t('rule_6')}
+            {`• ${I18n.t('rule_1')} {'\n'}
+            • ${I18n.t('rule_2')} {'\n'}
+            • ${I18n.t('rule_3')} {'\n'}
+            • ${I18n.t('rule_4')} {'\n'}
+            • ${I18n.t('rule_5')} {'\n'}
+            • ${I18n.t('rule_6')}`}
           </Text>
           <Text
             isLoaded={fontsLoaded}
@@ -1059,7 +1046,9 @@ export default class Home extends React.Component {
             {I18n.t('legal')}
           </Text>
           <Text isLoaded={fontsLoaded} isBold={false} style={{ fontSize: 16 }}>
-            {`${I18n.t('font_family')}: Cabin Sketch {'\n'} ${I18n.t('illustrator')} : Freepik`}
+            {`${I18n.t('font_family')}: Cabin Sketch {'\n'} ${I18n.t(
+              'illustrator'
+            )} : Freepik`}
           </Text>
           <Link
             text={I18n.t('link_to_vector')}
