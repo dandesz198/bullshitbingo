@@ -22,11 +22,11 @@ Create a match, share it with your friends, and play together freely.
 
 ## Rules of the game
 
-* You can only vote on 2 games
-* Only the match master can delete cards and give points (via 'Bingo!' button)
-* The match master can kick anyone
+* You can only vote on 2 cards in one game
+* Only the adminds (room or match masters) can delete cards and give points (via 'Bingo!' button)
+* The room master can kick anyone
 * Both the kicked players and the quitters can rejoin every match
-* Once the match master exits, the game is going to be deleted, permanently.
+* Once the room master exits, the game is going to be deleted, permanently.
 * Have fun! ;)
 
 ## Contributors
