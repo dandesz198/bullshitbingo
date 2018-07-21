@@ -26,6 +26,7 @@ const analytics = new Analytics(Environment.analytics);
 
 export default class Match extends React.Component {
   constructor(props) {
+    super(props);
     const {
       myName,
       roomMaster,
@@ -34,7 +35,6 @@ export default class Match extends React.Component {
       matchId,
       gameId,
     } = this.props.navigation.state.params;
-    super(props);
     this.state = {
       myName,
       roomMaster,
@@ -61,7 +61,7 @@ export default class Match extends React.Component {
   }
 
   // Download match data from Firebase
-  getData() {
+  getData = () => {
     const { gameId, matchId, matchName, myName } = this.state;
     const thus = this;
 
@@ -107,10 +107,10 @@ export default class Match extends React.Component {
           );
         }
       });
-  }
+  };
 
   // Vote on a card and alert the user if there's more than 2 votes
-  vote(cardToVoteOn) {
+  vote = cardToVoteOn => {
     const { gameCards, myName } = this.state;
     let votes = 0;
     const card = cardToVoteOn;
@@ -140,9 +140,9 @@ export default class Match extends React.Component {
 
     // Time to sync to Firebase
     this.syncToFirebase();
-  }
+  };
 
-  createCard() {
+  createCard = () => {
     const { newCardText, myName, gameCards } = this.state;
     if (newCardText.length > 0) {
       // Declare variables
@@ -164,10 +164,10 @@ export default class Match extends React.Component {
 
       analytics.event(new Event('NewCard'));
     }
-  }
+  };
 
   // Upload data to Firebase
-  syncToFirebase() {
+  syncToFirebase = () => {
     const { gameId, matchId, gameCards } = this.state;
     // Upload every card to Firebase
     firebase
@@ -176,7 +176,7 @@ export default class Match extends React.Component {
       .update({
         cards: gameCards,
       });
-  }
+  };
 
   render() {
     const {

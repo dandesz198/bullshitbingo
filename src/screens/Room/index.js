@@ -32,8 +32,8 @@ const analytics = new Analytics(Environment.analytics);
 
 export default class Room extends React.Component {
   constructor(props) {
-    const { navigation } = this.props;
     super(props);
+    const { navigation } = this.props;
     this.state = {
       myName: navigation.state.params.myName,
 
@@ -60,7 +60,7 @@ export default class Room extends React.Component {
     analytics.hit(new PageHit('Room'));
   }
 
-  createMatch() {
+  createMatch = () => {
     const { newMatchText, matches, myName } = this.state;
     if (newMatchText.length > 0) {
       // Declare variables
@@ -80,9 +80,9 @@ export default class Room extends React.Component {
 
       analytics.event(new Event('NewMatch'));
     }
-  }
+  };
 
-  quitKick(rowData) {
+  quitKick = rowData => {
     const { myName, gameName, roomMaster, gameId, gameMembers } = this.state;
     const { navigation } = this.props;
     const thus = this;
@@ -184,10 +184,10 @@ export default class Room extends React.Component {
         },
       ]
     );
-  }
+  };
 
   // Download match data from Firebase
-  async getData() {
+  getData = async () => {
     const { gameId, myName, matchName } = this.state;
     const thus = this;
 
@@ -247,17 +247,17 @@ export default class Room extends React.Component {
           );
         }
       });
-  }
+  };
 
-  returnData() {
+  returnData = () => {
     const { gameName } = this.state;
     const { navigation } = this.props;
     navigation.state.params.returnData(gameName);
     navigation.goBack();
-  }
+  };
 
   // Upload data to Firebase
-  syncToFirebase() {
+  syncToFirebase = () => {
     const { gameId, matches } = this.state;
     // Upload every card to Firebase
     firebase
@@ -266,7 +266,7 @@ export default class Room extends React.Component {
       .update({
         matches,
       });
-  }
+  };
 
   _handleIndexChange = index => this.setState({ index });
 
