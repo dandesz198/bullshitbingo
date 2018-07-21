@@ -978,12 +978,9 @@ export default class Home extends React.Component {
             {I18n.t('bullshit_bingo')}
           </Text>
           <Text isLoaded={fontsLoaded} isBold={false} style={{ fontSize: 20 }}>
-            {I18n.t('desc_1')}
-           ${'\n'}
-           ${'\n'}
-            {I18n.t('desc_2')}
-           ${'\n'}
-            {I18n.t('desc_3')}
+            {`${I18n.t('desc_1')}${'\n'}${'\n'}${I18n.t(
+              'desc_2'
+            )}${'\n'}${I18n.t('desc_3')}`}
           </Text>
           <Text
             isLoaded={fontsLoaded}

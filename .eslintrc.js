@@ -10,6 +10,10 @@ module.exports = {
       "window": true
     },
     "rules": {
+      "jsx-a11y/anchor-is-valid": ["error", {
+        "components": ["Link"],
+        "specialLink": ["url"]
+      }],
       "react/jsx-filename-extension": 0,
       "react/sort-comp": 0,
       "import/no-named-as-default": 0,
