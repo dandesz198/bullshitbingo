@@ -9,7 +9,8 @@ Below you'll find information about performing common tasks. The most recent ver
 * React-Navigation
 * Firebase
 * Google Analytics
-* md5 encryption
+* ESLint
+* SHA-256 encryption
 
 ## What's this game about?
 

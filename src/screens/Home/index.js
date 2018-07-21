@@ -18,7 +18,7 @@ import {
   StatusBar,
 } from 'react-native';
 import * as firebase from 'firebase';
-import md5 from 'md5';
+import sha256 from 'crypto-js/sha256';
 import { Analytics, PageHit, Event } from 'expo-analytics';
 import { Expo, Font } from 'expo';
 import { Link, Text } from '@components';
@@ -309,7 +309,7 @@ export default class Home extends React.Component {
       .set({
         name: newGameName,
         master: myName,
-        masterPw: md5(pw),
+        masterPw: sha256(pw),
         members: [myName],
       });
 
@@ -441,7 +441,7 @@ export default class Home extends React.Component {
     this.saveName();
 
     // Check the password
-    if (myName === joinMaster && roomPw !== md5(joinPw)) {
+    if (myName === joinMaster && roomPw !== sha256(joinPw)) {
       Vibration.vibrate();
       Alert.alert('Error', 'The password is incorrect.');
       return;

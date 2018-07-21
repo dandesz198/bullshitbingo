@@ -25,6 +25,7 @@ const Card = ({
   isBingo,
   onVotePress,
   onDeletePress,
+  onBingoPress,
   voted,
   voteCount,
 }) => (
@@ -162,6 +163,7 @@ Card.propTypes = {
   isMatch: PropTypes.bool,
   isBingo: PropTypes.bool,
   onVotePress: PropTypes.func,
+  onBingoPress: PropTypes.func,
   onDeletePress: PropTypes.func,
   voted: PropTypes.bool,
   voteCount: PropTypes.number,
@@ -175,6 +177,7 @@ Card.defaultProps = {
   isMatch: false,
   isBingo: false,
   onVotePress: () => {},
+  onBingoPress: () => {},
   onDeletePress: () => {},
   voted: false,
   voteCount: 0,
