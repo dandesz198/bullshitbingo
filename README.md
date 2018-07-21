@@ -12,7 +12,7 @@ Below you'll find information about performing common tasks. The most recent ver
 * ESLint
 * SHA-256 encryption
 
-## What's this game about?
+## About the game
 
 This project is created by @dandesz198.
 
