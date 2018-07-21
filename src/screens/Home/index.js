@@ -979,10 +979,10 @@ export default class Home extends React.Component {
           </Text>
           <Text isLoaded={fontsLoaded} isBold={false} style={{ fontSize: 20 }}>
             {I18n.t('desc_1')}
-            {'\n'}
-            {'\n'}
+           ${'\n'}
+           ${'\n'}
             {I18n.t('desc_2')}
-            {'\n'}
+           ${'\n'}
             {I18n.t('desc_3')}
           </Text>
           <Text
@@ -993,12 +993,11 @@ export default class Home extends React.Component {
             {I18n.t('rules')}
           </Text>
           <Text isLoaded={fontsLoaded} isBold={false} style={{ fontSize: 20 }}>
-            {`• ${I18n.t('rule_1')} {'\n'}
-            • ${I18n.t('rule_2')} {'\n'}
-            • ${I18n.t('rule_3')} {'\n'}
-            • ${I18n.t('rule_4')} {'\n'}
-            • ${I18n.t('rule_5')} {'\n'}
-            • ${I18n.t('rule_6')}`}
+            {`• ${I18n.t('rule_1')}${'\n'}• ${I18n.t(
+              'rule_2'
+            )}${'\n'}• ${I18n.t('rule_3')}${'\n'}• ${I18n.t(
+              'rule_4'
+            )}${'\n'}• ${I18n.t('rule_5')}${'\n'}• ${I18n.t('rule_6')}`}
           </Text>
           <Text
             isLoaded={fontsLoaded}
@@ -1046,7 +1045,7 @@ export default class Home extends React.Component {
             {I18n.t('legal')}
           </Text>
           <Text isLoaded={fontsLoaded} isBold={false} style={{ fontSize: 16 }}>
-            {`${I18n.t('font_family')}: Cabin Sketch {'\n'} ${I18n.t(
+            {`${I18n.t('font_family')}: Cabin Sketch${'\n'}${I18n.t(
               'illustrator'
             )} : Freepik`}
           </Text>

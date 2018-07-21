@@ -11,6 +11,7 @@ export default {
   delete: 'Törlés',
   bingo: 'BINGO!',
   votes: 'szavazat',
+  contributors: 'Közreműködők',
 
   password: 'Jelszó',
   password_again: 'Jelszó újra',

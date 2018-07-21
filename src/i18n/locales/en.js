@@ -11,6 +11,7 @@ export default {
   delete: 'Delete',
   bingo: 'BINGO!',
   votes: 'votes',
+  contributors: 'Contributors',
 
   password: 'Password',
   password_again: 'Password again',
