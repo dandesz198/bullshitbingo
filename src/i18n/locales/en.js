@@ -13,6 +13,8 @@ export default {
   votes: 'votes',
   contributors: 'Contributors',
   close: 'Close',
+  matches: 'Matches',
+  room_info: 'Room info',
 
   password: 'Password',
   password_again: 'Password again',

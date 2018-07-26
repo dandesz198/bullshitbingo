@@ -13,35 +13,45 @@ const Button = ({
   isSmall,
   text,
   style,
-}) => (
-  <TouchableOpacity
-    style={[styles.container, style]}
-    disabled={isDisabled}
-    onPress={onPress}
-  >
-    <ImageBackground
-      source={
-        isFilled ? Images.btn_filled : isWide ? Images.btn_wide : Images.btn
-      }
-      style={{
-        width: isWide ? 330 : isSmall ? 84 : 140,
-        height: isWide ? 64 : isSmall ? 35 : 58,
-        justifyContent: 'center',
-        opacity: isDisabled ? 0.5 : 1,
-      }}
+}) => {
+  const width = isWide ? 330 : isSmall ? 84 : 140;
+  const height = isWide ? 64 : isSmall ? 35 : 58;
+  return (
+    <TouchableOpacity
+      style={[styles.container, style]}
+      disabled={isDisabled}
+      onPress={onPress}
     >
-      <Text
-        isBold
-        style={[
-          styles.text,
-          { color: isFilled ? 'white' : 'black', fontSize: isSmall ? 18 : 30 },
-        ]}
+      <ImageBackground
+        source={
+          isFilled ? Images.btn_filled : isWide ? Images.btn_wide : Images.btn
+        }
+        style={{
+          width,
+          height,
+          justifyContent: 'center',
+          textAlign: 'center',
+          opacity: isDisabled ? 0.5 : 1,
+        }}
       >
-        {text}
-      </Text>
-    </ImageBackground>
-  </TouchableOpacity>
-);
+        <Text
+          isBold
+          style={[
+            styles.text,
+            {
+              color: isFilled ? 'white' : 'black',
+              fontSize: isWide ? 26 : isSmall ? 16 : 20,
+              textAlign: 'center',
+            },
+          ]}
+          numberOfLines={1}
+        >
+          {text}
+        </Text>
+      </ImageBackground>
+    </TouchableOpacity>
+  );
+};
 
 Button.propTypes = {
   onPress: PropTypes.func,

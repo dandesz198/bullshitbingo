@@ -35,8 +35,8 @@ export default class Room extends React.Component {
     this.state = {
       index: 0,
       routes: [
-        { key: '1', title: 'Matches' },
-        { key: '2', title: 'Room info' },
+        { key: '1', title: I18n.t('matches') },
+        { key: '2', title: I18n.t('room_info') },
       ],
       value: 0,
 
@@ -266,7 +266,11 @@ export default class Room extends React.Component {
   renderHeader = props => (
     <TabBar
       indicatorStyle={{ backgroundColor: 'black' }}
-      labelStyle={{ color: 'black', fontSize: 20, fontFamily: 'CabinSketch-Regular' }}
+      labelStyle={{
+        color: 'black',
+        fontSize: 20,
+        fontFamily: 'CabinSketch-Regular',
+      }}
       style={{ paddingTop: 25, backgroundColor: 'white' }}
       {...props}
     />

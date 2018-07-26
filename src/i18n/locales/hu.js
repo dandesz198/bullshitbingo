@@ -4,7 +4,7 @@ export default {
   error: 'Hiba',
   create: 'Létrehozás',
   join: 'Csatlakozás',
-  vote: 'Szavaz',
+  vote: 'Szavazás',
   quit: 'Kilép',
   kick: 'Kidob',
   yes: 'Igen',
@@ -13,6 +13,8 @@ export default {
   votes: 'szavazat',
   contributors: 'Közreműködők',
   close: 'Bezárás',
+  matches: 'Meccsek',
+  room_info: 'Szobainfó',
 
   password: 'Jelszó',
   password_again: 'Jelszó újra',
@@ -119,9 +121,9 @@ export default {
   matchmaster_quit_ok: 'Igen, ki akarok lépni',
   kick_error: 'Nincs jogod ahhoz, hogy másokat kidobj.',
 
-  tap_to_create_match: 'Kattints ide egy új meccs létrehozásához...',
+  tap_to_create_match: 'Kattints ide új meccs létrehozásához...',
   pull_to_create_match: 'Lehúzás meccs létrehozásához',
 
-  tap_to_create_card: 'Kattints ide egy új kártya létrehozásához...',
+  tap_to_create_card: 'Kattints ide új kártya létrehozásához...',
   pull_to_create_card: 'Lehúzás kártya létrehozásához',
 };
