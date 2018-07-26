@@ -1,11 +1,11 @@
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
-  button: {
+  container: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  join: {
+  text: {
     fontSize: 30,
     textAlign: 'center',
   },

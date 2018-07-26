@@ -16,7 +16,7 @@ const Button = ({
   style,
 }) => (
   <TouchableOpacity
-    style={[styles.button, style]}
+    style={[styles.container, style]}
     disabled={isDisabled}
     onPress={onPress}
   >
@@ -35,7 +35,7 @@ const Button = ({
         isLoaded={fontsLoaded}
         isBold
         style={[
-          styles.join,
+          styles.text,
           { color: isFilled ? 'white' : 'black', fontSize: isSmall ? 18 : 30 },
         ]}
       >
