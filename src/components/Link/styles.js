@@ -5,6 +5,6 @@ export default StyleSheet.create({
     color: '#3498db',
     fontSize: 16,
     textDecorationLine: 'underline',
-    fontFamily: 'cabin-sketch',
+    fontFamily: 'CabinSketch-Regular',
   },
 });

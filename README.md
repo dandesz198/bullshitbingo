@@ -1,17 +1,11 @@
-This project was bootstrapped with [Create React Native App](https://github.com/react-community/create-react-native-app).
-
-You'll find information about performing common tasks [here](https://github.com/react-community/create-react-native-app/blob/master/react-native-scripts/template/README.md).
-
 Download it from [Google Play](https://play.google.com/store/apps/details?id=com.funbyte.bullshitbingo)
 For TestFlight link, contact me.
 
 ## Tech stack
 
-* Expo (via CRNA)
 * React-Native
 * React-Navigation
 * Firebase
-* Google Analytics
 * ESLint
 * SHA-256 encryption
 

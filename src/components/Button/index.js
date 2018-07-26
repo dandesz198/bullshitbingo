@@ -7,7 +7,6 @@ import styles from './styles';
 
 const Button = ({
   onPress,
-  fontsLoaded,
   isDisabled,
   isFilled,
   isWide,
@@ -32,7 +31,6 @@ const Button = ({
       }}
     >
       <Text
-        isLoaded={fontsLoaded}
         isBold
         style={[
           styles.text,
@@ -47,7 +45,6 @@ const Button = ({
 
 Button.propTypes = {
   onPress: PropTypes.func,
-  fontsLoaded: PropTypes.bool,
   isDisabled: PropTypes.bool,
   isWide: PropTypes.bool,
   isSmall: PropTypes.bool,
@@ -58,7 +55,6 @@ Button.propTypes = {
 
 Button.defaultProps = {
   onPress: () => {},
-  fontsLoaded: false,
   isDisabled: false,
   isWide: false,
   isSmall: false,
