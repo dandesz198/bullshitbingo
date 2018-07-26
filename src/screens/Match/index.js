@@ -2,19 +2,17 @@ import React from 'react';
 import {
   View,
   TextInput,
-  TouchableOpacity,
   ScrollView,
   ListView,
   Dimensions,
   Alert,
   Vibration,
   Image,
-  ImageBackground,
   StatusBar,
 } from 'react-native';
 import * as firebase from 'firebase';
 import { Analytics, PageHit, Event } from 'expo-analytics';
-import { Card, Text } from '@components';
+import { Button, Card, Text } from '@components';
 import { Images } from '@assets';
 import styles from './styles';
 import I18n from '../../i18n';
@@ -212,36 +210,20 @@ export default class Match extends React.Component {
             onChangeText={newCardText => this.setState({ newCardText })}
             value={newCardText}
           />
-          <TouchableOpacity
+          <Button
+            onPress={() => {
+              this.createCard();
+            }}
             style={{
-              justifyContent: 'center',
               marginLeft: 'auto',
               marginRight: 15,
               marginBottom: 10,
             }}
-            disabled={newCardText.length <= 0}
-            onPress={() => {
-              this.createCard();
-            }}
-          >
-            <ImageBackground
-              source={Images.btn}
-              style={{
-                width: 96,
-                height: 40,
-                justifyContent: 'center',
-                opacity: newCardText.length <= 0 ? 0.2 : 1,
-              }}
-            >
-              <Text
-                isLoaded
-                isBold
-                style={{ fontSize: 20, textAlign: 'center' }}
-              >
-                {I18n.t('create')}
-              </Text>
-            </ImageBackground>
-          </TouchableOpacity>
+            isDisabled={newCardText.length <= 0}
+            isSmall
+            fontsLoaded
+            text={I18n.t('create')}
+          />
         </View>
         <View
           style={{

@@ -15,7 +15,7 @@ import {
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import * as firebase from 'firebase';
 import { Analytics, PageHit, Event } from 'expo-analytics';
-import { Card, Text } from '@components';
+import { Button, Card, Text } from '@components';
 import { Images } from '@assets';
 import styles from './styles';
 import I18n from '../../i18n';
@@ -324,34 +324,18 @@ export default class Room extends React.Component {
                 onChangeText={newMatchText => this.setState({ newMatchText })}
                 value={newMatchText}
               />
-              <TouchableOpacity
+              <Button
+                onPress={() => this.createMatch()}
                 style={{
-                  justifyContent: 'center',
                   marginLeft: 'auto',
                   marginRight: 15,
                   marginBottom: 10,
                 }}
-                disabled={newMatchText.length <= 0}
-                onPress={() => this.createMatch()}
-              >
-                <ImageBackground
-                  source={Images.btn}
-                  style={{
-                    width: 96,
-                    height: 40,
-                    justifyContent: 'center',
-                    opacity: newMatchText.length <= 0 ? 0.2 : 1,
-                  }}
-                >
-                  <Text
-                    isLoaded
-                    isBold
-                    style={{ fontSize: 20, textAlign: 'center' }}
-                  >
-                    {I18n.t('create')}
-                  </Text>
-                </ImageBackground>
-              </TouchableOpacity>
+                fontsLoaded
+                isSmall
+                isDisabled={newMatchText.length <= 0}
+                text={I18n.t('create')}
+              />
             </View>
             <View
               style={{
@@ -514,7 +498,10 @@ export default class Room extends React.Component {
                     >
                       {`${rowData.name} | ${rowData.points} XP`}
                     </Text>
-                    <TouchableOpacity
+                    <Button
+                      onPress={() => {
+                        this.quitKick(rowData);
+                      }}
                       style={{
                         display:
                           myName !== roomMaster && myName !== rowData.name
@@ -527,29 +514,14 @@ export default class Room extends React.Component {
                         marginBottom: 'auto',
                         justifyContent: 'center',
                       }}
-                      onPress={() => {
-                        this.quitKick(rowData);
-                      }}
-                    >
-                      <ImageBackground
-                        source={Images.btn}
-                        style={{
-                          width: 84,
-                          height: 35,
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <Text
-                          isLoaded
-                          isBold
-                          style={{ fontSize: 18, textAlign: 'center' }}
-                        >
-                          {myName === rowData.name
-                            ? I18n.t('quit')
-                            : I18n.t('kick')}
-                        </Text>
-                      </ImageBackground>
-                    </TouchableOpacity>
+                      isSmall
+                      fontsLoaded
+                      text={
+                        myName === rowData.name
+                          ? I18n.t('quit')
+                          : I18n.t('kick')
+                      }
+                    />
                   </View>
                   <Image
                     style={{ marginTop: 2.5, width: 200 }}

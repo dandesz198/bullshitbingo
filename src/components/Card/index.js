@@ -11,6 +11,7 @@ import { Analytics, Event } from 'expo-analytics';
 import PropTypes from 'prop-types';
 import styles from './styles';
 import { Images } from '@assets';
+import { Button } from '@components';
 import I18n from '../../i18n';
 
 const Environment = require('../../config/environment');
@@ -89,64 +90,26 @@ const Card = ({
       </View>
     </View>
     <View style={styles.buttonBoxStyle}>
-      <TouchableOpacity
-        style={[
-          styles.buttonStyle,
-          {
-            marginRight: 10,
-            borderRadius: 5,
-            display: isBingo ? 'none' : 'flex',
-          },
-        ]}
+      <Button
         onPress={() => {
           onVotePress();
         }}
-      >
-        <ImageBackground
-          source={!isMatch && voted ? Images.btn_filled : Images.btn}
-          style={{ width: 84, height: 35, justifyContent: 'center' }}
-        >
-          <Text
-            style={{
-              fontSize: 18,
-              textAlign: 'center',
-              fontFamily: 'cabin-sketch-bold',
-              color: !isMatch && voted ? 'white' : 'black',
-            }}
-          >
-            {isMatch ? I18n.t('join') : I18n.t('vote')}
-          </Text>
-        </ImageBackground>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[
-          styles.buttonStyle,
-          {
-            display: isMaster ? 'flex' : isBingo ? 'flex' : 'none',
-          },
-        ]}
+        fontsLoaded
+        isSmall
+        style={{ display: isBingo ? 'none' : 'flex', marginRight: 10 }}
+        isFilled={!isMatch && voted}
+        text={isMatch ? I18n.t('join') : I18n.t('vote')}
+      />
+      <Button
         onPress={() => {
           onBingoPress();
         }}
-      >
-        <ImageBackground
-          source={!isMatch && isBingo ? Images.btn_filled : Images.btn}
-          style={{ width: 84, height: 35, justifyContent: 'center' }}
-        >
-          <Text
-            style={{
-              fontSize: 18,
-              textAlign: 'center',
-              fontFamily: 'cabin-sketch-bold',
-              color: !isMatch && isBingo ? 'white' : 'black',
-            }}
-          >
-            {isMatch ? I18n.t('delete') : I18n.t('bingo')}
-          </Text>
-        </ImageBackground>
-      </TouchableOpacity>
-
+        fontsLoaded
+        isSmall
+        style={{ display: isMaster ? 'flex' : isBingo ? 'flex' : 'none', }}
+        isFilled={isBingo}
+        text={isMatch ? I18n.t('delete') : I18n.t('bingo')}
+      />
       <Text
         style={[styles.voteNumberStyle, { display: isMatch ? 'none' : 'flex' }]}
       >

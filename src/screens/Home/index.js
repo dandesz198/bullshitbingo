@@ -21,7 +21,7 @@ import * as firebase from 'firebase';
 import sha256 from 'crypto-js/sha256';
 import { Analytics, PageHit, Event } from 'expo-analytics';
 import { Expo, Font } from 'expo';
-import { Link, Text } from '@components';
+import { Button, Text, Link } from '@components';
 import { Images, Fonts } from '@assets';
 import styles from './styles';
 import I18n from '../../i18n';
@@ -714,21 +714,12 @@ export default class Home extends React.Component {
               marginVertical: 30,
             }}
           >
-            <View style={{ flexDirection: 'column' }}>
+            <View style={{ flexDirection: 'column', marginRight: 25 }}>
               <Image
                 source={Images.create_child}
                 style={{ height: 102, width: 140, marginBottom: -2.5 }}
               />
-              <TouchableOpacity
-                style={[styles.button, { marginRight: 25 }]}
-                disabled={
-                  !!(
-                    (myNameWB.length === 0 && myName.length === 0) ||
-                    pw.length === 0 ||
-                    pwAgain.length === 0 ||
-                    newGameName.length === 0
-                  )
-                }
+              <Button
                 onPress={async () => {
                   if (myNameWB.length > 0) {
                     await this.setState({
@@ -738,43 +729,26 @@ export default class Home extends React.Component {
                   }
                   this.createRoom();
                 }}
-              >
-                <ImageBackground
-                  source={Images.btn}
-                  style={{
-                    width: 140,
-                    height: 58,
-                    justifyContent: 'center',
-                    opacity:
-                      (myNameWB.length === 0 && myName.length === 0) ||
-                      pw.length === 0 ||
-                      pwAgain.length === 0 ||
-                      newGameName.length === 0
-                        ? 0.5
-                        : 1,
-                  }}
-                >
-                  <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                    {I18n.t('create')}
-                  </Text>
-                </ImageBackground>
-              </TouchableOpacity>
+                isDisabled={
+                  !!(
+                    (myNameWB.length === 0 && myName.length === 0) ||
+                    pw.length === 0 ||
+                    pwAgain.length === 0 ||
+                    newGameName.length === 0
+                  )
+                }
+                fontsLoaded={fontsLoaded}
+                text={I18n.t('create')}
+              />
             </View>
-            <TouchableOpacity
-              style={[styles.button, { marginTop: 99.5 }]}
+            <Button
               onPress={() => {
                 this.setState({ newGameModalVisible: false });
               }}
-            >
-              <ImageBackground
-                source={Images.btn}
-                style={{ width: 140, height: 58, justifyContent: 'center' }}
-              >
-                <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                  {I18n.t('cancel')}
-                </Text>
-              </ImageBackground>
-            </TouchableOpacity>
+              style={{ marginTop: 99.5 }}
+              fontsLoaded={fontsLoaded}
+              text={I18n.t('cancel')}
+            />
           </View>
         </ScrollView>
       </Modal>
@@ -908,11 +882,7 @@ export default class Home extends React.Component {
               ]}
             >
               <View style={[styles.button, { flex: 1, marginRight: 25 }]}>
-                <TouchableOpacity
-                  style={[
-                    styles.button,
-                    { flex: 1, backgroundColor: 'transparent' },
-                  ]}
+                <Button
                   onPress={async () => {
                     if (myNameWB.length > 0) {
                       await this.setState({
@@ -922,36 +892,17 @@ export default class Home extends React.Component {
                     }
                     this.joinRoom();
                   }}
-                >
-                  <ImageBackground
-                    source={Images.btn}
-                    style={{
-                      width: 140,
-                      height: 58,
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                      {I18n.t('join')}
-                    </Text>
-                  </ImageBackground>
-                </TouchableOpacity>
+                  fontsLoaded={fontsLoaded}
+                  text={I18n.t('join')}
+                />
               </View>
-              <TouchableOpacity
-                style={[styles.button, { flex: 1, backgroundColor: 'white' }]}
+              <Button
                 onPress={() => {
                   this.setState({ joinGameModalVisible: false });
                 }}
-              >
-                <ImageBackground
-                  source={Images.btn}
-                  style={{ width: 140, height: 58, justifyContent: 'center' }}
-                >
-                  <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                    {I18n.t('cancel')}
-                  </Text>
-                </ImageBackground>
-              </TouchableOpacity>
+                fontsLoaded={fontsLoaded}
+                text={I18n.t('cancel')}
+              />
             </View>
           </View>
         </ScrollView>
@@ -1075,36 +1026,20 @@ export default class Home extends React.Component {
           >
             {I18n.t('server_donate')}
           </Text>
-          <TouchableOpacity
-            style={[
-              styles.button,
-              {
-                marginTop: 20,
-                marginBottom: 40,
-                width: 330,
-                height: 64,
-                marginLeft: 'auto',
-                marginRight: 'auto',
-              },
-            ]}
+          <Button
             onPress={() => {
               this.setState({ infoModalVisible: false });
             }}
-          >
-            <ImageBackground
-              source={Images.btn_wide}
-              style={{
-                width: 330,
-                height: 64,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                {I18n.t('close')}
-              </Text>
-            </ImageBackground>
-          </TouchableOpacity>
+            style={{
+              marginTop: 20,
+              marginBottom: 40,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}
+            fontsLoaded={fontsLoaded}
+            isWide
+            text={I18n.t('close')}
+          />
         </ScrollView>
       </Modal>
     );
@@ -1245,8 +1180,7 @@ export default class Home extends React.Component {
           >
             {I18n.t('onboard_start_desc')}
           </Text>
-          <TouchableOpacity
-            style={{ marginTop: 15 }}
+          <Button
             onPress={async () => {
               this.setState({ isFirstOpen: false });
               try {
@@ -1256,16 +1190,10 @@ export default class Home extends React.Component {
                 console.log(error);
               }
             }}
-          >
-            <ImageBackground
-              source={Images.btn}
-              style={{ width: 140, height: 58, justifyContent: 'center' }}
-            >
-              <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                {I18n.t('onboard_start_btn')}
-              </Text>
-            </ImageBackground>
-          </TouchableOpacity>
+            style={{ marginTop: 15 }}
+            fontsLoaded={fontsLoaded}
+            text={I18n.t('onboard_start_btn')}
+          />
           <Image
             source={Images.add_child}
             style={{ width: 70, height: 59, marginTop: -2.5 }}
@@ -1315,26 +1243,15 @@ export default class Home extends React.Component {
               </Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            style={[styles.button, { marginTop: 10 }]}
+          <Button
             onPress={() => {
               this.setState({ newGameModalVisible: true });
             }}
-          >
-            <ImageBackground
-              source={Images.btn_wide}
-              style={{
-                width: 330,
-                height: 64,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                {I18n.t('create_room')}
-              </Text>
-            </ImageBackground>
-          </TouchableOpacity>
+            style={{ marginTop: 10 }}
+            fontsLoaded={fontsLoaded}
+            isWide
+            text={I18n.t('create_room')}
+          />
           <Text isLoaded={fontsLoaded} isBold style={styles.heading}>
             {I18n.t('join_room')}
           </Text>
@@ -1404,21 +1321,14 @@ export default class Home extends React.Component {
               >
                 {I18n.t('check_pin')}
               </Text>
-              <TouchableOpacity
-                style={[styles.button, { marginTop: 10, marginBottom: 'auto' }]}
+              <Button
                 onPress={() => {
                   this.preJoin();
                 }}
-              >
-                <ImageBackground
-                  source={Images.btn}
-                  style={{ width: 140, height: 58, justifyContent: 'center' }}
-                >
-                  <Text isLoaded={fontsLoaded} isBold style={styles.join}>
-                    {I18n.t('join')}
-                  </Text>
-                </ImageBackground>
-              </TouchableOpacity>
+                fontsLoaded={fontsLoaded}
+                style={{ marginTop: 10, marginBottom: 'auto' }}
+                text={I18n.t('join')}
+              />
             </View>
           </View>
           <Text isLoaded={fontsLoaded} isBold style={styles.heading}>
