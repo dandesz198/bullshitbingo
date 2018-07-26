@@ -36,6 +36,13 @@ export default class Room extends React.Component {
     super(props);
     const { navigation } = this.props;
     this.state = {
+      index: 0,
+      routes: [
+        { key: '1', title: 'Matches' },
+        { key: '2', title: 'Room info' },
+      ],
+      value: 0,
+
       myName: navigation.state.params.myName,
 
       gameName: navigation.state.params.gameName,
@@ -356,7 +363,7 @@ export default class Room extends React.Component {
               }}
             >
               <Image
-                source={Images.add_btn}
+                source={Images.add_child}
                 style={{ width: 75, height: 64, marginRight: 20 }}
               />
               <Text isLoaded isBold style={{ padding: 1.25, fontSize: 16 }}>
@@ -505,7 +512,7 @@ export default class Room extends React.Component {
                         fontSize: 24,
                       }}
                     >
-                      {`{rowData.name} | {rowData.points} XP`}
+                      {`${rowData.name} | ${rowData.points} XP`}
                     </Text>
                     <TouchableOpacity
                       style={{

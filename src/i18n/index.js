@@ -1,4 +1,4 @@
-import I18n from 'react-native-i18n';
+import I18n from 'ex-react-native-i18n';
 import en from './locales/en';
 import hu from './locales/hu';
 

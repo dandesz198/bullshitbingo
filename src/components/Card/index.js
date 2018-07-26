@@ -10,7 +10,7 @@ import {
 import { Analytics, Event } from 'expo-analytics';
 import PropTypes from 'prop-types';
 import styles from './styles';
-import Images from '@assets';
+import { Images } from '@assets';
 import I18n from '../../i18n';
 
 const Environment = require('../../config/environment');
