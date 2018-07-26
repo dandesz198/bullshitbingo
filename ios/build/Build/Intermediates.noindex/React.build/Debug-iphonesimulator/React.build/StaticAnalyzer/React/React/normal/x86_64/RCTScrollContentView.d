@@ -1,0 +1,22 @@
+dependencies: \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Views/ScrollView/RCTScrollContentView.m \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Views/ScrollView/RCTScrollContentView.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Views/RCTView.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Views/RCTBorderStyle.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Views/RCTComponent.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Views/RCTPointerEvents.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTAssert.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTDefines.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Views/UIView+React.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/ios/build/Build/Products/Debug-iphonesimulator/include/yoga/YGEnums.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/ios/build/Build/Products/Debug-iphonesimulator/include/yoga/YGMacros.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Views/ScrollView/RCTScrollView.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Views/RCTAutoInsetsProtocol.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTEventDispatcher.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTBridge.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTBridgeDelegate.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTJavaScriptLoader.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTBridgeModule.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTFrameUpdate.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTInvalidating.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Views/ScrollView/RCTScrollableProtocol.h

@@ -1,0 +1,26 @@
+dependencies: \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTJavaScriptLoader.mm \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTJavaScriptLoader.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTDefines.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/ios/build/Build/Products/Debug-iphonesimulator/include/cxxreact/JSBundleType.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/ios/build/Build/Products/Debug-iphonesimulator/include/jschelpers/JavaScriptCore.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/ios/build/Build/Products/Debug-iphonesimulator/include/jschelpers/JSCWrapper.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTBridge.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTBridgeDelegate.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTBridgeModule.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTFrameUpdate.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTInvalidating.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTConvert.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Views/RCTAnimationType.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Views/RCTBorderStyle.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTLog.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTAssert.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTUtils.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Views/RCTPointerEvents.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Views/RCTTextDecorationLineType.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/ios/build/Build/Products/Debug-iphonesimulator/include/yoga/Yoga.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/ios/build/Build/Products/Debug-iphonesimulator/include/yoga/YGEnums.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/ios/build/Build/Products/Debug-iphonesimulator/include/yoga/YGMacros.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTMultipartDataTask.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTMultipartStreamReader.h \
+  /Users/gergelydaniel/Documents/GitHub/bsbingo-detached/bullshitbingo/node_modules/react-native/React/Base/RCTPerformanceLogger.h

@@ -13,13 +13,12 @@ import {
   Linking,
   BackHandler,
   Vibration,
-  Platform,
   StatusBar,
 } from 'react-native';
 import * as firebase from 'firebase';
 import sha256 from 'crypto-js/sha256';
 import { Button, Text, Link } from '@components';
-import { Images, Fonts } from '@assets';
+import { Images } from '@assets';
 import styles from './styles';
 import I18n from '../../i18n';
 
@@ -94,31 +93,6 @@ export default class Home extends React.Component {
     }
 
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
-
-    try {
-      const update = await Expo.Updates.checkForUpdateAsync();
-      if (update.isAvailable) {
-        await Expo.Updates.fetchUpdateAsync();
-        Vibration.vibrate();
-        this.setState({
-          joinGameModalVisible: false,
-          newGameModalVisible: false,
-          infoModalVisible: false,
-        });
-        Alert.alert(I18n.t('update_avaliable'), I18n.t('update_description'), [
-          {
-            text: I18n.t('ok'),
-            onPress: () => Expo.Updates.reload(),
-          },
-          {
-            text: I18n.t('cancel'),
-            onPress: () => console.log('no update for you'),
-          },
-        ]);
-      }
-    } catch (e) {
-      // handle or log error
-    }
 
     // Save the games with 2s delay
     setTimeout(() => {
