@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   View,
-  TextInput,
   TouchableOpacity,
   ScrollView,
   ListView,
@@ -17,7 +16,7 @@ import {
 } from 'react-native';
 import * as firebase from 'firebase';
 import sha256 from 'crypto-js/sha256';
-import { Button, Text, Link } from '@components';
+import { Button, Text, TextInput, Link } from '@components';
 import { Images } from '@assets';
 import styles from './styles';
 import I18n from '../../i18n';
@@ -517,17 +516,8 @@ export default class Home extends React.Component {
             }}
           >
             <TextInput
-              style={[
-                styles.input,
-                {
-                  marginTop: 5,
-                  marginBottom: 5,
-                  fontFamily: 'CabinSketch-Bold',
-                },
-              ]}
-              underlineColorAndroid="transparent"
+              style={{ padding: 10 }}
               placeholder={I18n.t('your_name')}
-              placeholderTextColor="#444"
               onChangeText={myNameWB => this.setState({ myNameWB })}
               value={myNameWB}
             />
@@ -545,17 +535,8 @@ export default class Home extends React.Component {
             </Text>
           </View>
           <TextInput
-            style={[
-              styles.input,
-              {
-                marginTop: 20,
-                marginBottom: 5,
-                fontFamily: 'CabinSketch-Bold',
-              },
-            ]}
-            underlineColorAndroid="transparent"
+            style={{ padding: 10 }}
             placeholder={I18n.t('name_of_room')}
-            placeholderTextColor="#444"
             onChangeText={newGameName => this.setState({ newGameName })}
             value={newGameName}
           />
@@ -575,35 +556,17 @@ export default class Home extends React.Component {
             {I18n.t('password_lock')}
           </Text>
           <TextInput
-            style={[
-              styles.input,
-              {
-                marginTop: 5,
-                marginBottom: 5,
-                fontFamily: 'CabinSketch-Bold',
-              },
-            ]}
-            underlineColorAndroid="transparent"
+            style={{ padding: 10 }}
             secureTextEntry
             placeholder={I18n.t('password')}
-            placeholderTextColor="#444"
             onChangeText={pw => this.setState({ pw })}
             value={pw}
           />
           <Image source={Images.line_long} />
           <TextInput
-            style={[
-              styles.input,
-              {
-                marginTop: 5,
-                marginBottom: 5,
-                fontFamily: 'CabinSketch-Bold',
-              },
-            ]}
-            underlineColorAndroid="transparent"
+            style={{ padding: 10 }}
             secureTextEntry
             placeholder={I18n.t('password_again')}
-            placeholderTextColor="#444"
             onChangeText={pwAgain => this.setState({ pwAgain })}
             value={pwAgain}
           />
@@ -705,17 +668,8 @@ export default class Home extends React.Component {
                 }}
               >
                 <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      color: '#666',
-                      borderColor: '#666',
-                      fontFamily: 'CabinSketch-Bold',
-                    },
-                  ]}
-                  underlineColorAndroid="transparent"
+                  style={{ padding: 10 }}
                   placeholder={I18n.t('your_name')}
-                  placeholderTextColor="#444"
                   onChangeText={myNameWB => this.setState({ myNameWB })}
                   value={myNameWB}
                 />
@@ -739,18 +693,9 @@ export default class Home extends React.Component {
                 }}
               >
                 <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      color: '#666',
-                      borderColor: '#666',
-                      fontFamily: 'CabinSketch-Bold',
-                    },
-                  ]}
+                  style={{ padding: 10 }}
                   secureTextEntry
                   placeholder={I18n.t('room_master_password')}
-                  placeholderTextColor="#444"
-                  underlineColorAndroid="transparent"
                   onChangeText={joinPw => this.setState({ joinPw })}
                   value={joinPw}
                 />
@@ -1111,22 +1056,9 @@ export default class Home extends React.Component {
                 }}
               >
                 <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      flex: 1,
-                      marginBottom: 2.5,
-                      height: 40,
-                      width: 180,
-                      fontSize: 28,
-                      textAlign: 'center',
-                      fontFamily: 'CabinSketch-Bold',
-                    },
-                  ]}
+                  style={{ fontSize: 24 }}
                   placeholder={I18n.t('room_pin')}
-                  placeholderTextColor="#444"
                   keyboardType="numeric"
-                  underlineColorAndroid="transparent"
                   onChangeText={joingameId => this.setState({ joingameId })}
                   value={joingameId}
                 />

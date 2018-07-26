@@ -197,7 +197,6 @@ export default class Match extends React.Component {
             }}
             underlineColorAndroid="transparent"
             placeholder={I18n.t('tap_to_create_card')}
-            placeholderTextColor="#444"
             onChangeText={newCardText => this.setState({ newCardText })}
             value={newCardText}
           />
