@@ -16,7 +16,7 @@ import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import * as firebase from 'firebase';
 import { Analytics, PageHit, Event } from 'expo-analytics';
 import { Card, Text } from '@components';
-import Images from '@assets';
+import { Images } from '@assets';
 import styles from './styles';
 import I18n from '../../i18n';
 

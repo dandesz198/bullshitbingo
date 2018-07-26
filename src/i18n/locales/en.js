@@ -12,6 +12,7 @@ export default {
   bingo: 'BINGO!',
   votes: 'votes',
   contributors: 'Contributors',
+  close: 'Close',
 
   password: 'Password',
   password_again: 'Password again',

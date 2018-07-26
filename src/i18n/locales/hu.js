@@ -12,6 +12,7 @@ export default {
   bingo: 'BINGO!',
   votes: 'szavazat',
   contributors: 'Közreműködők',
+  close: 'Bezárás',
 
   password: 'Jelszó',
   password_again: 'Jelszó újra',
