@@ -1,14 +1,17 @@
-import React from 'react';
-import { StackNavigator } from 'react-navigation';
-import Home from './src/Home.js';
-import Match from './src/Match.js';
-import Room from './src/Room.js';
+import { createStackNavigator } from 'react-navigation';
+import Home from './src/screens/Home';
+import Match from './src/screens/Match';
+import Room from './src/screens/Room';
 
-export default StackNavigator({
-  Home: { screen: Home },
-  Match: { screen: Match },
-  Room: { screen: Room },
-  }, { 
-    headerMode: 'none'
+const App = createStackNavigator(
+  {
+    Home: { screen: Home },
+    Match: { screen: Match },
+    Room: { screen: Room },
+  },
+  {
+    headerMode: 'none',
   }
-)
+);
+
+export default App;

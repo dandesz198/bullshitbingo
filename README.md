@@ -1,6 +1,9 @@
 This project was bootstrapped with [Create React Native App](https://github.com/react-community/create-react-native-app).
 
-Below you'll find information about performing common tasks. The most recent version of this guide is available [here](https://github.com/react-community/create-react-native-app/blob/master/react-native-scripts/template/README.md).
+You'll find information about performing common tasks [here](https://github.com/react-community/create-react-native-app/blob/master/react-native-scripts/template/README.md).
+
+Download it from [Google Play](https://play.google.com/store/apps/details?id=com.funbyte.bullshitbingo)
+For TestFlight link, contact me.
 
 ## Tech stack
 
@@ -9,9 +12,10 @@ Below you'll find information about performing common tasks. The most recent ver
 * React-Navigation
 * Firebase
 * Google Analytics
-* md5 encryption
+* ESLint
+* SHA-256 encryption
 
-## What's this game about?
+## About the game
 
 This project is created by @dandesz198.
 
@@ -21,11 +25,11 @@ Create a match, share it with your friends, and play together freely.
 
 ## Rules of the game
 
-* You can only vote on 2 games
-* Only the match master can delete cards and give points (via 'Bingo!' button)
-* The match master can kick anyone
+* You can only vote on 2 cards in one game
+* Only the adminds (room or match masters) can delete cards and give points (via 'Bingo!' button)
+* The room master can kick anyone
 * Both the kicked players and the quitters can rejoin every match
-* Once the match master exits, the game is going to be deleted, permanently.
+* Once the room master exits, the game is going to be deleted, permanently.
 * Have fun! ;)
 
 ## Contributors
