@@ -13,14 +13,11 @@ import {
   Linking,
   BackHandler,
   Vibration,
-  ImageBackground,
   Platform,
   StatusBar,
 } from 'react-native';
 import * as firebase from 'firebase';
 import sha256 from 'crypto-js/sha256';
-import { Analytics, PageHit, Event } from 'expo-analytics';
-import { Expo, Font } from 'expo';
 import { Button, Text, Link } from '@components';
 import { Images, Fonts } from '@assets';
 import styles from './styles';
@@ -36,8 +33,6 @@ const config = {
   storageBucket: Environment.storageBucket,
   messagingSenderId: Environment.messagingSenderId,
 };
-
-const analytics = new Analytics(Environment.analytics);
 
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
@@ -67,8 +62,6 @@ export default class Home extends React.Component {
     infoModalVisible: false,
 
     isFirstOpen: false,
-
-    fontsLoaded: false,
   };
 
   returnData(id) {
@@ -83,18 +76,6 @@ export default class Home extends React.Component {
   }
 
   async componentDidMount() {
-    // Starts the first loop in color changing
-    await Font.loadAsync({
-      'cabin-sketch': Fonts.cabin_regular,
-      'cabin-sketch-bold': Fonts.cabin_bold,
-    });
-
-    this.setState({
-      fontsLoaded: true,
-    });
-
-    Expo.ScreenOrientation.allow(Expo.ScreenOrientation.Orientation.PORTRAIT);
-
     try {
       const value = await AsyncStorage.getItem('@MySuperStore:isFirst');
       if (value !== null) {
@@ -113,8 +94,6 @@ export default class Home extends React.Component {
     }
 
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
-
-    analytics.hit(new PageHit('Home'));
 
     try {
       const update = await Expo.Updates.checkForUpdateAsync();
@@ -342,8 +321,6 @@ export default class Home extends React.Component {
       newGameName: '',
       newGameID: Math.floor(Math.random() * 899999 + 100000).toString(),
     });
-
-    analytics.event(new Event('Createroom'));
   };
 
   preJoin = () => {
@@ -491,8 +468,6 @@ export default class Home extends React.Component {
 
     // Save to AsyncStorage
     this.saveGames();
-
-    analytics.event(new Event('JoinRoom'));
   };
 
   saveName = async () => {
@@ -540,7 +515,6 @@ export default class Home extends React.Component {
 
   renderNewGameModal = () => {
     const {
-      fontsLoaded,
       newGameModalVisible,
       myName,
       myNameWB,
@@ -558,7 +532,6 @@ export default class Home extends React.Component {
       >
         <ScrollView style={{ flex: 1, padding: 20, backgroundColor: 'white' }}>
           <Text
-            isLoaded={fontsLoaded}
             isBold
             style={[styles.heading, { fontSize: 36, marginLeft: 0 }]}
           >
@@ -575,11 +548,7 @@ export default class Home extends React.Component {
                 {
                   marginTop: 5,
                   marginBottom: 5,
-                  fontFamily: fontsLoaded
-                    ? 'cabin-sketch-bold'
-                    : Platform.OS === 'ios'
-                      ? 'Arial'
-                      : 'Roboto',
+                  fontFamily: 'CabinSketch-Bold',
                 },
               ]}
               underlineColorAndroid="transparent"
@@ -590,7 +559,6 @@ export default class Home extends React.Component {
             />
             <Image source={Images.line_long} />
             <Text
-              isLoaded={fontsLoaded}
               isBold
               style={{
                 fontSize: 16,
@@ -608,11 +576,7 @@ export default class Home extends React.Component {
               {
                 marginTop: 20,
                 marginBottom: 5,
-                fontFamily: fontsLoaded
-                  ? 'cabin-sketch-bold'
-                  : Platform.OS === 'ios'
-                    ? 'Arial'
-                    : 'Roboto',
+                fontFamily: 'CabinSketch-Bold',
               },
             ]}
             underlineColorAndroid="transparent"
@@ -623,7 +587,6 @@ export default class Home extends React.Component {
           />
           <Image source={Images.line_long} />
           <Text
-            isLoaded={fontsLoaded}
             isBold
             style={{
               color: '#ee5253',
@@ -634,11 +597,7 @@ export default class Home extends React.Component {
           >
             {I18n.t('no_empty_please')}
           </Text>
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={[styles.p, { marginTop: 20 }]}
-          >
+          <Text isBold style={[styles.p, { marginTop: 20 }]}>
             {I18n.t('password_lock')}
           </Text>
           <TextInput
@@ -647,11 +606,7 @@ export default class Home extends React.Component {
               {
                 marginTop: 5,
                 marginBottom: 5,
-                fontFamily: fontsLoaded
-                  ? 'cabin-sketch-bold'
-                  : Platform.OS === 'ios'
-                    ? 'Arial'
-                    : 'Roboto',
+                fontFamily: 'CabinSketch-Bold',
               },
             ]}
             underlineColorAndroid="transparent"
@@ -668,11 +623,7 @@ export default class Home extends React.Component {
               {
                 marginTop: 5,
                 marginBottom: 5,
-                fontFamily: fontsLoaded
-                  ? 'cabin-sketch-bold'
-                  : Platform.OS === 'ios'
-                    ? 'Arial'
-                    : 'Roboto',
+                fontFamily: 'CabinSketch-Bold',
               },
             ]}
             underlineColorAndroid="transparent"
@@ -684,7 +635,6 @@ export default class Home extends React.Component {
           />
           <Image source={Images.line_long} />
           <Text
-            isLoaded={fontsLoaded}
             isBold
             style={{
               color: '#ee5253',
@@ -695,14 +645,10 @@ export default class Home extends React.Component {
             {I18n.t('password_error')}
           </Text>
           <View style={{ flexDirection: 'column' }}>
-            <Text
-              isLoaded={fontsLoaded}
-              isBold
-              style={[styles.p, { marginTop: 20 }]}
-            >
+            <Text isBold style={[styles.p, { marginTop: 20 }]}>
               {I18n.t('room_pin')}
             </Text>
-            <Text isLoaded={fontsLoaded} isBold style={styles.h2}>
+            <Text isBold style={styles.h2}>
               {newGameID}
             </Text>
           </View>
@@ -737,7 +683,6 @@ export default class Home extends React.Component {
                     newGameName.length === 0
                   )
                 }
-                fontsLoaded={fontsLoaded}
                 text={I18n.t('create')}
               />
             </View>
@@ -746,7 +691,6 @@ export default class Home extends React.Component {
                 this.setState({ newGameModalVisible: false });
               }}
               style={{ marginTop: 99.5 }}
-              fontsLoaded={fontsLoaded}
               text={I18n.t('cancel')}
             />
           </View>
@@ -757,7 +701,6 @@ export default class Home extends React.Component {
 
   renderJoinGameModal = () => {
     const {
-      fontsLoaded,
       joinGameModalVisible,
       myName,
       myNameWB,
@@ -774,7 +717,6 @@ export default class Home extends React.Component {
       >
         <ScrollView style={{ flex: 1, backgroundColor: 'white', padding: 20 }}>
           <Text
-            isLoaded={fontsLoaded}
             isBold
             style={[styles.heading, { fontSize: 40, marginBottom: 20 }]}
           >
@@ -794,11 +736,7 @@ export default class Home extends React.Component {
                     {
                       color: '#666',
                       borderColor: '#666',
-                      fontFamily: fontsLoaded
-                        ? 'cabin-sketch-bold'
-                        : Platform.OS === 'ios'
-                          ? 'Arial'
-                          : 'Roboto',
+                      fontFamily: 'CabinSketch-Bold',
                     },
                   ]}
                   underlineColorAndroid="transparent"
@@ -809,7 +747,6 @@ export default class Home extends React.Component {
                 />
                 <Image source={Images.line_long} />
                 <Text
-                  isLoaded={fontsLoaded}
                   isBold
                   style={{
                     color: '#ee5253',
@@ -833,11 +770,7 @@ export default class Home extends React.Component {
                     {
                       color: '#666',
                       borderColor: '#666',
-                      fontFamily: fontsLoaded
-                        ? 'cabin-sketch-bold'
-                        : Platform.OS === 'ios'
-                          ? 'Arial'
-                          : 'Roboto',
+                      fontFamily: 'CabinSketch-Bold',
                     },
                   ]}
                   secureTextEntry
@@ -849,7 +782,6 @@ export default class Home extends React.Component {
                 />
                 <Image source={Images.line_long} />
                 <Text
-                  isLoaded={fontsLoaded}
                   isBold
                   style={{
                     color: '#ee5253',
@@ -892,7 +824,6 @@ export default class Home extends React.Component {
                     }
                     this.joinRoom();
                   }}
-                  fontsLoaded={fontsLoaded}
                   text={I18n.t('join')}
                 />
               </View>
@@ -900,7 +831,6 @@ export default class Home extends React.Component {
                 onPress={() => {
                   this.setState({ joinGameModalVisible: false });
                 }}
-                fontsLoaded={fontsLoaded}
                 text={I18n.t('cancel')}
               />
             </View>
@@ -911,7 +841,7 @@ export default class Home extends React.Component {
   };
 
   renderInfoModal = () => {
-    const { fontsLoaded, infoModalVisible } = this.state;
+    const { infoModalVisible } = this.state;
 
     return (
       <Modal
@@ -921,78 +851,54 @@ export default class Home extends React.Component {
         visible={infoModalVisible}
       >
         <ScrollView style={{ flex: 1, padding: 25 }}>
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 40, marginTop: 20 }}
-          >
+          <Text isBold style={{ fontSize: 40, marginTop: 20 }}>
             {I18n.t('bullshit_bingo')}
           </Text>
-          <Text isLoaded={fontsLoaded} isBold={false} style={{ fontSize: 20 }}>
+          <Text isBold={false} style={{ fontSize: 20 }}>
             {`${I18n.t('desc_1')}${'\n'}${'\n'}${I18n.t(
               'desc_2'
             )}${'\n'}${I18n.t('desc_3')}`}
           </Text>
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 40, marginTop: 15 }}
-          >
+          <Text isBold style={{ fontSize: 40, marginTop: 15 }}>
             {I18n.t('rules')}
           </Text>
-          <Text isLoaded={fontsLoaded} isBold={false} style={{ fontSize: 20 }}>
+          <Text isBold={false} style={{ fontSize: 20 }}>
             {`• ${I18n.t('rule_1')}${'\n'}• ${I18n.t(
               'rule_2'
             )}${'\n'}• ${I18n.t('rule_3')}${'\n'}• ${I18n.t(
               'rule_4'
             )}${'\n'}• ${I18n.t('rule_5')}${'\n'}• ${I18n.t('rule_6')}`}
           </Text>
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 40, marginTop: 15 }}
-          >
+          <Text isBold style={{ fontSize: 40, marginTop: 15 }}>
             {I18n.t('creator')}
           </Text>
-          <Text isLoaded={fontsLoaded} isBold style={{ fontSize: 20 }}>
+          <Text isBold style={{ fontSize: 20 }}>
             {I18n.t('open_source')}
           </Text>
           <Link
             text={I18n.t('github')}
             url="https://github.com/dandesz198/bullshitbingo"
           />
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 20, marginTop: 10 }}
-          >
+          <Text isBold style={{ fontSize: 20, marginTop: 10 }}>
             {I18n.t('daniel_g')}
           </Text>
           <Link text="GitHub" url="https://github.com/dandesz198" />
           <Link text="Facebook" url="https://fb.me/dandesz198" />
           <Link text="Twitter" url="https://twitter.com/dandesz198" />
           <Link text="LinkedIn" url="https://linkedin.com/in/dandesz198" />
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 40, marginTop: 15 }}
-          >
+          <Text isBold style={{ fontSize: 40, marginTop: 15 }}>
             {I18n.t('contributors')}
           </Text>
-          <Text isLoaded={fontsLoaded} isBold style={{ fontSize: 20 }}>
+          <Text isBold style={{ fontSize: 20 }}>
             {I18n.t('peter_h')}
           </Text>
           <Link text="GitHub" url="https://github.com/razor97" />
           <Link text="Facebook" url="https://fb.me/hajdupetke" />
           <Link text="Twitter" url="https://twitter.com/hajdupetke" />
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 40, marginTop: 15 }}
-          >
+          <Text isBold style={{ fontSize: 40, marginTop: 15 }}>
             {I18n.t('legal')}
           </Text>
-          <Text isLoaded={fontsLoaded} isBold={false} style={{ fontSize: 16 }}>
+          <Text isBold={false} style={{ fontSize: 16 }}>
             {`${I18n.t('font_family')}: Cabin Sketch${'\n'}${I18n.t(
               'illustrator'
             )} : Freepik`}
@@ -1001,7 +907,7 @@ export default class Home extends React.Component {
             text={I18n.t('link_to_vector')}
             url="https://www.flaticon.com/free-icon/poo_720965"
           />
-          <Text isLoaded={fontsLoaded} isBold={false} style={{ fontSize: 16 }}>
+          <Text isBold={false} style={{ fontSize: 16 }}>
             {`${I18n.t('poop')}: Flaticon (by Freepik)`}
           </Text>
           <Link
@@ -1017,7 +923,6 @@ export default class Home extends React.Component {
             <Image source={Images.coffee} style={{ height: 45, width: 225 }} />
           </TouchableOpacity>
           <Text
-            isLoaded={fontsLoaded}
             isBold
             style={[
               styles.p,
@@ -1036,7 +941,6 @@ export default class Home extends React.Component {
               marginLeft: 'auto',
               marginRight: 'auto',
             }}
-            fontsLoaded={fontsLoaded}
             isWide
             text={I18n.t('close')}
           />
@@ -1045,168 +949,117 @@ export default class Home extends React.Component {
     );
   };
 
-  renderOnboarding = () => {
-    const { fontsLoaded } = this.state;
-    return (
-      <ScrollView style={{ flex: 1 }} pagingEnabled horizontal vertical={false}>
-        <StatusBar barStyle="dark-content" />
-        <View style={styles.onboardContainter}>
-          <Image
-            source={Images.icon}
-            style={{ width: 125, height: 125, marginBottom: 20 }}
-          />
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 30, textAlign: 'center' }}
-          >
-            {I18n.t('onboard_welcome')}
+  renderOnboarding = () => (
+    <ScrollView style={{ flex: 1 }} pagingEnabled horizontal vertical={false}>
+      <StatusBar barStyle="dark-content" />
+      <View style={styles.onboardContainter}>
+        <Image
+          source={Images.icon}
+          style={{ width: 125, height: 125, marginBottom: 20 }}
+        />
+        <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+          {I18n.t('onboard_welcome')}
+        </Text>
+        <Text
+          isBold
+          style={{ fontSize: 20, textAlign: 'center', marginTop: 5 }}
+        >
+          {I18n.t('onboard_welcome_desc')}
+        </Text>
+        <Text
+          isBold={false}
+          style={{ fontSize: 30, textAlign: 'center', marginTop: 20 }}
+        >
+          {I18n.t('onboard_welcome_swipe')}
+        </Text>
+      </View>
+      <View style={styles.onboardContainter}>
+        <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+          {I18n.t('onboard_rooms')}
+        </Text>
+        <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
+          {I18n.t('onboard_rooms_desc')}
+        </Text>
+      </View>
+      <View style={[styles.onboardContainter, { padding: 0 }]}>
+        <View
+          style={[
+            styles.onboardContainter,
+            { marginTop: 'auto', marginBottom: 'auto' },
+          ]}
+        >
+          <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+            {I18n.t('onboard_matches')}
           </Text>
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 20, textAlign: 'center', marginTop: 5 }}
-          >
-            {I18n.t('onboard_welcome_desc')}
-          </Text>
-          <Text
-            isLoaded={fontsLoaded}
-            isBold={false}
-            style={{ fontSize: 30, textAlign: 'center', marginTop: 20 }}
-          >
-            {I18n.t('onboard_welcome_swipe')}
-          </Text>
-        </View>
-        <View style={styles.onboardContainter}>
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 30, textAlign: 'center' }}
-          >
-            {I18n.t('onboard_rooms')}
-          </Text>
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 20, textAlign: 'center' }}
-          >
-            {I18n.t('onboard_rooms_desc')}
+          <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
+            {I18n.t('onboard_matches_desc')}
           </Text>
         </View>
-        <View style={[styles.onboardContainter, { padding: 0 }]}>
-          <View
-            style={[
-              styles.onboardContainter,
-              { marginTop: 'auto', marginBottom: 'auto' },
-            ]}
-          >
-            <Text
-              isLoaded={fontsLoaded}
-              isBold
-              style={{ fontSize: 30, textAlign: 'center' }}
-            >
-              {I18n.t('onboard_matches')}
-            </Text>
-            <Text
-              isLoaded={fontsLoaded}
-              isBold
-              style={{ fontSize: 20, textAlign: 'center' }}
-            >
-              {I18n.t('onboard_matches_desc')}
-            </Text>
-          </View>
-          <Image
-            source={Images.create_child}
-            style={{
-              width: 120,
-              height: 87,
-              marginTop: 'auto',
-              marginBottom: 0,
-            }}
-          />
-        </View>
-        <View style={styles.onboardContainter}>
-          <Image
-            source={Images.tutorial_card}
-            style={{ width: 300, height: 125, marginBottom: 20 }}
-          />
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 30, textAlign: 'center' }}
-          >
-            {I18n.t('onboard_cards')}
-          </Text>
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 20, textAlign: 'center' }}
-          >
-            {I18n.t('onboard_cards_desc')}
-          </Text>
-        </View>
-        <View style={styles.onboardContainter}>
-          <Image
-            source={Images.firework}
-            style={{ width: 125, height: 125, marginBottom: 20 }}
-          />
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 30, textAlign: 'center' }}
-          >
-            {I18n.t('onboard_bingo')}
-          </Text>
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 20, textAlign: 'center' }}
-          >
-            {I18n.t('onboard_bingo_desc')}
-          </Text>
-        </View>
-        <View style={styles.onboardContainter}>
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 30, textAlign: 'center' }}
-          >
-            {I18n.t('onboard_start')}
-          </Text>
-          <Text
-            isLoaded={fontsLoaded}
-            isBold
-            style={{ fontSize: 20, textAlign: 'center' }}
-          >
-            {I18n.t('onboard_start_desc')}
-          </Text>
-          <Button
-            onPress={async () => {
-              this.setState({ isFirstOpen: false });
-              try {
-                await AsyncStorage.setItem('@MySuperStore:isFirst', 'false');
-              } catch (error) {
-                // Error saving data
-                console.log(error);
-              }
-            }}
-            style={{ marginTop: 15 }}
-            fontsLoaded={fontsLoaded}
-            text={I18n.t('onboard_start_btn')}
-          />
-          <Image
-            source={Images.add_child}
-            style={{ width: 70, height: 59, marginTop: -2.5 }}
-          />
-        </View>
-      </ScrollView>
-    );
-  };
+        <Image
+          source={Images.create_child}
+          style={{
+            width: 120,
+            height: 87,
+            marginTop: 'auto',
+            marginBottom: 0,
+          }}
+        />
+      </View>
+      <View style={styles.onboardContainter}>
+        <Image
+          source={Images.tutorial_card}
+          style={{ width: 300, height: 125, marginBottom: 20 }}
+        />
+        <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+          {I18n.t('onboard_cards')}
+        </Text>
+        <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
+          {I18n.t('onboard_cards_desc')}
+        </Text>
+      </View>
+      <View style={styles.onboardContainter}>
+        <Image
+          source={Images.firework}
+          style={{ width: 125, height: 125, marginBottom: 20 }}
+        />
+        <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+          {I18n.t('onboard_bingo')}
+        </Text>
+        <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
+          {I18n.t('onboard_bingo_desc')}
+        </Text>
+      </View>
+      <View style={styles.onboardContainter}>
+        <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+          {I18n.t('onboard_start')}
+        </Text>
+        <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
+          {I18n.t('onboard_start_desc')}
+        </Text>
+        <Button
+          onPress={async () => {
+            this.setState({ isFirstOpen: false });
+            try {
+              await AsyncStorage.setItem('@MySuperStore:isFirst', 'false');
+            } catch (error) {
+              // Error saving data
+              console.log(error);
+            }
+          }}
+          style={{ marginTop: 15 }}
+          text={I18n.t('onboard_start_btn')}
+        />
+        <Image
+          source={Images.add_child}
+          style={{ width: 70, height: 59, marginTop: -2.5 }}
+        />
+      </View>
+    </ScrollView>
+  );
 
   render() {
     const {
       isFirstOpen,
-      fontsLoaded,
       myName,
       games,
       isNewGameIDCorrect,
@@ -1224,7 +1077,7 @@ export default class Home extends React.Component {
         {this.renderInfoModal()}
         <ScrollView style={{ flex: 1 }}>
           <View style={{ marginTop: 20, flexDirection: 'row' }}>
-            <Text isLoaded={fontsLoaded} isBold style={styles.welcome}>
+            <Text isBold style={styles.welcome}>
               {I18n.t('bullshit_bingo')}
             </Text>
             <TouchableOpacity
@@ -1238,7 +1091,7 @@ export default class Home extends React.Component {
                 this.setState({ infoModalVisible: true });
               }}
             >
-              <Text isLoaded={fontsLoaded} isBold style={{ fontSize: 16 }}>
+              <Text isBold style={{ fontSize: 16 }}>
                 0.14 [i]
               </Text>
             </TouchableOpacity>
@@ -1248,11 +1101,10 @@ export default class Home extends React.Component {
               this.setState({ newGameModalVisible: true });
             }}
             style={{ marginTop: 10 }}
-            fontsLoaded={fontsLoaded}
             isWide
             text={I18n.t('create_room')}
           />
-          <Text isLoaded={fontsLoaded} isBold style={styles.heading}>
+          <Text isBold style={styles.heading}>
             {I18n.t('join_room')}
           </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
@@ -1294,11 +1146,7 @@ export default class Home extends React.Component {
                       width: 180,
                       fontSize: 28,
                       textAlign: 'center',
-                      fontFamily: fontsLoaded
-                        ? 'cabin-sketch-bold'
-                        : Platform.OS === 'ios'
-                          ? 'Arial'
-                          : 'Roboto',
+                      fontFamily: 'CabinSketch-Bold',
                     },
                   ]}
                   placeholder={I18n.t('room_pin')}
@@ -1311,7 +1159,6 @@ export default class Home extends React.Component {
                 <Image source={Images.line_short} style={{ width: 140 }} />
               </View>
               <Text
-                isLoaded={fontsLoaded}
                 isBold
                 style={{
                   color: '#ee5253',
@@ -1325,13 +1172,12 @@ export default class Home extends React.Component {
                 onPress={() => {
                   this.preJoin();
                 }}
-                fontsLoaded={fontsLoaded}
                 style={{ marginTop: 10, marginBottom: 'auto' }}
                 text={I18n.t('join')}
               />
             </View>
           </View>
-          <Text isLoaded={fontsLoaded} isBold style={styles.heading}>
+          <Text isBold style={styles.heading}>
             {I18n.t('my_rooms')}
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -1354,7 +1200,7 @@ export default class Home extends React.Component {
                     );
                   }}
                 >
-                  <Text isLoaded={fontsLoaded} isBold style={styles.gameList}>
+                  <Text isBold style={styles.gameList}>
                     {rowData.name}
                   </Text>
                   <Image source={Images.line_short} />

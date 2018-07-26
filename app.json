@@ -1,5 +1,5 @@
 {
-   "expo": {
+  "expo": {
     "name": "Bullshit Bingo",
     "icon": "./assets/images/icon.png",
     "version": "0.14.0",
@@ -7,7 +7,9 @@
     "sdkVersion": "28.0.0",
     "android": {
       "package": "com.funbyte.bullshitbingo",
-      "permissions": ["VIBRATE"],
+      "permissions": [
+        "VIBRATE"
+      ],
       "versionCode": 136
     },
     "ios": {
@@ -15,11 +17,11 @@
       "icon": "./assets/images/icon_ios.png",
       "loadJSInBackgroundExperimental": true
     }
-   },
-   "updates": {
+  },
+  "updates": {
     "checkAutomatically": "ON_ERROR_RECOVERY"
-   },
-   "loading": {
+  },
+  "loading": {
     "backgroundImage": "./assets/images/icon.png",
     "splash": {
       "backgroundColor": "#fff",
@@ -29,5 +31,7 @@
         }
       }
     }
-  }
- }
+  },
+  "name": "bullshitbingo",
+  "displayName": "Bullshit Bingo"
+}

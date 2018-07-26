@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import * as firebase from 'firebase';
-import { Analytics, PageHit, Event } from 'expo-analytics';
 import { Button, Card, Text } from '@components';
 import { Images } from '@assets';
 import styles from './styles';
@@ -28,8 +27,6 @@ const initialLayout = {
 };
 
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-
-const analytics = new Analytics(Environment.analytics);
 
 export default class Room extends React.Component {
   constructor(props) {
@@ -64,8 +61,6 @@ export default class Room extends React.Component {
     setTimeout(() => {
       this.scrollView.scrollTo({ x: 0, y: 120, animated: false });
     }, 1);
-
-    analytics.hit(new PageHit('Room'));
   }
 
   createMatch = () => {
@@ -85,8 +80,6 @@ export default class Room extends React.Component {
       this.setState({ newMatchText: '' });
 
       this.syncToFirebase();
-
-      analytics.event(new Event('NewMatch'));
     }
   };
 
@@ -132,7 +125,6 @@ export default class Room extends React.Component {
                           .database()
                           .ref(`games/${gameId}`)
                           .remove();
-                        analytics.event(new Event('Delete game'));
                         navigation.state.params.returnData(gameName);
                         navigation.goBack();
                       },
@@ -154,7 +146,6 @@ export default class Room extends React.Component {
                   .update({
                     members: memb,
                   });
-                analytics.event(new Event('Kick'));
               }
             } else if (rowData.name === myName) {
               // Quit game
@@ -170,7 +161,6 @@ export default class Room extends React.Component {
                 .update({
                   members: memb,
                 });
-              analytics.event(new Event('Quit'));
               navigation.state.params.returnData(gameName);
               navigation.goBack();
             } else {
@@ -276,7 +266,7 @@ export default class Room extends React.Component {
   renderHeader = props => (
     <TabBar
       indicatorStyle={{ backgroundColor: 'black' }}
-      labelStyle={{ color: 'black', fontSize: 20, fontFamily: 'cabin-sketch' }}
+      labelStyle={{ color: 'black', fontSize: 20, fontFamily: 'CabinSketch-Regular' }}
       style={{ paddingTop: 25, backgroundColor: 'white' }}
       {...props}
     />
@@ -316,7 +306,7 @@ export default class Room extends React.Component {
                   marginBottom: 10,
                   color: '#555',
                   fontSize: 20,
-                  fontFamily: 'cabin-sketch-bold',
+                  fontFamily: 'CabinSketch-Bold',
                 }}
                 underlineColorAndroid="transparent"
                 placeholder={I18n.t('tap_to_create_match')}
@@ -331,7 +321,6 @@ export default class Room extends React.Component {
                   marginRight: 15,
                   marginBottom: 10,
                 }}
-                fontsLoaded
                 isSmall
                 isDisabled={newMatchText.length <= 0}
                 text={I18n.t('create')}
@@ -350,7 +339,7 @@ export default class Room extends React.Component {
                 source={Images.add_child}
                 style={{ width: 75, height: 64, marginRight: 20 }}
               />
-              <Text isLoaded isBold style={{ padding: 1.25, fontSize: 16 }}>
+              <Text isBold style={{ padding: 1.25, fontSize: 16 }}>
                 {I18n.t('pull_to_create_match')}
               </Text>
             </View>
@@ -417,10 +406,10 @@ export default class Room extends React.Component {
             <StatusBar barStyle="dark-content" />
             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
               <View style={{ flexDirection: 'column' }}>
-                <Text isLoaded isBold style={styles.p}>
+                <Text isBold style={styles.p}>
                   {`${I18n.t('room_name')}: `}
                 </Text>
-                <Text isLoaded isBold style={styles.h2}>
+                <Text isBold style={styles.h2}>
                   {gameName}
                 </Text>
               </View>
@@ -434,10 +423,10 @@ export default class Room extends React.Component {
                 }}
               />
             </View>
-            <Text isLoaded isBold style={styles.p}>
+            <Text isBold style={styles.p}>
               {`${I18n.t('room_master')}: `}
             </Text>
-            <Text isLoaded isBold style={styles.h2}>
+            <Text isBold style={styles.h2}>
               {roomMaster}
             </Text>
             <View
@@ -453,15 +442,15 @@ export default class Room extends React.Component {
                 style={{ marginLeft: 0, width: 80, height: 100 }}
               />
               <View style={{ flexDirection: 'column' }}>
-                <Text isLoaded isBold style={[styles.p]}>
+                <Text isBold style={[styles.p]}>
                   {`${I18n.t('room_pin')}: `}
                 </Text>
-                <Text isLoaded isBold style={styles.h2}>
+                <Text isBold style={styles.h2}>
                   {gameId}
                 </Text>
               </View>
             </View>
-            <Text isLoaded isBold style={styles.p}>
+            <Text isBold style={styles.p}>
               {I18n.t('members')}
             </Text>
             <ListView
@@ -491,8 +480,8 @@ export default class Room extends React.Component {
                       style={{
                         fontFamily:
                           myName === rowData.name
-                            ? 'cabin-sketch-bold'
-                            : 'cabin-sketch',
+                            ? 'CabinSketch-Bold'
+                            : 'CabinSketch-Regular',
                         fontSize: 24,
                       }}
                     >
@@ -515,7 +504,6 @@ export default class Room extends React.Component {
                         justifyContent: 'center',
                       }}
                       isSmall
-                      fontsLoaded
                       text={
                         myName === rowData.name
                           ? I18n.t('quit')

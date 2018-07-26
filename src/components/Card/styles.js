@@ -3,13 +3,13 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
   roomNameText: {
     fontSize: 18,
-    fontFamily: 'cabin-sketch',
+    fontFamily: 'CabinSketch-Regular',
   },
 
   nameText: {
     fontSize: 32,
     marginVertical: 5,
-    fontFamily: 'cabin-sketch-bold',
+    fontFamily: 'CabinSketch-Bold',
   },
 
   /* LOWERBOX */
@@ -30,7 +30,7 @@ export default StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 15,
-    fontFamily: 'cabin-sketch-bold',
+    fontFamily: 'CabinSketch-Bold',
   },
 
   voteNumberStyle: {
@@ -40,6 +40,6 @@ export default StyleSheet.create({
     fontSize: 15,
     textAlign: 'right',
     flex: 1,
-    fontFamily: 'cabin-sketch',
+    fontFamily: 'CabinSketch-Regular',
   },
 });

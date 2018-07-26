@@ -7,11 +7,9 @@ For TestFlight link, contact me.
 
 ## Tech stack
 
-* Expo (via CRNA)
 * React-Native
 * React-Navigation
 * Firebase
-* Google Analytics
 * ESLint
 * SHA-256 encryption
 

@@ -7,7 +7,6 @@ import {
   ImageBackground,
   Dimensions,
 } from 'react-native';
-import { Analytics, Event } from 'expo-analytics';
 import PropTypes from 'prop-types';
 import styles from './styles';
 import { Images } from '@assets';
@@ -15,8 +14,6 @@ import { Button } from '@components';
 import I18n from '../../i18n';
 
 const Environment = require('../../config/environment');
-
-const analytics = new Analytics(Environment.analytics);
 
 const Card = ({
   matchName,
@@ -77,9 +74,6 @@ const Card = ({
           }}
           onPress={() => {
             onDeletePress();
-            analytics.event(
-              new Event(isMatch ? 'Delete match' : 'Delete card')
-            );
           }}
         >
           <Image
@@ -94,7 +88,6 @@ const Card = ({
         onPress={() => {
           onVotePress();
         }}
-        fontsLoaded
         isSmall
         style={{ display: isBingo ? 'none' : 'flex', marginRight: 10 }}
         isFilled={!isMatch && voted}
@@ -104,7 +97,6 @@ const Card = ({
         onPress={() => {
           onBingoPress();
         }}
-        fontsLoaded
         isSmall
         style={{ display: isMaster ? 'flex' : isBingo ? 'flex' : 'none', }}
         isFilled={isBingo}

@@ -11,7 +11,6 @@ import {
   StatusBar,
 } from 'react-native';
 import * as firebase from 'firebase';
-import { Analytics, PageHit, Event } from 'expo-analytics';
 import { Button, Card, Text } from '@components';
 import { Images } from '@assets';
 import styles from './styles';
@@ -20,8 +19,6 @@ import I18n from '../../i18n';
 const Environment = require('../../config/environment');
 
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-
-const analytics = new Analytics(Environment.analytics);
 
 export default class Match extends React.Component {
   constructor(props) {
@@ -55,8 +52,6 @@ export default class Match extends React.Component {
     setTimeout(() => {
       this.scrollView.scrollTo({ x: 0, y: 120, animated: false });
     }, 1);
-
-    analytics.hit(new PageHit('Match'));
   }
 
   // Download match data from Firebase
@@ -122,10 +117,8 @@ export default class Match extends React.Component {
     if (votes >= 2) {
       Vibration.vibrate();
       Alert.alert(I18n.t('error'), I18n.t('too_many_votes'));
-      analytics.event(new Event('UnsuccessfulVote'));
     } else {
       card.voters.push(myName);
-      analytics.event(new Event('Vote'));
     }
 
     gameCards[gameCards.indexOf(cardToVoteOn)] = card;
@@ -154,8 +147,6 @@ export default class Match extends React.Component {
       this.setState({ newCardText: '' });
 
       this.syncToFirebase();
-
-      analytics.event(new Event('NewCard'));
     }
   };
 
@@ -202,7 +193,7 @@ export default class Match extends React.Component {
               marginBottom: 10,
               color: '#555',
               fontSize: 20,
-              fontFamily: 'cabin-sketch-bold',
+              fontFamily: 'CabinSketch-Bold',
             }}
             underlineColorAndroid="transparent"
             placeholder={I18n.t('tap_to_create_card')}
@@ -221,7 +212,6 @@ export default class Match extends React.Component {
             }}
             isDisabled={newCardText.length <= 0}
             isSmall
-            fontsLoaded
             text={I18n.t('create')}
           />
         </View>
@@ -238,12 +228,11 @@ export default class Match extends React.Component {
             source={Images.add_child}
             style={{ width: 75, height: 64, marginRight: 20 }}
           />
-          <Text isLoaded isBold style={{ padding: 1.25, fontSize: 16 }}>
+          <Text isBold style={{ padding: 1.25, fontSize: 16 }}>
             {I18n.t('pull_to_create_card')}
           </Text>
         </View>
         <Text
-          isLoaded
           isBold
           style={{ fontSize: 30, marginHorizontal: 20, marginVertical: 5 }}
         >
@@ -283,7 +272,6 @@ export default class Match extends React.Component {
                   cards[cards.indexOf(rowData)] = card;
                   this.setState({ gameCards: cards });
                   this.syncToFirebase();
-                  analytics.event(new Event('Unvote'));
                 } else {
                   // Vote, because the user didn't vote on the card
                   this.vote(rowData);
