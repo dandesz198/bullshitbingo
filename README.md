@@ -1,5 +1,6 @@
-Download it from [Google Play](https://play.google.com/store/apps/details?id=com.funbyte.bullshitbingo)
-For TestFlight link, contact me.
+## Bullshit Bingo
+
+Download it from [Google Play](https://play.google.com/store/apps/details?id=com.funbyte.bullshitbingo). For TestFlight link, contact me.
 
 ## Tech stack
 
