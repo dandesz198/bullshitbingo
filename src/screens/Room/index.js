@@ -18,7 +18,6 @@ import { Images } from '@assets';
 
 import styles from './styles';
 import I18n from '../../i18n';
-// import {  } from '../../reducer';
 // import {  } from '../../actions';
 
 const initialLayout = {

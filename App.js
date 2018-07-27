@@ -3,8 +3,9 @@ import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import axios from 'axios';
 import axiosMiddleware from 'redux-axios-middleware';
+import thunk from 'redux-thunk';
 
-import reducer from './src/reducer';
+import reducer from './src/reducers';
 import AppNavigator from './src/AppNavigator';
 
 const client = axios.create({
@@ -12,7 +13,9 @@ const client = axios.create({
   responseType: 'json',
 });
 
-const store = createStore(reducer, applyMiddleware(axiosMiddleware(client)));
+const middlewares = [thunk, axiosMiddleware(client)];
+
+const store = createStore(reducer, applyMiddleware(...middlewares));
 
 export default () => (
   <Provider store={store}>

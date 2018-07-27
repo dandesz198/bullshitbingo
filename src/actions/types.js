@@ -1,1 +1,2 @@
-export const CREATE_PLAYER = 'create_player';
+export const CREATE_ROOM = 'create_room';
+export const CREATE_MATCH = 'create_match';

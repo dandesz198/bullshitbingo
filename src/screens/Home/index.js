@@ -22,8 +22,7 @@ import { Images } from '@assets';
 
 import styles from './styles';
 import I18n from '../../i18n';
-// import {  } from '../../reducer';
-// import {  } from '../../actions';
+import { createRoomAction } from '../../actions';
 
 const Environment = require('../../config/environment');
 
@@ -214,16 +213,8 @@ class Home extends React.Component {
   };
 
   createRoom = async () => {
-    const {
-      myNameWB,
-      myName,
-      pw,
-      pwAgain,
-      newGameName,
-      newGameID,
-      games,
-    } = this.state;
-    const { navigation } = this.props;
+    const { myNameWB, myName, pw, pwAgain, newGameName } = this.state;
+    const { navigation, createRoomAction } = this.props;
 
     if (
       (myNameWB.length === 0 && myName.length === 0) ||
@@ -256,28 +247,17 @@ class Home extends React.Component {
     }
 
     // Upload the game itself to Firebase
-    await firebase
-      .database()
-      .ref(`games/${newGameID}`)
-      .set({
-        name: newGameName,
-        master: myName,
-        masterPw: sha256(pw),
-        members: [myName],
-      });
-
-    // Add the new game to the Games array (rendered in 'My rooms' section)
-    const game = {
-      id: newGameID,
+    createRoomAction({
       name: newGameName,
-    };
-
-    games.push(game);
+      master: myName,
+      masterPw: sha256(pw),
+    });
 
     this.setState({
-      games,
       newGameModalVisible: false,
     });
+
+    return;
 
     // Navigate to the new game's screen
     navigation.navigate('Room', {
@@ -287,9 +267,6 @@ class Home extends React.Component {
       returnData: this.returnData.bind(this),
     });
     BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
-
-    // Save the new game to AsyncStorage
-    this.saveGames();
 
     // Create new game ID for the next game, empty the screen
     this.setState({
@@ -981,14 +958,8 @@ class Home extends React.Component {
   );
 
   render() {
-    const {
-      isFirstOpen,
-      myName,
-      games,
-      isNewGameIDCorrect,
-      joingameId,
-    } = this.state;
-    const { navigation } = this.props;
+    const { isFirstOpen, myName, isNewGameIDCorrect, joingameId } = this.state;
+    const { navigation, matches } = this.props;
     if (isFirstOpen) {
       return this.renderOnboarding();
     }
@@ -1092,7 +1063,7 @@ class Home extends React.Component {
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <ListView
-              dataSource={ds.cloneWithRows(games)}
+              dataSource={ds.cloneWithRows(matches)}
               enableEmptySections
               renderRow={rowData => (
                 <TouchableOpacity
@@ -1128,14 +1099,13 @@ class Home extends React.Component {
   }
 }
 
-/*
-const mapStateToProps = ({ fetchState: { fetching, error } }) => ({
-  fetching,
-  error,
+const mapStateToProps = ({ matches }) => ({
+  matches,
 });
-*/
 
 export default connect(
-  null,
-  {}
+  mapStateToProps,
+  {
+    createRoomAction,
+  }
 )(Home);
