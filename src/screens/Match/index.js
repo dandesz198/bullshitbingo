@@ -11,16 +11,18 @@ import {
   StatusBar,
 } from 'react-native';
 import * as firebase from 'firebase';
+import { connect } from 'react-redux';
 import { Button, Card, Text } from '@components';
 import { Images } from '@assets';
+
 import styles from './styles';
 import I18n from '../../i18n';
-
-const Environment = require('../../config/environment');
+// import {  } from '../../reducer';
+// import {  } from '../../actions';
 
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
-export default class Match extends React.Component {
+class Match extends React.Component {
   constructor(props) {
     super(props);
     const {
@@ -363,3 +365,8 @@ export default class Match extends React.Component {
     );
   }
 }
+
+export default connect(
+  null,
+  {}
+)(Match);

@@ -2,24 +2,24 @@ import React from 'react';
 import {
   View,
   TextInput,
-  TouchableOpacity,
   ScrollView,
   ListView,
   Dimensions,
   Alert,
   Vibration,
   Image,
-  ImageBackground,
   StatusBar,
 } from 'react-native';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import * as firebase from 'firebase';
+import { connect } from 'react-redux';
 import { Button, Card, Text } from '@components';
 import { Images } from '@assets';
+
 import styles from './styles';
 import I18n from '../../i18n';
-
-const Environment = require('../../config/environment');
+// import {  } from '../../reducer';
+// import {  } from '../../actions';
 
 const initialLayout = {
   height: 0,
@@ -28,7 +28,7 @@ const initialLayout = {
 
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
-export default class Room extends React.Component {
+class Room extends React.Component {
   constructor(props) {
     super(props);
     const { navigation } = this.props;
@@ -541,3 +541,8 @@ export default class Room extends React.Component {
     );
   }
 }
+
+export default connect(
+  null,
+  {}
+)(Room);

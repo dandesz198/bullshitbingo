@@ -16,10 +16,14 @@ import {
 } from 'react-native';
 import * as firebase from 'firebase';
 import sha256 from 'crypto-js/sha256';
+import { connect } from 'react-redux';
 import { Button, Text, TextInput, Link } from '@components';
 import { Images } from '@assets';
+
 import styles from './styles';
 import I18n from '../../i18n';
+// import {  } from '../../reducer';
+// import {  } from '../../actions';
 
 const Environment = require('../../config/environment');
 
@@ -34,7 +38,7 @@ const config = {
 
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
-export default class Home extends React.Component {
+class Home extends React.Component {
   state = {
     games: [],
 
@@ -1123,3 +1127,15 @@ export default class Home extends React.Component {
     );
   }
 }
+
+/*
+const mapStateToProps = ({ fetchState: { fetching, error } }) => ({
+  fetching,
+  error,
+});
+*/
+
+export default connect(
+  null,
+  {}
+)(Home);
