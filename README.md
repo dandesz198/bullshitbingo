@@ -6,6 +6,7 @@ Download it from [Google Play](https://play.google.com/store/apps/details?id=com
 
 * React-Native
 * React-Navigation
+* Redux
 * Firebase
 * ESLint
 * SHA-256 encryption
