@@ -6,7 +6,6 @@ import {
   ListView,
   Modal,
   Alert,
-  AsyncStorage,
   Image,
   Dimensions,
   Linking,
@@ -28,19 +27,10 @@ import {
   hideOnboarding,
   updateName,
   navigateTo,
+  deleteRoom,
+  checkRoom,
 } from '../../actions';
 import { createId } from '../../services';
-
-const Environment = require('../../config/environment');
-
-const config = {
-  apiKey: Environment.apiKey,
-  authDomain: Environment.authDomain,
-  databaseURL: Environment.databaseURL,
-  projectId: Environment.projectId,
-  storageBucket: Environment.storageBucket,
-  messagingSenderId: Environment.messagingSenderId,
-};
 
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
@@ -48,8 +38,6 @@ class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      games: [],
-
       // Data for the new room
       newGameModalVisible: false,
       newGameName: '',
@@ -60,7 +48,7 @@ class Home extends React.Component {
       // Data for joining game
       joinGameModalVisible: false,
       joinGameName: '',
-      joingameID: '',
+      joinGameID: '',
       joinMaster: '',
       roomPw: '',
       isNewGameIDCorrect: true,
@@ -76,57 +64,30 @@ class Home extends React.Component {
   static propTypes = {
     user: PropTypes.object,
     rooms: PropTypes.array,
-    navigateTo: PropTypes.func,
-    hideOnboarding: PropTypes.func,
-    createRoom: PropTypes.func,
-    updateName: PropTypes.func,
+    navigateTo: PropTypes.func.isRequired,
+    hideOnboarding: PropTypes.func.isRequired,
+    updateName: PropTypes.func.isRequired,
+    createRoom: PropTypes.func.isRequired,
+    checkRoom: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
     user: {},
     rooms: [],
-    navigateTo: () => {},
-    hideOnboarding: () => {},
-    createRoom: () => {},
-    updateName: () => {},
   };
 
   returnData(id) {
-    this.deleteGame(id);
+    this.deleteRoom(id);
   }
 
   componentWillMount() {
     // Initialize Firebase
-    firebase.initializeApp(config);
-    this.newId();
-    this.loadGames();
+    this.checkRooms();
   }
 
   async componentDidMount() {
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
-
-    // Save the games with 2s delay
-    setTimeout(() => {
-      this.saveGames();
-    }, 2000);
   }
-
-  newId = () => {
-    const { newGameID } = this.state;
-    const thus = this;
-    firebase
-      .database()
-      .ref(`games/${newGameID}`)
-      .once('value', snap => {
-        // Check if the game exists
-        if (typeof snap.val() !== 'undefined' && snap.val() !== null) {
-          thus.setState({
-            newGameID: createId(),
-          });
-          thus.newId();
-        }
-      });
-  };
 
   onBackPress = () => {
     this.setState({
@@ -137,90 +98,9 @@ class Home extends React.Component {
     return true;
   };
 
-  // Save data to the AsyncStorage
-  saveGames = async () => {
-    const { games } = this.state;
-    // Save games to AsyncStorage
-    try {
-      await AsyncStorage.setItem('@MySuperStore:games', JSON.stringify(games));
-    } catch (error) {
-      // Error saving data
-      console.log(error);
-    }
-  };
-
-  // Load data from the AsyncStorage
-  loadGames = async () => {
-    const { members, myName } = this.state;
-    const { updateName } = this.props;
-    // Get name from AsyncStorage
-    try {
-      const value = await AsyncStorage.getItem('@MySuperStore:name');
-      if (value !== null) {
-        updateName(myName);
-        // We have data
-        this.setState({
-          myName: value,
-        });
-      }
-    } catch (error) {
-      // Error retrieving data
-      console.log(error);
-    }
-
-    setTimeout(async () => {
-      // Get games from AsyncStorage
-      try {
-        const value = await AsyncStorage.getItem('@MySuperStore:games');
-        if (value !== null) {
-          // We have data
-          const array = JSON.parse(value);
-          const thus = this;
-
-          array.forEach(async element => {
-            // Remove the " from the start and end of the string
-            if (element.name[0] === '"') {
-              element.name = element.name.slice(1, -1);
-            }
-
-            // Check if room still exists
-            firebase
-              .database()
-              .ref(`games/${element.id}/members/`)
-              .once('value')
-              .then(snap => {
-                let count = 0;
-                if (snap.val()) {
-                  const members = Object.values(snap.val());
-                  members.forEach(lm => {
-                    if (lm === myName) {
-                      count += 1;
-                    }
-                  });
-                } else {
-                  thus.deleteGame(element.name);
-                }
-
-                // If member even exists
-                if (members) {
-                  // If room doesn't exist or player is kicked
-                  if (members.length < 0 || count <= 0) {
-                    thus.deleteGame(element.name);
-                  }
-                } else {
-                  thus.deleteGame(element.name);
-                }
-              });
-          });
-          this.setState({
-            games: array,
-          });
-        }
-      } catch (error) {
-        // Error retrieving data
-        console.log(error);
-      }
-    }, 500);
+  checkRooms = async () => {
+    const { rooms, checkRoom } = this.props;
+    rooms.map(element => checkRoom(element.id));
   };
 
   createRoom = async () => {
@@ -288,11 +168,11 @@ class Home extends React.Component {
   };
 
   preJoin = () => {
-    const { joingameID } = this.state;
+    const { joinGameID } = this.state;
     let { newGameName } = this.state;
     const thus = this;
 
-    if (joingameID.length < 6) {
+    if (joinGameID.length < 6) {
       this.setState({
         isNewGameIDCorrect: false,
       });
@@ -303,7 +183,7 @@ class Home extends React.Component {
     // Get the name and the master's name of the new room
     firebase
       .database()
-      .ref(`games/${joingameID}`)
+      .ref(`games/${joinGameID}`)
       .once('value', snap => {
         if (
           snap.val() === null ||
@@ -342,15 +222,8 @@ class Home extends React.Component {
   };
 
   joinRoom = async () => {
-    const {
-      joinMaster,
-      roomPw,
-      joinPw,
-      joingameID,
-      joinGameName,
-      games,
-    } = this.state;
-    const { user, navigateTo } = this.props;
+    const { joinMaster, roomPw, joinPw, joinGameID, joinGameName } = this.state;
+    const { user, navigateTo, joinRoom } = this.props;
     const { myName } = user;
     if (myName.length === 0) {
       this.setState({
@@ -369,8 +242,6 @@ class Home extends React.Component {
       return;
     }
 
-    this.saveName();
-
     // Check the password
     if (myName === joinMaster && roomPw !== sha256(joinPw)) {
       Vibration.vibrate();
@@ -379,75 +250,33 @@ class Home extends React.Component {
     }
 
     // Add the user to Firebase
-    await firebase
-      .database()
-      .ref(`games/${joingameID}/members/`)
-      .once('value', snap => {
-        const members = Object.values(snap.val());
-        if (members.indexOf(myName) === -1) {
-          firebase
-            .database()
-            .ref(`games/${joingameID}/members/`)
-            .push(myName);
-        }
-      });
-
-    // Add the new game to the games array (rendered in the 'My rooms' section in Home.js)
-    const game = {
-      id: joingameID,
-      name: joinGameName,
-    };
-    let alreadyAdded = false;
-
-    games.forEach(element => {
-      if (element.id === joingameID) {
-        alreadyAdded = true;
-      }
-    });
-
-    if (!alreadyAdded) {
-      games.push(game);
-    }
+    joinRoom(joinGameID);
 
     this.setState({
       joinGameModalVisible: false,
-      games,
     });
 
     // Navigate to the game
     navigateTo('Room', {
       gameName: joinGameName,
-      gameID: joingameID,
+      gameID: joinGameID,
       myName,
       returnData: this.returnData.bind(this),
     });
 
     this.setState({
-      joingameID: '',
+      joinGameID: '',
       joinPw: '',
       roomPw: '',
     });
 
     BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
-
-    // Save to AsyncStorage
-    this.saveGames();
   };
 
   componentWillReceiveProps() {
-    // this.deleteGame(delete);
+    // this.deleteRoom(delete);
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
   }
-
-  // Delete a game from the 'My rooms' list
-  deleteGame = async name => {
-    const { games } = this.state;
-    games.splice(games.indexOf(name), 1);
-    this.setState({
-      games,
-    });
-    this.saveGames();
-  };
 
   renderNewGameModal = () => {
     const {
@@ -937,7 +766,7 @@ class Home extends React.Component {
   };
 
   render() {
-    const { isNewGameIDCorrect, joingameID } = this.state;
+    const { isNewGameIDCorrect, joinGameID } = this.state;
     const { user, rooms, navigateTo } = this.props;
     if (user.isFirst) {
       return this.renderOnboarding();
@@ -1013,8 +842,8 @@ class Home extends React.Component {
                   style={{ fontSize: 24 }}
                   placeholder={I18n.t('room_pin')}
                   keyboardType="numeric"
-                  onChangeText={joingameID => this.setState({ joingameID })}
-                  value={joingameID}
+                  onChangeText={joinGameID => this.setState({ joinGameID })}
+                  value={joinGameID}
                 />
                 <Image source={Images.line_short} style={{ width: 140 }} />
               </View>
@@ -1088,5 +917,7 @@ export default connect(
     hideOnboarding,
     createRoom,
     updateName,
+    deleteRoom,
+    checkRoom,
   }
 )(Home);
