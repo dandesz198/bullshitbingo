@@ -81,7 +81,6 @@ class Home extends React.Component {
   }
 
   componentWillMount() {
-    // Initialize Firebase
     this.checkRooms();
   }
 
@@ -136,7 +135,7 @@ class Home extends React.Component {
       return;
     }
 
-    // Upload the game itself to Firebase
+    // Upload the game itself to database
     createRoom({
       name: newGameName,
       master: myName,
@@ -249,7 +248,7 @@ class Home extends React.Component {
       return;
     }
 
-    // Add the user to Firebase
+    // Add the user to database
     joinRoom(joinGameID);
 
     this.setState({

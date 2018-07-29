@@ -47,7 +47,7 @@ class Match extends React.Component {
   }
 
   componentDidMount() {
-    // Sync Firebase
+    // Sync Database
     this.getData();
 
     setTimeout(() => {
@@ -55,7 +55,7 @@ class Match extends React.Component {
     }, 1);
   }
 
-  // Download match data from Firebase
+  // Download match data from Database
   getData = () => {
     const { gameID, matchID, matchName, myName } = this.state;
     const thus = this;
@@ -125,8 +125,8 @@ class Match extends React.Component {
     gameCards[gameCards.indexOf(cardToVoteOn)] = card;
     this.setState({ gameCards });
 
-    // Time to sync to Firebase
-    this.syncToFirebase();
+    // Time to sync to Database
+    this.syncToDatabase();
   };
 
   createCard = () => {
@@ -147,14 +147,14 @@ class Match extends React.Component {
       this.vote(newCard);
       this.setState({ newCardText: '' });
 
-      this.syncToFirebase();
+      this.syncToDatabase();
     }
   };
 
-  // Upload data to Firebase
-  syncToFirebase = () => {
+  // Upload data to Database
+  syncToDatabase = () => {
     const { gameID, matchID, gameCards } = this.state;
-    // Upload every card to Firebase
+    // Upload every card to Database
     firebase
       .database()
       .ref(`games/${gameID}/matches/${matchID}`)
@@ -271,7 +271,7 @@ class Match extends React.Component {
                   card.voters.splice(card.voters.indexOf(myName), 1);
                   cards[cards.indexOf(rowData)] = card;
                   this.setState({ gameCards: cards });
-                  this.syncToFirebase();
+                  this.syncToDatabase();
                 } else {
                   // Vote, because the user didn't vote on the card
                   this.vote(rowData);
@@ -295,7 +295,7 @@ class Match extends React.Component {
                         cards.splice(cards.indexOf(card), 1);
 
                         this.setState({ gameCards: cards });
-                        this.syncToFirebase();
+                        this.syncToDatabase();
                       },
                       style: 'destructive',
                     },
@@ -323,7 +323,7 @@ class Match extends React.Component {
                         rowData.isBingo = true;
 
                         this.setState({ gameCards: cards });
-                        this.syncToFirebase();
+                        this.syncToDatabase();
 
                         if (
                           rowData.voters.length === 1 &&

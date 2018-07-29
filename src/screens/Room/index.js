@@ -54,7 +54,7 @@ class Room extends React.Component {
   }
 
   componentDidMount() {
-    // Sync Firebase
+    // Database sync
     this.getData();
 
     setTimeout(() => {
@@ -78,7 +78,7 @@ class Room extends React.Component {
       this.setState({ matches });
       this.setState({ newMatchText: '' });
 
-      this.syncToFirebase();
+      this.syncToDatabase();
     }
   };
 
@@ -173,7 +173,7 @@ class Room extends React.Component {
                 },
               ]);
             }
-            thus.syncToFirebase();
+            thus.syncToDatabase();
           },
           style: 'destructive',
         },
@@ -181,7 +181,7 @@ class Room extends React.Component {
     );
   };
 
-  // Download match data from Firebase
+  // Download match data from database
   getData = async () => {
     const { gameID, myName, matchName } = this.state;
     const thus = this;
@@ -248,10 +248,10 @@ class Room extends React.Component {
     navigation.goBack();
   };
 
-  // Upload data to Firebase
-  syncToFirebase = () => {
+  // Upload data to database
+  syncToDatabase = () => {
     const { gameID, matches } = this.state;
-    // Upload every card to Firebase
+    // Upload every card to database
     firebase
       .database()
       .ref(`games/${gameID}/`)
