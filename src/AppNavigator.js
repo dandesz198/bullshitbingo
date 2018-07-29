@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
-import { BackHandler, View } from 'react-native';
+import { View, BackHandler } from 'react-native';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+
 import Routes from './Routes';
-import { navigateTo, navigateBack } from './actions';
+import { navigateBack } from './actions';
+import { addListener } from './config/setupStore';
 
 class AppNavigation extends Component {
   static propTypes = {
+    dispatch: PropTypes.func.isRequired,
+    nav: PropTypes.object.isRequired,
     navigateBack: PropTypes.func.isRequired,
   };
 
@@ -25,23 +29,31 @@ class AppNavigation extends Component {
   };
 
   render() {
+    const { dispatch, nav } = this.props;
     return (
       <View style={{ flex: 1 }}>
-        <Routes />
+        <Routes
+          navigation={{
+            dispatch,
+            state: nav,
+            addListener,
+          }}
+        />
       </View>
     );
   }
 }
 
-// const mapStateToProps = () => {};
+const mapStateToProps = ({ nav }) => ({
+  nav,
+});
 
 const mapDispatchToProps = dispatch => ({
   dispatch,
-  navigateTo: (route, params) => dispatch(navigateTo(route, params)),
   navigateBack: () => dispatch(navigateBack()),
 });
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(AppNavigation);

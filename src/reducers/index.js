@@ -1,8 +1,9 @@
 import { persistCombineReducers } from 'redux-persist';
 import storage from 'redux-persist/es/storage';
 
+import nav from './nav';
+import rooms from './rooms';
 import user from './user';
-import matches from './matches';
 
 const config = {
   key: 'root',
@@ -10,6 +11,7 @@ const config = {
 };
 
 export default persistCombineReducers(config, {
+  nav,
+  rooms,
   user,
-  matches,
 });

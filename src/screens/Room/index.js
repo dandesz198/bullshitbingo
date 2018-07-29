@@ -42,7 +42,7 @@ class Room extends React.Component {
       myName: navigation.state.params.myName,
 
       gameName: navigation.state.params.gameName,
-      gameId: navigation.state.params.gameId,
+      gameID: navigation.state.params.gameID,
       roomMaster: '',
 
       matches: [],
@@ -83,7 +83,7 @@ class Room extends React.Component {
   };
 
   quitKick = rowData => {
-    const { myName, gameName, roomMaster, gameId, gameMembers } = this.state;
+    const { myName, gameName, roomMaster, gameID, gameMembers } = this.state;
     const { navigation } = this.props;
     const thus = this;
     Vibration.vibrate();
@@ -122,7 +122,7 @@ class Room extends React.Component {
                         // Delete match
                         firebase
                           .database()
-                          .ref(`games/${gameId}`)
+                          .ref(`games/${gameID}`)
                           .remove();
                         navigation.state.params.returnData(gameName);
                         navigation.goBack();
@@ -141,7 +141,7 @@ class Room extends React.Component {
                 memb.splice(memb.indexOf(rowData.name), 1);
                 firebase
                   .database()
-                  .ref(`games/${gameId}`)
+                  .ref(`games/${gameID}`)
                   .update({
                     members: memb,
                   });
@@ -156,7 +156,7 @@ class Room extends React.Component {
               memb.splice(memb.indexOf(rowData.name));
               firebase
                 .database()
-                .ref(`games/${gameId}`)
+                .ref(`games/${gameID}`)
                 .update({
                   members: memb,
                 });
@@ -183,13 +183,13 @@ class Room extends React.Component {
 
   // Download match data from Firebase
   getData = async () => {
-    const { gameId, myName, matchName } = this.state;
+    const { gameID, myName, matchName } = this.state;
     const thus = this;
 
     // Get data and add listener
     await firebase
       .database()
-      .ref(`games/${gameId}/`)
+      .ref(`games/${gameID}/`)
       .on('value', async snapshot => {
         // Parse objects
         const snap = snapshot.val();
@@ -227,11 +227,11 @@ class Room extends React.Component {
     // Add the user kicker listener
     firebase
       .database()
-      .ref(`games/${gameId}/members`)
+      .ref(`games/${gameID}/members`)
       .on('child_removed', async snap => {
         if (snap.val() === myName) {
           thus.props.navigation.state.params.returnData({
-            id: gameId,
+            id: gameID,
             name: matchName,
           });
           thus.props.navigation.goBack();
@@ -250,11 +250,11 @@ class Room extends React.Component {
 
   // Upload data to Firebase
   syncToFirebase = () => {
-    const { gameId, matches } = this.state;
+    const { gameID, matches } = this.state;
     // Upload every card to Firebase
     firebase
       .database()
-      .ref(`games/${gameId}/`)
+      .ref(`games/${gameID}/`)
       .update({
         matches,
       });
@@ -280,7 +280,7 @@ class Room extends React.Component {
       newMatchText,
       matches,
       gameName,
-      gameId,
+      gameID,
       myName,
       roomMaster,
       gameMembers,
@@ -366,9 +366,9 @@ class Room extends React.Component {
                   onVotePress={() => {
                     navigation.navigate('Match', {
                       matchName: rowData.name,
-                      gameId,
+                      gameID,
                       myName,
-                      matchId: matches.indexOf(rowData),
+                      matchID: matches.indexOf(rowData),
                       matchMaster: rowData.master,
                       roomMaster,
                       returnData: this.returnData.bind(this),
@@ -388,7 +388,7 @@ class Room extends React.Component {
                             matches.splice(matches.indexOf(rowData), 1);
                             firebase
                               .database()
-                              .ref(`games/${gameId}`)
+                              .ref(`games/${gameID}`)
                               .update({
                                 matches,
                               });
@@ -449,7 +449,7 @@ class Room extends React.Component {
                   {`${I18n.t('room_pin')}: `}
                 </Text>
                 <Text isBold style={styles.h2}>
-                  {gameId}
+                  {gameID}
                 </Text>
               </View>
             </View>
@@ -529,6 +529,7 @@ class Room extends React.Component {
   };
 
   render() {
+    // return <View />;
     return (
       <TabViewAnimated
         navigationState={this.state}

@@ -29,16 +29,16 @@ class Match extends React.Component {
       roomMaster,
       matchName,
       matchMaster,
-      matchId,
-      gameId,
+      matchID,
+      gameID,
     } = this.props.navigation.state.params;
     this.state = {
       myName,
       roomMaster,
       matchName,
       matchMaster,
-      matchId,
-      gameId,
+      matchID,
+      gameID,
 
       gameCards: [],
 
@@ -57,13 +57,13 @@ class Match extends React.Component {
 
   // Download match data from Firebase
   getData = () => {
-    const { gameId, matchId, matchName, myName } = this.state;
+    const { gameID, matchID, matchName, myName } = this.state;
     const thus = this;
 
     // Get data and add listener
     firebase
       .database()
-      .ref(`games/${gameId}/matches/${matchId}/`)
+      .ref(`games/${gameID}/matches/${matchID}/`)
       .on('value', async snap => {
         // Parse objects
         const snapshot = snap.val();
@@ -87,11 +87,11 @@ class Match extends React.Component {
     // Add the user kicker listener
     firebase
       .database()
-      .ref(`games/${gameId}/members`)
+      .ref(`games/${gameID}/members`)
       .on('child_removed', async snap => {
         if (snap.val() === myName) {
           thus.props.navigation.state.params.returnData({
-            id: gameId,
+            id: gameID,
             name: matchName,
           });
           thus.props.navigation.goBack();
@@ -153,11 +153,11 @@ class Match extends React.Component {
 
   // Upload data to Firebase
   syncToFirebase = () => {
-    const { gameId, matchId, gameCards } = this.state;
+    const { gameID, matchID, gameCards } = this.state;
     // Upload every card to Firebase
     firebase
       .database()
-      .ref(`games/${gameId}/matches/${matchId}`)
+      .ref(`games/${gameID}/matches/${matchID}`)
       .update({
         cards: gameCards,
       });

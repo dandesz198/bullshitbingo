@@ -17,12 +17,19 @@ import {
 import * as firebase from 'firebase';
 import sha256 from 'crypto-js/sha256';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import { Button, Text, TextInput, Link } from '@components';
 import { Images } from '@assets';
 
 import styles from './styles';
 import I18n from '../../i18n';
-import { createRoomAction } from '../../actions';
+import {
+  createRoom,
+  hideOnboarding,
+  updateName,
+  navigateTo,
+} from '../../actions';
+import { createId } from '../../services';
 
 const Environment = require('../../config/environment');
 
@@ -38,31 +45,50 @@ const config = {
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
 class Home extends React.Component {
-  state = {
-    games: [],
+  constructor(props) {
+    super(props);
+    this.state = {
+      games: [],
 
-    // Data for the new room
-    newGameModalVisible: false,
-    newGameName: '',
-    newGameID: Math.floor(Math.random() * 899999 + 100000).toString(),
-    pw: '',
-    pwAgain: '',
+      // Data for the new room
+      newGameModalVisible: false,
+      newGameName: '',
+      newGameID: createId(),
+      pw: '',
+      pwAgain: '',
 
-    // Data for joining game
-    joinGameModalVisible: false,
-    joinGameName: '',
-    joingameId: '',
-    joinMaster: '',
-    roomPw: '',
-    isNewGameIDCorrect: true,
-    joinPw: '',
+      // Data for joining game
+      joinGameModalVisible: false,
+      joinGameName: '',
+      joingameID: '',
+      joinMaster: '',
+      roomPw: '',
+      isNewGameIDCorrect: true,
+      joinPw: '',
 
-    myName: '',
-    myNameWB: '',
+      myName: props.user.myName,
+      myNameWB: '',
 
-    infoModalVisible: false,
+      infoModalVisible: false,
+    };
+  }
 
-    isFirstOpen: false,
+  static propTypes = {
+    user: PropTypes.object,
+    rooms: PropTypes.array,
+    navigateTo: PropTypes.func,
+    hideOnboarding: PropTypes.func,
+    createRoom: PropTypes.func,
+    updateName: PropTypes.func,
+  };
+
+  static defaultProps = {
+    user: {},
+    rooms: [],
+    navigateTo: () => {},
+    hideOnboarding: () => {},
+    createRoom: () => {},
+    updateName: () => {},
   };
 
   returnData(id) {
@@ -77,23 +103,6 @@ class Home extends React.Component {
   }
 
   async componentDidMount() {
-    try {
-      const value = await AsyncStorage.getItem('@MySuperStore:isFirst');
-      if (value !== null) {
-        // We have data
-        this.setState({
-          isFirstOpen: false,
-        });
-      } else {
-        this.setState({
-          isFirstOpen: true,
-        });
-      }
-    } catch (error) {
-      // Error retrieving data
-      console.log(error);
-    }
-
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
 
     // Save the games with 2s delay
@@ -103,16 +112,16 @@ class Home extends React.Component {
   }
 
   newId = () => {
-    const { newGameId } = this.state;
+    const { newGameID } = this.state;
     const thus = this;
     firebase
       .database()
-      .ref(`games/${newGameId}`)
+      .ref(`games/${newGameID}`)
       .once('value', snap => {
         // Check if the game exists
         if (typeof snap.val() !== 'undefined' && snap.val() !== null) {
           thus.setState({
-            newGameID: Math.floor(Math.random() * 899999 + 100000).toString(),
+            newGameID: createId(),
           });
           thus.newId();
         }
@@ -143,10 +152,12 @@ class Home extends React.Component {
   // Load data from the AsyncStorage
   loadGames = async () => {
     const { members, myName } = this.state;
+    const { updateName } = this.props;
     // Get name from AsyncStorage
     try {
       const value = await AsyncStorage.getItem('@MySuperStore:name');
       if (value !== null) {
+        updateName(myName);
         // We have data
         this.setState({
           myName: value,
@@ -213,8 +224,9 @@ class Home extends React.Component {
   };
 
   createRoom = async () => {
-    const { myNameWB, myName, pw, pwAgain, newGameName } = this.state;
-    const { navigation, createRoomAction } = this.props;
+    const { myNameWB, pw, pwAgain, newGameName, newGameID } = this.state;
+    const { createRoom, user, navigateTo } = this.props;
+    const { myName } = user;
 
     if (
       (myNameWB.length === 0 && myName.length === 0) ||
@@ -225,8 +237,6 @@ class Home extends React.Component {
       Vibration.vibrate();
       return;
     }
-
-    this.saveName();
 
     // Check the password
     if (pw !== pwAgain) {
@@ -247,25 +257,25 @@ class Home extends React.Component {
     }
 
     // Upload the game itself to Firebase
-    createRoomAction({
+    createRoom({
       name: newGameName,
       master: myName,
       masterPw: sha256(pw),
+      gameID: newGameID,
     });
 
     this.setState({
       newGameModalVisible: false,
     });
 
-    return;
-
     // Navigate to the new game's screen
-    navigation.navigate('Room', {
+    navigateTo('Room', {
       gameName: newGameName,
-      gameId: newGameID,
+      gameID: newGameID,
       myName,
       returnData: this.returnData.bind(this),
     });
+
     BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
 
     // Create new game ID for the next game, empty the screen
@@ -273,16 +283,16 @@ class Home extends React.Component {
       pw: '',
       pwAgain: '',
       newGameName: '',
-      newGameID: Math.floor(Math.random() * 899999 + 100000).toString(),
+      newGameID: createId(),
     });
   };
 
   preJoin = () => {
-    const { joingameId } = this.state;
+    const { joingameID } = this.state;
     let { newGameName } = this.state;
     const thus = this;
 
-    if (joingameId.length < 6) {
+    if (joingameID.length < 6) {
       this.setState({
         isNewGameIDCorrect: false,
       });
@@ -293,7 +303,7 @@ class Home extends React.Component {
     // Get the name and the master's name of the new room
     firebase
       .database()
-      .ref(`games/${joingameId}`)
+      .ref(`games/${joingameID}`)
       .once('value', snap => {
         if (
           snap.val() === null ||
@@ -333,15 +343,15 @@ class Home extends React.Component {
 
   joinRoom = async () => {
     const {
-      myName,
       joinMaster,
       roomPw,
       joinPw,
-      joingameId,
+      joingameID,
       joinGameName,
       games,
     } = this.state;
-    const { navigation } = this.props;
+    const { user, navigateTo } = this.props;
+    const { myName } = user;
     if (myName.length === 0) {
       this.setState({
         joinGameModalVisible: false,
@@ -371,26 +381,26 @@ class Home extends React.Component {
     // Add the user to Firebase
     await firebase
       .database()
-      .ref(`games/${joingameId}/members/`)
+      .ref(`games/${joingameID}/members/`)
       .once('value', snap => {
         const members = Object.values(snap.val());
         if (members.indexOf(myName) === -1) {
           firebase
             .database()
-            .ref(`games/${joingameId}/members/`)
+            .ref(`games/${joingameID}/members/`)
             .push(myName);
         }
       });
 
     // Add the new game to the games array (rendered in the 'My rooms' section in Home.js)
     const game = {
-      id: joingameId,
+      id: joingameID,
       name: joinGameName,
     };
     let alreadyAdded = false;
 
     games.forEach(element => {
-      if (element.id === joingameId) {
+      if (element.id === joingameID) {
         alreadyAdded = true;
       }
     });
@@ -405,15 +415,15 @@ class Home extends React.Component {
     });
 
     // Navigate to the game
-    navigation.navigate('Room', {
+    navigateTo('Room', {
       gameName: joinGameName,
-      gameId: joingameId,
+      gameID: joingameID,
       myName,
       returnData: this.returnData.bind(this),
     });
 
     this.setState({
-      joingameId: '',
+      joingameID: '',
       joinPw: '',
       roomPw: '',
     });
@@ -422,34 +432,6 @@ class Home extends React.Component {
 
     // Save to AsyncStorage
     this.saveGames();
-  };
-
-  saveName = async () => {
-    const { myName } = this.state;
-    firebase
-      .database()
-      .ref(`users/${myName}`)
-      .once('value', snap => {
-        if (typeof snap.val() === 'undefined' || snap.val() === null) {
-          firebase
-            .database()
-            .ref(`users/${myName}`)
-            .set({
-              name: myName,
-              points: 0,
-            });
-        }
-      });
-
-    if (myName.length > 0) {
-      // Save name to AsyncStorage
-      try {
-        await AsyncStorage.setItem('@MySuperStore:name', myName);
-      } catch (error) {
-        // Error saving data
-        console.log(error);
-      }
-    }
   };
 
   componentWillReceiveProps() {
@@ -470,13 +452,14 @@ class Home extends React.Component {
   renderNewGameModal = () => {
     const {
       newGameModalVisible,
-      myName,
       myNameWB,
       newGameName,
       pw,
       pwAgain,
       newGameID,
     } = this.state;
+    const { updateName, user } = this.props;
+    const { myName } = user;
     return (
       <Modal
         animationType="slide"
@@ -491,30 +474,29 @@ class Home extends React.Component {
           >
             {I18n.t('create_room')}
           </Text>
-          <View
-            style={{
-              display: myName.length === 0 ? 'flex' : 'none',
-            }}
-          >
-            <TextInput
-              style={{ padding: 10 }}
-              placeholder={I18n.t('your_name')}
-              onChangeText={myNameWB => this.setState({ myNameWB })}
-              value={myNameWB}
-            />
-            <Image source={Images.line_long} />
-            <Text
-              isBold
-              style={{
-                fontSize: 16,
-                color: '#ee5253',
-                marginTop: 7.5,
-                display: myNameWB.length === 0 ? 'flex' : 'none',
-              }}
-            >
-              {I18n.t('no_empty_please')}
-            </Text>
-          </View>
+          {myName.length < 1 && (
+            <View>
+              <TextInput
+                style={{ padding: 10 }}
+                placeholder={I18n.t('your_name')}
+                onChangeText={myNameWB => this.setState({ myNameWB })}
+                value={myNameWB}
+              />
+              <Image source={Images.line_long} />
+              {myNameWB.length < 1 && (
+                <Text
+                  isBold
+                  style={{
+                    fontSize: 16,
+                    color: '#ee5253',
+                    marginTop: 7.5,
+                  }}
+                >
+                  {I18n.t('no_empty_please')}
+                </Text>
+              )}
+            </View>
+          )}
           <TextInput
             style={{ padding: 10 }}
             placeholder={I18n.t('name_of_room')}
@@ -586,8 +568,8 @@ class Home extends React.Component {
               <Button
                 onPress={async () => {
                   if (myNameWB.length > 0) {
+                    await updateName(myNameWB);
                     await this.setState({
-                      myName: myNameWB,
                       myNameWB: '',
                     });
                   }
@@ -849,118 +831,115 @@ class Home extends React.Component {
     );
   };
 
-  renderOnboarding = () => (
-    <ScrollView style={{ flex: 1 }} pagingEnabled horizontal vertical={false}>
-      <StatusBar barStyle="dark-content" />
-      <View style={styles.onboardContainter}>
-        <Image
-          source={Images.icon}
-          style={{ width: 125, height: 125, marginBottom: 20 }}
-        />
-        <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-          {I18n.t('onboard_welcome')}
-        </Text>
-        <Text
-          isBold
-          style={{ fontSize: 20, textAlign: 'center', marginTop: 5 }}
-        >
-          {I18n.t('onboard_welcome_desc')}
-        </Text>
-        <Text
-          isBold={false}
-          style={{ fontSize: 30, textAlign: 'center', marginTop: 20 }}
-        >
-          {I18n.t('onboard_welcome_swipe')}
-        </Text>
-      </View>
-      <View style={styles.onboardContainter}>
-        <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-          {I18n.t('onboard_rooms')}
-        </Text>
-        <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
-          {I18n.t('onboard_rooms_desc')}
-        </Text>
-      </View>
-      <View style={[styles.onboardContainter, { padding: 0 }]}>
-        <View
-          style={[
-            styles.onboardContainter,
-            { marginTop: 'auto', marginBottom: 'auto' },
-          ]}
-        >
+  renderOnboarding = () => {
+    const { hideOnboarding } = this.props;
+    return (
+      <ScrollView style={{ flex: 1 }} pagingEnabled horizontal vertical={false}>
+        <StatusBar barStyle="dark-content" />
+        <View style={styles.onboardContainter}>
+          <Image
+            source={Images.icon}
+            style={{ width: 125, height: 125, marginBottom: 20 }}
+          />
           <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-            {I18n.t('onboard_matches')}
+            {I18n.t('onboard_welcome')}
           </Text>
-          <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
-            {I18n.t('onboard_matches_desc')}
+          <Text
+            isBold
+            style={{ fontSize: 20, textAlign: 'center', marginTop: 5 }}
+          >
+            {I18n.t('onboard_welcome_desc')}
+          </Text>
+          <Text
+            isBold={false}
+            style={{ fontSize: 30, textAlign: 'center', marginTop: 20 }}
+          >
+            {I18n.t('onboard_welcome_swipe')}
           </Text>
         </View>
-        <Image
-          source={Images.create_child}
-          style={{
-            width: 120,
-            height: 87,
-            marginTop: 'auto',
-            marginBottom: 0,
-          }}
-        />
-      </View>
-      <View style={styles.onboardContainter}>
-        <Image
-          source={Images.tutorial_card}
-          style={{ width: 300, height: 125, marginBottom: 20 }}
-        />
-        <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-          {I18n.t('onboard_cards')}
-        </Text>
-        <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
-          {I18n.t('onboard_cards_desc')}
-        </Text>
-      </View>
-      <View style={styles.onboardContainter}>
-        <Image
-          source={Images.firework}
-          style={{ width: 125, height: 125, marginBottom: 20 }}
-        />
-        <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-          {I18n.t('onboard_bingo')}
-        </Text>
-        <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
-          {I18n.t('onboard_bingo_desc')}
-        </Text>
-      </View>
-      <View style={styles.onboardContainter}>
-        <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-          {I18n.t('onboard_start')}
-        </Text>
-        <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
-          {I18n.t('onboard_start_desc')}
-        </Text>
-        <Button
-          onPress={async () => {
-            this.setState({ isFirstOpen: false });
-            try {
-              await AsyncStorage.setItem('@MySuperStore:isFirst', 'false');
-            } catch (error) {
-              // Error saving data
-              console.log(error);
-            }
-          }}
-          style={{ marginTop: 15 }}
-          text={I18n.t('onboard_start_btn')}
-        />
-        <Image
-          source={Images.add_child}
-          style={{ width: 70, height: 59, marginTop: -2.5 }}
-        />
-      </View>
-    </ScrollView>
-  );
+        <View style={styles.onboardContainter}>
+          <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+            {I18n.t('onboard_rooms')}
+          </Text>
+          <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
+            {I18n.t('onboard_rooms_desc')}
+          </Text>
+        </View>
+        <View style={[styles.onboardContainter, { padding: 0 }]}>
+          <View
+            style={[
+              styles.onboardContainter,
+              { marginTop: 'auto', marginBottom: 'auto' },
+            ]}
+          >
+            <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+              {I18n.t('onboard_matches')}
+            </Text>
+            <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
+              {I18n.t('onboard_matches_desc')}
+            </Text>
+          </View>
+          <Image
+            source={Images.create_child}
+            style={{
+              width: 120,
+              height: 87,
+              marginTop: 'auto',
+              marginBottom: 0,
+            }}
+          />
+        </View>
+        <View style={styles.onboardContainter}>
+          <Image
+            source={Images.tutorial_card}
+            style={{ width: 300, height: 125, marginBottom: 20 }}
+          />
+          <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+            {I18n.t('onboard_cards')}
+          </Text>
+          <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
+            {I18n.t('onboard_cards_desc')}
+          </Text>
+        </View>
+        <View style={styles.onboardContainter}>
+          <Image
+            source={Images.firework}
+            style={{ width: 125, height: 125, marginBottom: 20 }}
+          />
+          <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+            {I18n.t('onboard_bingo')}
+          </Text>
+          <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
+            {I18n.t('onboard_bingo_desc')}
+          </Text>
+        </View>
+        <View style={styles.onboardContainter}>
+          <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+            {I18n.t('onboard_start')}
+          </Text>
+          <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
+            {I18n.t('onboard_start_desc')}
+          </Text>
+          <Button
+            onPress={() => {
+              hideOnboarding();
+            }}
+            style={{ marginTop: 15 }}
+            text={I18n.t('onboard_start_btn')}
+          />
+          <Image
+            source={Images.add_child}
+            style={{ width: 70, height: 59, marginTop: -2.5 }}
+          />
+        </View>
+      </ScrollView>
+    );
+  };
 
   render() {
-    const { isFirstOpen, myName, isNewGameIDCorrect, joingameId } = this.state;
-    const { navigation, matches } = this.props;
-    if (isFirstOpen) {
+    const { isNewGameIDCorrect, joingameID } = this.state;
+    const { user, rooms, navigateTo } = this.props;
+    if (user.isFirst) {
       return this.renderOnboarding();
     }
     return (
@@ -1034,8 +1013,8 @@ class Home extends React.Component {
                   style={{ fontSize: 24 }}
                   placeholder={I18n.t('room_pin')}
                   keyboardType="numeric"
-                  onChangeText={joingameId => this.setState({ joingameId })}
-                  value={joingameId}
+                  onChangeText={joingameID => this.setState({ joingameID })}
+                  value={joingameID}
                 />
                 <Image source={Images.line_short} style={{ width: 140 }} />
               </View>
@@ -1063,16 +1042,14 @@ class Home extends React.Component {
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <ListView
-              dataSource={ds.cloneWithRows(matches)}
+              dataSource={ds.cloneWithRows(rooms)}
               enableEmptySections
               renderRow={rowData => (
                 <TouchableOpacity
                   style={{ padding: 2.5, marginLeft: 20 }}
                   onPress={() => {
-                    navigation.navigate('Room', {
-                      gameName: rowData.name,
-                      gameId: rowData.id,
-                      myName,
+                    navigateTo('Room', {
+                      gameID: rowData.gameID,
                       returnData: this.returnData.bind(this),
                     });
                     BackHandler.removeEventListener(
@@ -1099,13 +1076,17 @@ class Home extends React.Component {
   }
 }
 
-const mapStateToProps = ({ matches }) => ({
-  matches,
+const mapStateToProps = ({ rooms, user }) => ({
+  rooms,
+  user,
 });
 
 export default connect(
   mapStateToProps,
   {
-    createRoomAction,
+    navigateTo,
+    hideOnboarding,
+    createRoom,
+    updateName,
   }
 )(Home);

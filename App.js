@@ -1,24 +1,24 @@
 import React from 'react';
-import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
-import axios from 'axios';
-import axiosMiddleware from 'redux-axios-middleware';
-import thunk from 'redux-thunk';
-
-import reducer from './src/reducers';
+import { ActivityIndicator } from 'react-native';
+import { PersistGate } from 'redux-persist/es/integration/react';
+import configureStore from './src/config/setupStore';
 import AppNavigator from './src/AppNavigator';
 
-const client = axios.create({
-  baseURL: 'https://api.github.com',
-  responseType: 'json',
-});
+const { persistor, store } = configureStore();
 
-const middlewares = [thunk, axiosMiddleware(client)];
-
-const store = createStore(reducer, applyMiddleware(...middlewares));
+const onBeforeLift = () => {
+  // onBeforeLift actions
+};
 
 export default () => (
   <Provider store={store}>
-    <AppNavigator />
+    <PersistGate
+      loading={<ActivityIndicator />}
+      onBeforeLift={onBeforeLift}
+      persistor={persistor}
+    >
+      <AppNavigator />
+    </PersistGate>
   </Provider>
 );
