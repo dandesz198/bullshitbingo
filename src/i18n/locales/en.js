@@ -71,11 +71,11 @@ export default {
   link_to_vector: 'Link to the vectors',
   link_to_poop: 'Link to the icon',
   server_donate:
-    "Since the server isn't free, every single cent of your donation is going to be spent on the costs of running this room.",
+    "Since the server isn't free, every single cent of your donation is going to be spent on the costs of running this game.",
 
   onboard_welcome: 'Welcome to the Bullshit Bingo!',
   onboard_welcome_desc:
-    "We'll guide you trough the overcomplicated system of this room, or you can try to understand it on your own.",
+    "We'll guide you trough the overcomplicated system of this game, or you can try to understand it on your own.",
   onboard_welcome_swipe: 'Swipe to continue >',
 
   onboard_rooms: 'Rooms',
