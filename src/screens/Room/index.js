@@ -19,7 +19,7 @@ import { Images } from '@assets';
 
 import styles from './styles';
 import I18n from '../../i18n';
-import { navigateTo } from '../../actions';
+import NavigationService from '../../config/navigationService';
 
 const initialLayout = {
   height: 0,
@@ -54,7 +54,6 @@ class Room extends React.Component {
 
   static propTypes = {
     navigation: PropTypes.any.isRequired,
-    navigateTo: PropTypes.func.isRequired,
     user: PropTypes.object.isRequired,
   };
 
@@ -276,7 +275,7 @@ class Room extends React.Component {
       roomMaster,
       roomMembers,
     } = this.state;
-    const { navigateTo, user } = this.props;
+    const { user } = this.props;
     const { myName } = user;
     switch (route.key) {
       case '1':
@@ -358,7 +357,7 @@ class Room extends React.Component {
                     !!(rowData.master === myName || roomMaster === myName)
                   }
                   onVotePress={() => {
-                    navigateTo('Match', {
+                    NavigationService.navigateTo('Match', {
                       matchName: rowData.name,
                       roomID,
                       matchID: matches.indexOf(rowData),
@@ -542,7 +541,5 @@ const mapStateToProps = ({ rooms, user }) => ({
 
 export default connect(
   mapStateToProps,
-  {
-    navigateTo,
-  }
+  null
 )(Room);

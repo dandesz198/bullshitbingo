@@ -18,7 +18,7 @@ import { Images } from '@assets';
 
 import styles from './styles';
 import I18n from '../../i18n';
-import { updateCards } from '../../actions';
+import { createCard } from '../../actions';
 
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
@@ -47,7 +47,7 @@ class Match extends React.Component {
 
   static propTypes = {
     navigation: PropTypes.any.isRequired,
-    updateCards: PropTypes.func.isRequired,
+    // updateCards: PropTypes.func.isRequired,
     user: PropTypes.object.isRequired,
   };
 
@@ -122,27 +122,17 @@ class Match extends React.Component {
   };
 
   createCard = () => {
-    const { newCardText, roomCards } = this.state;
+    const { newCardText, roomCards, roomID, matchID } = this.state;
     const { user } = this.props;
     const { myName } = user;
-    if (newCardText.length > 0) {
-      // Declare variables
-      const newCard = {
-        text: newCardText,
-        creator: myName,
-        isBingo: false,
-        voters: [],
-      };
-
-      // Add new card to the start of the array
-      roomCards.unshift(newCard);
-
-      this.setState({ roomCards });
-      this.vote(newCard);
-      this.setState({ newCardText: '' });
-
-      this.syncToDatabase();
-    }
+    const card = {
+      text: newCardText,
+      creator: myName,
+      isBingo: false,
+      voters: [],
+    };
+    createCard(roomID, matchID, card, roomCards.unshift(card));
+    this.vote(card);
   };
 
   // Upload data to Database
@@ -370,6 +360,6 @@ const mapStateToProps = ({ rooms, user }) => ({
 export default connect(
   mapStateToProps,
   {
-    updateCards,
+    // updateCards,
   }
 )(Match);

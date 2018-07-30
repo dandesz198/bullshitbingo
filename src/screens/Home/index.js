@@ -26,11 +26,11 @@ import {
   createRoom,
   hideOnboarding,
   updateName,
-  navigateTo,
   deleteRoom,
   checkRoom,
 } from '../../actions';
 import { createId } from '../../services';
+import NavigationService from '../../config/navigationService';
 
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
@@ -64,7 +64,6 @@ class Home extends React.Component {
   static propTypes = {
     user: PropTypes.object.isRequired,
     rooms: PropTypes.array,
-    navigateTo: PropTypes.func.isRequired,
     hideOnboarding: PropTypes.func.isRequired,
     updateName: PropTypes.func.isRequired,
     createRoom: PropTypes.func.isRequired,
@@ -103,7 +102,7 @@ class Home extends React.Component {
 
   createRoom = async () => {
     const { myNameWB, pw, pwAgain, newRoomName, newRoomID } = this.state;
-    const { createRoom, user, navigateTo } = this.props;
+    const { createRoom, user } = this.props;
     const { myName } = user;
 
     if (
@@ -147,7 +146,7 @@ class Home extends React.Component {
     });
 
     // Navigate to the new room's screen
-    navigateTo('Room', {
+    NavigationService.navigateTo('Room', {
       roomName: newRoomName,
       roomID: newRoomID,
       myName,
@@ -221,7 +220,7 @@ class Home extends React.Component {
 
   joinRoom = async () => {
     const { joinMaster, roomPw, joinPw, joinRoomID, joinRoomName } = this.state;
-    const { user, navigateTo, joinRoom } = this.props;
+    const { user, joinRoom } = this.props;
     const { myName } = user;
     if (myName.length === 0) {
       this.setState({
@@ -255,7 +254,7 @@ class Home extends React.Component {
     });
 
     // Navigate to the room
-    navigateTo('Room', {
+    NavigationService.navigateTo('Room', {
       roomName: joinRoomName,
       roomID: joinRoomID,
       myName,
@@ -771,7 +770,7 @@ class Home extends React.Component {
 
   render() {
     const { isNewRoomIDCorrect, joinRoomID } = this.state;
-    const { user, rooms, navigateTo } = this.props;
+    const { user, rooms } = this.props;
     if (user.isFirst) {
       return this.renderOnboarding();
     }
@@ -882,7 +881,7 @@ class Home extends React.Component {
                 <TouchableOpacity
                   style={{ padding: 2.5, marginLeft: 20 }}
                   onPress={() => {
-                    navigateTo('Room', {
+                    NavigationService.navigateTo('Room', {
                       roomID: rowData.roomID,
                       returnData: this.returnData.bind(this),
                     });
@@ -918,7 +917,6 @@ const mapStateToProps = ({ rooms, user }) => ({
 export default connect(
   mapStateToProps,
   {
-    navigateTo,
     hideOnboarding,
     createRoom,
     updateName,

@@ -1,6 +1,6 @@
 import * as firebase from 'firebase';
 
-import { CREATE_ROOM, DELETE_ROOM } from './types';
+import { CREATE_ROOM, DELETE_ROOM, CREATE_CARD } from './types';
 
 export const createRoom = room => async dispatch => {
   const { name, master, masterPw, roomID } = room;
@@ -87,6 +87,20 @@ export const checkRoom = id => async getState => {
         deleteRoom(id);
       }
     });
+};
+
+export const createCard = (roomID, matchID, card, cards) => async dispatch => {
+  firebase
+    .database()
+    .ref(`rooms/${roomID}/matches/${matchID}`)
+    .update({
+      cards,
+    });
+
+  dispatch({
+    type: CREATE_CARD,
+    payload: { roomID, matchID, card },
+  });
 };
 
 export default {};
