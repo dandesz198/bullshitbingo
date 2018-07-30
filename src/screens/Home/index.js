@@ -39,19 +39,19 @@ class Home extends React.Component {
     super(props);
     this.state = {
       // Data for the new room
-      newGameModalVisible: false,
-      newGameName: '',
-      newGameID: createId(),
+      newRoomModalVisible: false,
+      newRoomName: '',
+      newRoomID: createId(),
       pw: '',
       pwAgain: '',
 
-      // Data for joining game
-      joinGameModalVisible: false,
-      joinGameName: '',
-      joinGameID: '',
+      // Data for joining room
+      joinRoomModalVisible: false,
+      joinRoomName: '',
+      joinRoomID: '',
       joinMaster: '',
       roomPw: '',
-      isNewGameIDCorrect: true,
+      isNewRoomIDCorrect: true,
       joinPw: '',
 
       myName: props.user.myName,
@@ -62,7 +62,7 @@ class Home extends React.Component {
   }
 
   static propTypes = {
-    user: PropTypes.object,
+    user: PropTypes.object.isRequired,
     rooms: PropTypes.array,
     navigateTo: PropTypes.func.isRequired,
     hideOnboarding: PropTypes.func.isRequired,
@@ -72,7 +72,6 @@ class Home extends React.Component {
   };
 
   static defaultProps = {
-    user: {},
     rooms: [],
   };
 
@@ -90,8 +89,8 @@ class Home extends React.Component {
 
   onBackPress = () => {
     this.setState({
-      joinGameModalVisible: false,
-      newGameModalVisible: false,
+      joinRoomModalVisible: false,
+      newRoomModalVisible: false,
       infoModalVisible: false,
     });
     return true;
@@ -103,7 +102,7 @@ class Home extends React.Component {
   };
 
   createRoom = async () => {
-    const { myNameWB, pw, pwAgain, newGameName, newGameID } = this.state;
+    const { myNameWB, pw, pwAgain, newRoomName, newRoomID } = this.state;
     const { createRoom, user, navigateTo } = this.props;
     const { myName } = user;
 
@@ -111,7 +110,7 @@ class Home extends React.Component {
       (myNameWB.length === 0 && myName.length === 0) ||
       pw.length === 0 ||
       pwAgain.length === 0 ||
-      newGameName.length === 0
+      newRoomName.length === 0
     ) {
       Vibration.vibrate();
       return;
@@ -120,7 +119,7 @@ class Home extends React.Component {
     // Check the password
     if (pw !== pwAgain) {
       this.setState({
-        newGameModalVisible: false,
+        newRoomModalVisible: false,
       });
       Vibration.vibrate();
       Alert.alert(I18n.t('error'), I18n.t('password_error'), [
@@ -128,52 +127,52 @@ class Home extends React.Component {
           text: I18n.t('ok'),
           onPress: () =>
             this.setState({
-              newGameModalVisible: true,
+              newRoomModalVisible: true,
             }),
         },
       ]);
       return;
     }
 
-    // Upload the game itself to database
+    // Upload the room itself to database
     createRoom({
-      name: newGameName,
+      name: newRoomName,
       master: myName,
       masterPw: sha256(pw),
-      gameID: newGameID,
+      roomID: newRoomID,
     });
 
     this.setState({
-      newGameModalVisible: false,
+      newRoomModalVisible: false,
     });
 
-    // Navigate to the new game's screen
+    // Navigate to the new room's screen
     navigateTo('Room', {
-      gameName: newGameName,
-      gameID: newGameID,
+      roomName: newRoomName,
+      roomID: newRoomID,
       myName,
       returnData: this.returnData.bind(this),
     });
 
     BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
 
-    // Create new game ID for the next game, empty the screen
+    // Create new room ID for the next room, empty the screen
     this.setState({
       pw: '',
       pwAgain: '',
-      newGameName: '',
-      newGameID: createId(),
+      newRoomName: '',
+      newRoomID: createId(),
     });
   };
 
   preJoin = () => {
-    const { joinGameID } = this.state;
-    let { newGameName } = this.state;
+    const { joinRoomID } = this.state;
+    let { newRoomName } = this.state;
     const thus = this;
 
-    if (joinGameID.length < 6) {
+    if (joinRoomID.length < 6) {
       this.setState({
-        isNewGameIDCorrect: false,
+        isNewRoomIDCorrect: false,
       });
       Vibration.vibrate();
       return;
@@ -182,7 +181,7 @@ class Home extends React.Component {
     // Get the name and the master's name of the new room
     firebase
       .database()
-      .ref(`games/${joinGameID}`)
+      .ref(`rooms/${joinRoomID}`)
       .once('value', snap => {
         if (
           snap.val() === null ||
@@ -190,28 +189,28 @@ class Home extends React.Component {
           typeof snap.val() === 'undefined'
         ) {
           thus.setState({
-            isNewGameIDCorrect: false,
+            isNewRoomIDCorrect: false,
           });
           Vibration.vibrate();
           return;
         }
 
-        // Check if the game exists
-        if (newGameName.length > 1 && newGameName !== 'null') {
+        // Check if the room exists
+        if (newRoomName.length > 1 && newRoomName !== 'null') {
           let masterName = JSON.stringify(snap.val().master);
           let masterPw = JSON.stringify(snap.val().masterPw);
 
           // Remove "
-          newGameName = newGameName.slice(1, -1);
+          newRoomName = newRoomName.slice(1, -1);
           masterName = masterName.slice(1, -1);
           masterPw = masterPw.slice(1, -1);
 
           // Open the connection modal
           thus.setState({
-            joinGameName: newGameName,
+            joinRoomName: newRoomName,
             joinMaster: masterName,
             roomPw: masterPw,
-            joinGameModalVisible: true,
+            joinRoomModalVisible: true,
           });
         } else {
           Alert.alert(I18n.t('error'), I18n.t('prejoin_error'));
@@ -221,12 +220,12 @@ class Home extends React.Component {
   };
 
   joinRoom = async () => {
-    const { joinMaster, roomPw, joinPw, joinGameID, joinGameName } = this.state;
+    const { joinMaster, roomPw, joinPw, joinRoomID, joinRoomName } = this.state;
     const { user, navigateTo, joinRoom } = this.props;
     const { myName } = user;
     if (myName.length === 0) {
       this.setState({
-        joinGameModalVisible: false,
+        joinRoomModalVisible: false,
       });
       Vibration.vibrate();
       Alert.alert(I18n.t('error'), I18n.t('empty_fields'), [
@@ -234,7 +233,7 @@ class Home extends React.Component {
           text: I18n.t('ok'),
           onPress: () =>
             this.setState({
-              joinGameModalVisible: true,
+              joinRoomModalVisible: true,
             }),
         },
       ]);
@@ -249,22 +248,22 @@ class Home extends React.Component {
     }
 
     // Add the user to database
-    joinRoom(joinGameID);
+    joinRoom(joinRoomID);
 
     this.setState({
-      joinGameModalVisible: false,
+      joinRoomModalVisible: false,
     });
 
-    // Navigate to the game
+    // Navigate to the room
     navigateTo('Room', {
-      gameName: joinGameName,
-      gameID: joinGameID,
+      roomName: joinRoomName,
+      roomID: joinRoomID,
       myName,
       returnData: this.returnData.bind(this),
     });
 
     this.setState({
-      joinGameID: '',
+      joinRoomID: '',
       joinPw: '',
       roomPw: '',
     });
@@ -277,14 +276,14 @@ class Home extends React.Component {
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
   }
 
-  renderNewGameModal = () => {
+  renderNewRoomModal = () => {
     const {
-      newGameModalVisible,
+      newRoomModalVisible,
       myNameWB,
-      newGameName,
+      newRoomName,
       pw,
       pwAgain,
-      newGameID,
+      newRoomID,
     } = this.state;
     const { updateName, user } = this.props;
     const { myName } = user;
@@ -292,8 +291,8 @@ class Home extends React.Component {
       <Modal
         animationType="slide"
         transparent={false}
-        onRequestClose={() => this.setState({ newGameModalVisible: false })}
-        visible={newGameModalVisible}
+        onRequestClose={() => this.setState({ newRoomModalVisible: false })}
+        visible={newRoomModalVisible}
       >
         <ScrollView style={{ flex: 1, padding: 20, backgroundColor: 'white' }}>
           <Text
@@ -328,11 +327,11 @@ class Home extends React.Component {
           <TextInput
             style={{ padding: 10 }}
             placeholder={I18n.t('name_of_room')}
-            onChangeText={newGameName => this.setState({ newGameName })}
-            value={newGameName}
+            onChangeText={newRoomName => this.setState({ newRoomName })}
+            value={newRoomName}
           />
           <Image source={Images.line_long} />
-          {newGameName.length === 0 && (
+          {newRoomName.length === 0 && (
             <Text
               isBold
               style={{
@@ -379,7 +378,7 @@ class Home extends React.Component {
               {I18n.t('room_pin')}
             </Text>
             <Text isBold style={styles.h2}>
-              {newGameID}
+              {newRoomID}
             </Text>
           </View>
           <View
@@ -410,7 +409,7 @@ class Home extends React.Component {
                     (myNameWB.length === 0 && myName.length === 0) ||
                     pw.length === 0 ||
                     pwAgain.length === 0 ||
-                    newGameName.length === 0
+                    newRoomName.length === 0
                   )
                 }
                 text={I18n.t('create')}
@@ -418,7 +417,7 @@ class Home extends React.Component {
             </View>
             <Button
               onPress={() => {
-                this.setState({ newGameModalVisible: false });
+                this.setState({ newRoomModalVisible: false });
               }}
               style={{ marginTop: 99.5 }}
               text={I18n.t('cancel')}
@@ -429,12 +428,12 @@ class Home extends React.Component {
     );
   };
 
-  renderJoinGameModal = () => {
+  renderJoinRoomModal = () => {
     const {
-      joinGameModalVisible,
+      joinRoomModalVisible,
       myName,
       myNameWB,
-      joinGameName,
+      joinRoomName,
       joinMaster,
       joinPw,
     } = this.state;
@@ -442,15 +441,15 @@ class Home extends React.Component {
       <Modal
         animationType="slide"
         transparent={false}
-        onRequestClose={() => this.setState({ joinGameModalVisible: false })}
-        visible={joinGameModalVisible}
+        onRequestClose={() => this.setState({ joinRoomModalVisible: false })}
+        visible={joinRoomModalVisible}
       >
         <ScrollView style={{ flex: 1, backgroundColor: 'white', padding: 20 }}>
           <Text
             isBold
             style={[styles.heading, { fontSize: 40, marginBottom: 20 }]}
           >
-            {`${I18n.t('join')} "${joinGameName}"?`}
+            {`${I18n.t('join')} "${joinRoomName}"?`}
           </Text>
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'column' }}>
@@ -545,7 +544,7 @@ class Home extends React.Component {
               </View>
               <Button
                 onPress={() => {
-                  this.setState({ joinGameModalVisible: false });
+                  this.setState({ joinRoomModalVisible: false });
                 }}
                 text={I18n.t('cancel')}
               />
@@ -771,7 +770,7 @@ class Home extends React.Component {
   };
 
   render() {
-    const { isNewGameIDCorrect, joinGameID } = this.state;
+    const { isNewRoomIDCorrect, joinRoomID } = this.state;
     const { user, rooms, navigateTo } = this.props;
     if (user.isFirst) {
       return this.renderOnboarding();
@@ -779,8 +778,8 @@ class Home extends React.Component {
     return (
       <View style={[styles.container, { backgroundColor: 'white' }]}>
         <StatusBar barStyle="dark-content" />
-        {this.renderNewGameModal()}
-        {this.renderJoinGameModal()}
+        {this.renderNewRoomModal()}
+        {this.renderJoinRoomModal()}
         {this.renderInfoModal()}
         <ScrollView style={{ flex: 1 }}>
           <View style={{ marginTop: 20, flexDirection: 'row' }}>
@@ -805,7 +804,7 @@ class Home extends React.Component {
           </View>
           <Button
             onPress={() => {
-              this.setState({ newGameModalVisible: true });
+              this.setState({ newRoomModalVisible: true });
             }}
             style={{ marginTop: 10 }}
             isWide
@@ -847,12 +846,12 @@ class Home extends React.Component {
                   style={{ fontSize: 24 }}
                   placeholder={I18n.t('room_pin')}
                   keyboardType="numeric"
-                  onChangeText={joinGameID => this.setState({ joinGameID })}
-                  value={joinGameID}
+                  onChangeText={joinRoomID => this.setState({ joinRoomID })}
+                  value={joinRoomID}
                 />
                 <Image source={Images.line_short} style={{ width: 140 }} />
               </View>
-              {!isNewGameIDCorrect && (
+              {!isNewRoomIDCorrect && (
                 <Text
                   isBold
                   style={{
@@ -884,7 +883,7 @@ class Home extends React.Component {
                   style={{ padding: 2.5, marginLeft: 20 }}
                   onPress={() => {
                     navigateTo('Room', {
-                      gameID: rowData.gameID,
+                      roomID: rowData.roomID,
                       returnData: this.returnData.bind(this),
                     });
                     BackHandler.removeEventListener(
@@ -893,7 +892,7 @@ class Home extends React.Component {
                     );
                   }}
                 >
-                  <Text isBold style={styles.gameList}>
+                  <Text isBold style={styles.roomList}>
                     {rowData.name}
                   </Text>
                   <Image source={Images.line_short} />

@@ -1,3 +1,3 @@
-export * from './gameID';
+export * from './roomID';
 
 export default {};

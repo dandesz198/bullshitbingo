@@ -3,11 +3,11 @@ import * as firebase from 'firebase';
 import { CREATE_ROOM, DELETE_ROOM } from './types';
 
 export const createRoom = room => async dispatch => {
-  const { name, master, masterPw, gameID } = room;
+  const { name, master, masterPw, roomID } = room;
 
   await firebase
     .database()
-    .ref(`games/${gameID}`)
+    .ref(`rooms/${roomID}`)
     .set({
       name,
       master,
@@ -20,7 +20,7 @@ export const createRoom = room => async dispatch => {
       name,
       master,
       members: [master],
-      id: gameID,
+      id: roomID,
     },
   });
 };
@@ -30,13 +30,13 @@ export const joinRoom = id => async (dispatch, getState) => {
 
   await firebase
     .database()
-    .ref(`games/${id}/`)
+    .ref(`rooms/${id}/`)
     .once('value', snap => {
       const { members, master } = Object.values(snap.val());
       if (members.indexOf(myName) === -1) {
         firebase
           .database()
-          .ref(`games/${id}/members/`)
+          .ref(`rooms/${id}/members/`)
           .push(myName);
       }
 
@@ -63,7 +63,7 @@ export const checkRoom = id => async getState => {
   const { myName } = getState().user;
   firebase
     .database()
-    .ref(`games/${id}/members/`)
+    .ref(`rooms/${id}/members/`)
     .once('value')
     .then(snap => {
       let count = 0;

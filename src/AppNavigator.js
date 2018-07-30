@@ -1,17 +1,22 @@
 import React, { Component } from 'react';
-import { View, BackHandler } from 'react-native';
+import { View, BackHandler, Alert } from 'react-native';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import * as firebase from 'firebase';
 
 import Routes from './Routes';
-import { navigateBack } from './actions';
+import { navigateTo, navigateBack, deleteRoom } from './actions';
 import { addListener } from './config/setupStore';
+import I18n from './i18n';
 
 class AppNavigation extends Component {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
     nav: PropTypes.object.isRequired,
     navigateBack: PropTypes.func.isRequired,
+    navigateTo: PropTypes.func.isRequired,
+    deleteRoom: PropTypes.func.isRequired,
+    user: PropTypes.object.isRequired,
   };
 
   componentDidMount = async () => {
@@ -29,7 +34,19 @@ class AppNavigation extends Component {
   };
 
   render() {
-    const { dispatch, nav } = this.props;
+    const { dispatch, nav, navigateTo, deleteRoom, user } = this.props;
+    const { myName } = user;
+
+    // Add the user kicker listener
+    firebase
+      .database()
+      .ref(`users/${myName}/rooms`)
+      .on('child_removed', async snap => {
+        deleteRoom(snap().val);
+        navigateTo('Home');
+        Alert.alert(I18n.t('kicked'), I18n.t('kicked_desc'));
+      });
+
     return (
       <View style={{ flex: 1 }}>
         <Routes
@@ -44,16 +61,16 @@ class AppNavigation extends Component {
   }
 }
 
-const mapStateToProps = ({ nav }) => ({
+const mapStateToProps = ({ nav, user }) => ({
   nav,
-});
-
-const mapDispatchToProps = dispatch => ({
-  dispatch,
-  navigateBack: () => dispatch(navigateBack()),
+  user,
 });
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  {
+    navigateBack,
+    navigateTo,
+    deleteRoom,
+  }
 )(AppNavigation);

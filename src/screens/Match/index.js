@@ -18,7 +18,7 @@ import { Images } from '@assets';
 
 import styles from './styles';
 import I18n from '../../i18n';
-// import {  } from '../../actions';
+import { updateCards } from '../../actions';
 
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
@@ -26,22 +26,20 @@ class Match extends React.Component {
   constructor(props) {
     super(props);
     const {
-      myName,
       roomMaster,
       matchName,
       matchMaster,
       matchID,
-      gameID,
+      roomID,
     } = props.navigation.state.params;
     this.state = {
-      myName,
       roomMaster,
       matchName,
       matchMaster,
       matchID,
-      gameID,
+      roomID,
 
-      gameCards: [],
+      roomCards: [],
 
       newCardText: '',
     };
@@ -49,6 +47,8 @@ class Match extends React.Component {
 
   static propTypes = {
     navigation: PropTypes.any.isRequired,
+    updateCards: PropTypes.func.isRequired,
+    user: PropTypes.object.isRequired,
   };
 
   componentDidMount() {
@@ -62,58 +62,45 @@ class Match extends React.Component {
 
   // Download match data from Database
   getData = () => {
-    const { gameID, matchID, matchName, myName } = this.state;
+    const { roomID, matchID } = this.state;
     const thus = this;
 
     // Get data and add listener
     firebase
       .database()
-      .ref(`games/${gameID}/matches/${matchID}/`)
+      .ref(`rooms/${roomID}/matches/${matchID}/`)
       .on('value', async snap => {
         // Parse objects
         const snapshot = snap.val();
 
-        const gameCards = [];
+        const roomCards = [];
         if (snapshot.cards !== null) {
           snapshot.cards.forEach(element => {
             if (!element.voters) {
               element.voters = [];
             }
-            gameCards.push(element);
+            roomCards.push(element);
           });
         } else {
-          thus.setState({ gameCards: [] });
+          thus.setState({ roomCards: [] });
           return;
         }
 
-        thus.setState({ gameCards });
-      });
-
-    // Add the user kicker listener
-    firebase
-      .database()
-      .ref(`games/${gameID}/members`)
-      .on('child_removed', async snap => {
-        if (snap.val() === myName) {
-          thus.props.navigation.state.params.returnData({
-            id: gameID,
-            name: matchName,
-          });
-          thus.props.navigation.goBack();
-          Vibration.vibrate();
-          Alert.alert(I18n.t('kicked'), I18n.t('kicked_desc'));
-        }
+        thus.setState({ roomCards });
       });
   };
 
   // Vote on a card and alert the user if there's more than 2 votes
   vote = cardToVoteOn => {
-    const { gameCards, myName } = this.state;
+    const { roomCards } = this.state;
+    const { user } = this.props;
+    const { myName } = user;
+
     let votes = 0;
     const card = cardToVoteOn;
 
     // Check every card for votes
-    gameCards.forEach(element => {
+    roomCards.forEach(element => {
       if (element.voters.indexOf(myName) > -1 && !element.isBingo) {
         // Already voted for an active card
         votes += 1;
@@ -127,15 +114,17 @@ class Match extends React.Component {
       card.voters.push(myName);
     }
 
-    gameCards[gameCards.indexOf(cardToVoteOn)] = card;
-    this.setState({ gameCards });
+    roomCards[roomCards.indexOf(cardToVoteOn)] = card;
+    this.setState({ roomCards });
 
     // Time to sync to Database
     this.syncToDatabase();
   };
 
   createCard = () => {
-    const { newCardText, myName, gameCards } = this.state;
+    const { newCardText, roomCards } = this.state;
+    const { user } = this.props;
+    const { myName } = user;
     if (newCardText.length > 0) {
       // Declare variables
       const newCard = {
@@ -146,9 +135,9 @@ class Match extends React.Component {
       };
 
       // Add new card to the start of the array
-      gameCards.unshift(newCard);
+      roomCards.unshift(newCard);
 
-      this.setState({ gameCards });
+      this.setState({ roomCards });
       this.vote(newCard);
       this.setState({ newCardText: '' });
 
@@ -158,13 +147,13 @@ class Match extends React.Component {
 
   // Upload data to Database
   syncToDatabase = () => {
-    const { gameID, matchID, gameCards } = this.state;
+    const { roomID, matchID, roomCards } = this.state;
     // Upload every card to Database
     firebase
       .database()
-      .ref(`games/${gameID}/matches/${matchID}`)
+      .ref(`rooms/${roomID}/matches/${matchID}`)
       .update({
-        cards: gameCards,
+        cards: roomCards,
       });
   };
 
@@ -172,11 +161,12 @@ class Match extends React.Component {
     const {
       newCardText,
       matchName,
-      gameCards,
-      myName,
+      roomCards,
       matchMaster,
       roomMaster,
     } = this.state;
+    const { user } = this.props;
+    const { myName } = user;
     return (
       <ScrollView
         style={styles.container}
@@ -247,7 +237,7 @@ class Match extends React.Component {
         </Text>
         <ListView
           dataSource={ds.cloneWithRows(
-            gameCards.sort(
+            roomCards.sort(
               (a, b) => (a.voters < b.voters ? 1 : b.voters < a.voters ? -1 : 0)
             )
           )}
@@ -269,7 +259,7 @@ class Match extends React.Component {
               isMaster={!!(matchMaster === myName || roomMaster === myName)}
               onVotePress={() => {
                 // Declare variables
-                const cards = gameCards;
+                const cards = roomCards;
                 const card = rowData;
 
                 // Check if user already voted to the card
@@ -277,7 +267,7 @@ class Match extends React.Component {
                   // Delete the vote
                   card.voters.splice(card.voters.indexOf(myName), 1);
                   cards[cards.indexOf(rowData)] = card;
-                  this.setState({ gameCards: cards });
+                  this.setState({ roomCards: cards });
                   this.syncToDatabase();
                 } else {
                   // Vote, because the user didn't vote on the card
@@ -296,12 +286,12 @@ class Match extends React.Component {
                       text: I18n.t('delete_it'),
                       onPress: () => {
                         // Declare variables
-                        const cards = gameCards;
+                        const cards = roomCards;
                         const card = rowData;
 
                         cards.splice(cards.indexOf(card), 1);
 
-                        this.setState({ gameCards: cards });
+                        this.setState({ roomCards: cards });
                         this.syncToDatabase();
                       },
                       style: 'destructive',
@@ -325,11 +315,11 @@ class Match extends React.Component {
                       text: I18n.t('its_bingo'),
                       onPress: () => {
                         // Declare variables
-                        const cards = gameCards;
+                        const cards = roomCards;
 
                         rowData.isBingo = true;
 
-                        this.setState({ gameCards: cards });
+                        this.setState({ roomCards: cards });
                         this.syncToDatabase();
 
                         if (
@@ -372,7 +362,14 @@ class Match extends React.Component {
   }
 }
 
+const mapStateToProps = ({ rooms, user }) => ({
+  rooms,
+  user,
+});
+
 export default connect(
-  null,
-  {}
+  mapStateToProps,
+  {
+    updateCards,
+  }
 )(Match);

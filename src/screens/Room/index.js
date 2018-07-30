@@ -19,7 +19,7 @@ import { Images } from '@assets';
 
 import styles from './styles';
 import I18n from '../../i18n';
-// import {  } from '../../actions';
+import { navigateTo } from '../../actions';
 
 const initialLayout = {
   height: 0,
@@ -40,15 +40,13 @@ class Room extends React.Component {
       ],
       value: 0,
 
-      myName: navigation.state.params.myName,
-
-      gameName: navigation.state.params.gameName,
-      gameID: navigation.state.params.gameID,
+      roomName: navigation.state.params.roomName,
+      roomID: navigation.state.params.roomID,
       roomMaster: '',
 
       matches: [],
 
-      gameMembers: [],
+      roomMembers: [],
 
       newMatchText: '',
     };
@@ -56,6 +54,8 @@ class Room extends React.Component {
 
   static propTypes = {
     navigation: PropTypes.any.isRequired,
+    navigateTo: PropTypes.func.isRequired,
+    user: PropTypes.object.isRequired,
   };
 
   componentDidMount() {
@@ -68,7 +68,9 @@ class Room extends React.Component {
   }
 
   createMatch = () => {
-    const { newMatchText, matches, myName } = this.state;
+    const { newMatchText, matches } = this.state;
+    const { user } = this.props;
+    const { myName } = user;
     if (newMatchText.length > 0) {
       // Declare variables
       const newMatch = {
@@ -88,14 +90,15 @@ class Room extends React.Component {
   };
 
   quitKick = rowData => {
-    const { myName, gameName, roomMaster, gameID, gameMembers } = this.state;
-    const { navigation } = this.props;
+    const { roomName, roomMaster, roomID, roomMembers } = this.state;
+    const { user, navigation } = this.props;
+    const { myName } = user;
     const thus = this;
     Vibration.vibrate();
     Alert.alert(
       I18n.t('are_you_sure'),
       myName === rowData.name
-        ? `${I18n.t('really_quit')} ${gameName}? ${I18n.t('rejoin')}`
+        ? `${I18n.t('really_quit')} ${roomName}? ${I18n.t('rejoin')}`
         : `${I18n.t('really_kick')} ${rowData.name}? ${I18n.t('rejoin_kick')}`,
       [
         {
@@ -127,9 +130,9 @@ class Room extends React.Component {
                         // Delete match
                         firebase
                           .database()
-                          .ref(`games/${gameID}`)
+                          .ref(`rooms/${roomID}`)
                           .remove();
-                        navigation.state.params.returnData(gameName);
+                        navigation.state.params.returnData(roomName);
                         navigation.goBack();
                       },
                       style: 'destructive',
@@ -138,7 +141,7 @@ class Room extends React.Component {
                 );
               } else {
                 // Since it's not kicking itself, they can kick the player
-                const members = gameMembers;
+                const members = roomMembers;
                 const memb = [];
                 await members.forEach(element => {
                   memb.push(element.name);
@@ -146,14 +149,14 @@ class Room extends React.Component {
                 memb.splice(memb.indexOf(rowData.name), 1);
                 firebase
                   .database()
-                  .ref(`games/${gameID}`)
+                  .ref(`rooms/${roomID}`)
                   .update({
                     members: memb,
                   });
               }
             } else if (rowData.name === myName) {
-              // Quit game
-              const members = gameMembers;
+              // Quit room
+              const members = roomMembers;
               const memb = [];
               await members.forEach(element => {
                 memb.push(element.name);
@@ -161,11 +164,11 @@ class Room extends React.Component {
               memb.splice(memb.indexOf(rowData.name));
               firebase
                 .database()
-                .ref(`games/${gameID}`)
+                .ref(`rooms/${roomID}`)
                 .update({
                   members: memb,
                 });
-              navigation.state.params.returnData(gameName);
+              navigation.state.params.returnData(roomName);
               navigation.goBack();
             } else {
               // Can't kick others
@@ -188,13 +191,13 @@ class Room extends React.Component {
 
   // Download match data from database
   getData = async () => {
-    const { gameID, myName, matchName } = this.state;
+    const { roomID } = this.state;
     const thus = this;
 
     // Get data and add listener
     await firebase
       .database()
-      .ref(`games/${gameID}/`)
+      .ref(`rooms/${roomID}/`)
       .on('value', async snapshot => {
         // Parse objects
         const snap = snapshot.val();
@@ -214,7 +217,7 @@ class Room extends React.Component {
         });
 
         setTimeout(() => {
-          thus.setState({ gameMembers: members });
+          thus.setState({ roomMembers: members });
         }, 1000);
 
         const matches = [];
@@ -228,38 +231,22 @@ class Room extends React.Component {
           thus.setState({ matches: [] });
         }
       });
-
-    // Add the user kicker listener
-    firebase
-      .database()
-      .ref(`games/${gameID}/members`)
-      .on('child_removed', async snap => {
-        if (snap.val() === myName) {
-          thus.props.navigation.state.params.returnData({
-            id: gameID,
-            name: matchName,
-          });
-          thus.props.navigation.goBack();
-          Vibration.vibrate();
-          Alert.alert(I18n.t('kicked'), I18n.t('kicked_desc'));
-        }
-      });
   };
 
   returnData = () => {
-    const { gameName } = this.state;
+    const { roomName } = this.state;
     const { navigation } = this.props;
-    navigation.state.params.returnData(gameName);
+    navigation.state.params.returnData(roomName);
     navigation.goBack();
   };
 
   // Upload data to database
   syncToDatabase = () => {
-    const { gameID, matches } = this.state;
+    const { roomID, matches } = this.state;
     // Upload every card to database
     firebase
       .database()
-      .ref(`games/${gameID}/`)
+      .ref(`rooms/${roomID}/`)
       .update({
         matches,
       });
@@ -284,13 +271,13 @@ class Room extends React.Component {
     const {
       newMatchText,
       matches,
-      gameName,
-      gameID,
-      myName,
+      roomName,
+      roomID,
       roomMaster,
-      gameMembers,
+      roomMembers,
     } = this.state;
-    const { navigation } = this.props;
+    const { navigateTo, user } = this.props;
+    const { myName } = user;
     switch (route.key) {
       case '1':
         return (
@@ -363,7 +350,7 @@ class Room extends React.Component {
               renderRow={rowData => (
                 <Card
                   isMatch
-                  matchName={gameName}
+                  matchName={roomName}
                   cardText={rowData.name}
                   creatorName={rowData.master}
                   bgColor="white"
@@ -371,10 +358,9 @@ class Room extends React.Component {
                     !!(rowData.master === myName || roomMaster === myName)
                   }
                   onVotePress={() => {
-                    navigation.navigate('Match', {
+                    navigateTo('Match', {
                       matchName: rowData.name,
-                      gameID,
-                      myName,
+                      roomID,
                       matchID: matches.indexOf(rowData),
                       matchMaster: rowData.master,
                       roomMaster,
@@ -395,7 +381,7 @@ class Room extends React.Component {
                             matches.splice(matches.indexOf(rowData), 1);
                             firebase
                               .database()
-                              .ref(`games/${gameID}`)
+                              .ref(`rooms/${roomID}`)
                               .update({
                                 matches,
                               });
@@ -420,7 +406,7 @@ class Room extends React.Component {
                   {`${I18n.t('room_name')}: `}
                 </Text>
                 <Text isBold style={styles.h2}>
-                  {gameName}
+                  {roomName}
                 </Text>
               </View>
               <Image
@@ -456,7 +442,7 @@ class Room extends React.Component {
                   {`${I18n.t('room_pin')}: `}
                 </Text>
                 <Text isBold style={styles.h2}>
-                  {gameID}
+                  {roomID}
                 </Text>
               </View>
             </View>
@@ -465,7 +451,7 @@ class Room extends React.Component {
             </Text>
             <ListView
               dataSource={ds.cloneWithRows(
-                gameMembers.sort(
+                roomMembers.sort(
                   (a, b) =>
                     a.points < b.points ? 1 : b.points < a.points ? -1 : 0
                 )
@@ -549,7 +535,14 @@ class Room extends React.Component {
   }
 }
 
+const mapStateToProps = ({ rooms, user }) => ({
+  rooms,
+  user,
+});
+
 export default connect(
-  null,
-  {}
+  mapStateToProps,
+  {
+    navigateTo,
+  }
 )(Room);
