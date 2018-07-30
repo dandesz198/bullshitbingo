@@ -332,17 +332,18 @@ class Home extends React.Component {
             value={newGameName}
           />
           <Image source={Images.line_long} />
-          <Text
-            isBold
-            style={{
-              color: '#ee5253',
-              fontSize: 16,
-              marginTop: 7.5,
-              display: newGameName.length === 0 ? 'flex' : 'none',
-            }}
-          >
-            {I18n.t('no_empty_please')}
-          </Text>
+          {newGameName.length === 0 && (
+            <Text
+              isBold
+              style={{
+                color: '#ee5253',
+                fontSize: 16,
+                marginTop: 7.5,
+              }}
+            >
+              {I18n.t('no_empty_please')}
+            </Text>
+          )}
           <Text isBold style={[styles.p, { marginTop: 20 }]}>
             {I18n.t('password_lock')}
           </Text>
@@ -362,16 +363,17 @@ class Home extends React.Component {
             value={pwAgain}
           />
           <Image source={Images.line_long} />
-          <Text
-            isBold
-            style={{
-              color: '#ee5253',
-              fontSize: 16,
-              display: pw !== pwAgain ? 'flex' : 'none',
-            }}
-          >
-            {I18n.t('password_error')}
-          </Text>
+          {pw !== pwAgain && (
+            <Text
+              isBold
+              style={{
+                color: '#ee5253',
+                fontSize: 16,
+              }}
+            >
+              {I18n.t('password_error')}
+            </Text>
+          )}
           <View style={{ flexDirection: 'column' }}>
             <Text isBold style={[styles.p, { marginTop: 20 }]}>
               {I18n.t('room_pin')}
@@ -452,57 +454,61 @@ class Home extends React.Component {
           </Text>
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'column' }}>
-              <View
-                style={{
-                  marginLeft: 20,
-                  display: myName.length === 0 ? 'flex' : 'none',
-                }}
-              >
-                <TextInput
-                  style={{ padding: 10 }}
-                  placeholder={I18n.t('your_name')}
-                  onChangeText={myNameWB => this.setState({ myNameWB })}
-                  value={myNameWB}
-                />
-                <Image source={Images.line_long} />
-                <Text
-                  isBold
+              {myName.length === 0 && (
+                <View
                   style={{
-                    color: '#ee5253',
-                    fontSize: 16,
-                    marginTop: 7.5,
-                    display: myNameWB.length === 0 ? 'flex' : 'none',
+                    marginLeft: 20,
                   }}
                 >
-                  {I18n.t('no_empty_please')}
-                </Text>
-              </View>
-              <View
-                style={{
-                  marginLeft: 20,
-                  display: myName === joinMaster ? 'flex' : 'none',
-                }}
-              >
-                <TextInput
-                  style={{ padding: 10 }}
-                  secureTextEntry
-                  placeholder={I18n.t('room_master_password')}
-                  onChangeText={joinPw => this.setState({ joinPw })}
-                  value={joinPw}
-                />
-                <Image source={Images.line_long} />
-                <Text
-                  isBold
+                  <TextInput
+                    style={{ padding: 10 }}
+                    placeholder={I18n.t('your_name')}
+                    onChangeText={myNameWB => this.setState({ myNameWB })}
+                    value={myNameWB}
+                  />
+                  <Image source={Images.line_long} />
+                  {myNameWB.length === 0 && (
+                    <Text
+                      isBold
+                      style={{
+                        color: '#ee5253',
+                        fontSize: 16,
+                        marginTop: 7.5,
+                      }}
+                    >
+                      {I18n.t('no_empty_please')}
+                    </Text>
+                  )}
+                </View>
+              )}
+              {myName === joinMaster && (
+                <View
                   style={{
-                    color: '#ee5253',
-                    fontSize: 16,
-                    marginTop: 7.5,
-                    display: joinPw.length === 0 ? 'flex' : 'none',
+                    marginLeft: 20,
                   }}
                 >
-                  {I18n.t('no_empty_please')}
-                </Text>
-              </View>
+                  <TextInput
+                    style={{ padding: 10 }}
+                    secureTextEntry
+                    placeholder={I18n.t('room_master_password')}
+                    onChangeText={joinPw => this.setState({ joinPw })}
+                    value={joinPw}
+                  />
+                  <Image source={Images.line_long} />
+                  {joinPw.length === 0 && (
+                    <Text
+                      isBold
+                      style={{
+                        color: '#ee5253',
+                        fontSize: 16,
+                        marginTop: 7.5,
+                      }}
+                    >
+                      {I18n.t('no_empty_please')}
+                    </Text>
+                  )}
+                </View>
+              )}
             </View>
             <Image
               source={Images.join_bg}
@@ -846,16 +852,17 @@ class Home extends React.Component {
                 />
                 <Image source={Images.line_short} style={{ width: 140 }} />
               </View>
-              <Text
-                isBold
-                style={{
-                  color: '#ee5253',
-                  fontSize: 16,
-                  display: isNewGameIDCorrect ? 'none' : 'flex',
-                }}
-              >
-                {I18n.t('check_pin')}
-              </Text>
+              {!isNewGameIDCorrect && (
+                <Text
+                  isBold
+                  style={{
+                    color: '#ee5253',
+                    fontSize: 16,
+                  }}
+                >
+                  {I18n.t('check_pin')}
+                </Text>
+              )}
               <Button
                 onPress={() => {
                   this.preJoin();

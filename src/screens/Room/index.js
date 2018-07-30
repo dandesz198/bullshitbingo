@@ -490,29 +490,28 @@ class Room extends React.Component {
                     >
                       {`${rowData.name} | ${rowData.points} XP`}
                     </Text>
-                    <Button
-                      onPress={() => {
-                        this.quitKick(rowData);
-                      }}
-                      style={{
-                        display:
-                          myName !== roomMaster && myName !== rowData.name
-                            ? 'none'
-                            : 'flex',
-                        alignSelf: 'flex-end',
-                        marginRight: 0,
-                        marginLeft: 'auto',
-                        marginTop: 'auto',
-                        marginBottom: 'auto',
-                        justifyContent: 'center',
-                      }}
-                      isSmall
-                      text={
-                        myName === rowData.name
-                          ? I18n.t('quit')
-                          : I18n.t('kick')
-                      }
-                    />
+                    {myName === roomMaster &&
+                      myName === rowData.name && (
+                        <Button
+                          onPress={() => {
+                            this.quitKick(rowData);
+                          }}
+                          style={{
+                            alignSelf: 'flex-end',
+                            marginRight: 0,
+                            marginLeft: 'auto',
+                            marginTop: 'auto',
+                            marginBottom: 'auto',
+                            justifyContent: 'center',
+                          }}
+                          isSmall
+                          text={
+                            myName === rowData.name
+                              ? I18n.t('quit')
+                              : I18n.t('kick')
+                          }
+                        />
+                      )}
                   </View>
                   <Image
                     style={{ marginTop: 2.5, width: 200 }}

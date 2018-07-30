@@ -66,47 +66,53 @@ const Card = ({
         >
           {cardText}
         </Text>
-        <TouchableOpacity
-          style={{
-            marginRight: 0,
-            marginLeft: 'auto',
-            display: isMaster && !isMatch ? 'flex' : 'none',
-          }}
-          onPress={() => {
-            onDeletePress();
-          }}
-        >
-          <Image
-            source={Images.trash}
-            style={{ height: 30, width: 21, marginVertical: 'auto' }}
-          />
-        </TouchableOpacity>
+        {isMaster &&
+          !isMatch && (
+            <TouchableOpacity
+              style={{
+                marginRight: 0,
+                marginLeft: 'auto',
+              }}
+              onPress={() => {
+                onDeletePress();
+              }}
+            >
+              <Image
+                source={Images.trash}
+                style={{ height: 30, width: 21, marginVertical: 'auto' }}
+              />
+            </TouchableOpacity>
+          )}
       </View>
     </View>
     <View style={styles.buttonBoxStyle}>
-      <Button
-        onPress={() => {
-          onVotePress();
-        }}
-        isSmall
-        style={{ display: isBingo ? 'none' : 'flex', marginRight: 10 }}
-        isFilled={!isMatch && voted}
-        text={isMatch ? I18n.t('join') : I18n.t('vote')}
-      />
-      <Button
-        onPress={() => {
-          onBingoPress();
-        }}
-        isSmall
-        style={{ display: isMaster ? 'flex' : isBingo ? 'flex' : 'none', }}
-        isFilled={isBingo}
-        text={isMatch ? I18n.t('delete') : I18n.t('bingo')}
-      />
-      <Text
-        style={[styles.voteNumberStyle, { display: isMatch ? 'none' : 'flex' }]}
-      >
-        {`${voteCount} ${I18n.t('votes')}`}
-      </Text>
+      {isBingo && (
+        <Button
+          onPress={() => {
+            onVotePress();
+          }}
+          isSmall
+          style={{ marginRight: 10 }}
+          isFilled={!isMatch && voted}
+          text={isMatch ? I18n.t('join') : I18n.t('vote')}
+        />
+      )}
+      {isMaster ||
+        (isBingo && (
+          <Button
+            onPress={() => {
+              onBingoPress();
+            }}
+            isSmall
+            isFilled={isBingo}
+            text={isMatch ? I18n.t('delete') : I18n.t('bingo')}
+          />
+        ))}
+      {isMatch && (
+        <Text style={styles.voteNumberStyle}>
+          {`${voteCount} ${I18n.t('votes')}`}
+        </Text>
+      )}
     </View>
   </ImageBackground>
 );
