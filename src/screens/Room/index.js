@@ -13,6 +13,7 @@ import {
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import * as firebase from 'firebase';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import { Button, Card, Text } from '@components';
 import { Images } from '@assets';
 
@@ -52,6 +53,10 @@ class Room extends React.Component {
       newMatchText: '',
     };
   }
+
+  static propTypes = {
+    navigation: PropTypes.any.isRequired,
+  };
 
   componentDidMount() {
     // Database sync
@@ -292,7 +297,9 @@ class Room extends React.Component {
           <ScrollView
             style={styles.container}
             decelerationRate={0}
-            ref={ref => (this.scrollView = ref)}
+            ref={ref => {
+              this.scrollView = ref;
+            }}
           >
             <StatusBar barStyle="dark-content" />
             <View
@@ -529,9 +536,10 @@ class Room extends React.Component {
 
   render() {
     // return <View />;
+    const { index, routes, value } = this.state;
     return (
       <TabViewAnimated
-        navigationState={this.state}
+        navigationState={{ index, routes, value }}
         renderScene={this.renderScene}
         renderHeader={this.renderHeader}
         onIndexChange={this.handleIndexChange}

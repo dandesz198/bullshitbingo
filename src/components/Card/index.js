@@ -13,8 +13,6 @@ import { Images } from '@assets';
 import { Button } from '@components';
 import I18n from '../../i18n';
 
-const Environment = require('../../config/environment');
-
 const Card = ({
   matchName,
   creatorName,

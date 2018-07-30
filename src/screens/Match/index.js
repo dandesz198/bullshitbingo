@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import * as firebase from 'firebase';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import { Button, Card, Text } from '@components';
 import { Images } from '@assets';
 
@@ -31,7 +32,7 @@ class Match extends React.Component {
       matchMaster,
       matchID,
       gameID,
-    } = this.props.navigation.state.params;
+    } = props.navigation.state.params;
     this.state = {
       myName,
       roomMaster,
@@ -45,6 +46,10 @@ class Match extends React.Component {
       newCardText: '',
     };
   }
+
+  static propTypes = {
+    navigation: PropTypes.any.isRequired,
+  };
 
   componentDidMount() {
     // Sync Database
@@ -176,7 +181,9 @@ class Match extends React.Component {
       <ScrollView
         style={styles.container}
         decelerationRate={0}
-        ref={ref => (this.scrollView = ref)}
+        ref={ref => {
+          this.scrollView = ref;
+        }}
       >
         <StatusBar barStyle="dark-content" />
         <View
