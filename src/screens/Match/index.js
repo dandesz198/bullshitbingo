@@ -18,7 +18,7 @@ import { Images } from '@assets';
 
 import styles from './styles';
 import I18n from '../../i18n';
-import { createCard } from '../../actions';
+import { createCard, deleteCard, vote, unvote } from '../../actions';
 
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
@@ -48,6 +48,9 @@ class Match extends React.Component {
   static propTypes = {
     navigation: PropTypes.any.isRequired,
     createCard: PropTypes.func.isRequired,
+    deleteCard: PropTypes.func.isRequired,
+    vote: PropTypes.func.isRequired,
+    unvote: PropTypes.func.isRequired,
     user: PropTypes.object.isRequired,
   };
 
@@ -85,14 +88,14 @@ class Match extends React.Component {
     this.setState({ roomCards });
   };
 
-  // Vote on a card and alert the user if there are more than 2 votes
-  vote = cardToVoteOn => {
-    const { roomCards } = this.state;
-    const { user } = this.props;
+  // Vote on a card
+  vote = cardToModify => {
+    const { roomCards, roomID, matchID } = this.state;
+    const { user, vote } = this.props;
     const { myName } = user;
 
     let votes = 0;
-    const card = cardToVoteOn;
+    const card = cardToModify;
 
     // Check every card for votes
     roomCards.forEach(element => {
@@ -106,14 +109,8 @@ class Match extends React.Component {
       Vibration.vibrate();
       Alert.alert(I18n.t('error'), I18n.t('too_many_votes'));
     } else {
-      card.voters.push(myName);
+      vote(roomID, matchID, card);
     }
-
-    roomCards[roomCards.indexOf(cardToVoteOn)] = card;
-    this.setState({ roomCards });
-
-    // Time to sync to Database
-    this.syncToDatabase();
   };
 
   createCard = () => {
@@ -149,8 +146,10 @@ class Match extends React.Component {
       roomCards,
       matchMaster,
       roomMaster,
+      roomID,
+      matchID,
     } = this.state;
-    const { user } = this.props;
+    const { user, unvote } = this.props;
     const { myName } = user;
     return (
       <ScrollView
@@ -244,16 +243,12 @@ class Match extends React.Component {
               isMaster={!!(matchMaster === myName || roomMaster === myName)}
               onVotePress={() => {
                 // Declare variables
-                const cards = roomCards;
                 const card = rowData;
 
                 // Check if user already voted to the card
                 if (rowData.voters.indexOf(myName) > -1) {
                   // Delete the vote
-                  card.voters.splice(card.voters.indexOf(myName), 1);
-                  cards[cards.indexOf(rowData)] = card;
-                  this.setState({ roomCards: cards });
-                  this.syncToDatabase();
+                  unvote(roomID, matchID, card);
                 } else {
                   // Vote, because the user didn't vote on the card
                   this.vote(rowData);
@@ -356,5 +351,8 @@ export default connect(
   mapStateToProps,
   {
     createCard,
+    deleteCard,
+    vote,
+    unvote,
   }
 )(Match);

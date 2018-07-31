@@ -1,6 +1,6 @@
 import * as firebase from 'firebase';
 
-import { CREATE_ROOM, DELETE_ROOM, CREATE_MATCH, CREATE_CARD } from './types';
+import { CREATE_ROOM, DELETE_ROOM } from './types';
 
 export const createRoom = room => async (dispatch, getState) => {
   const { name, masterPw, roomID } = room;
@@ -56,6 +56,11 @@ export const joinRoom = roomID => async (dispatch, getState) => {
 };
 
 export const deleteRoom = roomID => async dispatch => {
+  firebase
+    .database()
+    .ref(`rooms/${roomID}`)
+    .remove();
+
   dispatch({
     type: DELETE_ROOM,
     payload: roomID,
@@ -85,56 +90,6 @@ export const checkRoom = roomID => async getState => {
         deleteRoom(roomID);
       }
     });
-};
-
-export const createMatch = (roomID, match) => async (dispatch, getState) => {
-  const { rooms } = getState();
-  const room = rooms.find(room => room.roomID === roomID);
-
-  if (!room.matches) {
-    room.matches = [match];
-  } else {
-    room.matches.unshift(match);
-  }
-
-  firebase
-    .database()
-    .ref(`rooms/${roomID}/`)
-    .update({
-      matches: room.matches,
-    });
-
-  dispatch({
-    type: CREATE_MATCH,
-    payload: { rooms },
-  });
-};
-
-export const createCard = (roomID, matchID, card) => async (
-  dispatch,
-  getState
-) => {
-  const { rooms } = getState();
-  const room = rooms.find(room => room.roomID === roomID);
-  const match = room.matches.find(match => match.matchID === matchID);
-
-  if (!match.cards) {
-    match.cards = [card];
-  } else {
-    match.cards.unshift(card);
-  }
-
-  firebase
-    .database()
-    .ref(`rooms/${roomID}/matches/${matchID}`)
-    .update({
-      cards: match.cards,
-    });
-
-  dispatch({
-    type: CREATE_CARD,
-    payload: { rooms },
-  });
 };
 
 export default {};

@@ -123,12 +123,6 @@ class Room extends React.Component {
                     {
                       text: I18n.t('matchmaster_quit_ok'),
                       onPress: () => {
-                        // Delete match
-                        firebase
-                          .database()
-                          .ref(`rooms/${roomID}`)
-                          .remove();
-
                         this.deleteRoom(roomID);
                         navigation.goBack();
                       },
