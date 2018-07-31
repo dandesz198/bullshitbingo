@@ -75,10 +75,6 @@ class Home extends React.Component {
     rooms: [],
   };
 
-  returnData(roomID) {
-    this.deleteRoom(roomID);
-  }
-
   componentWillMount() {
     this.checkRooms();
   }
@@ -164,7 +160,6 @@ class Home extends React.Component {
     NavigationService.navigateTo('Room', {
       roomName: newRoomName,
       roomID: newRoomID,
-      returnData: this.returnData.bind(this),
     });
 
     BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
@@ -271,7 +266,6 @@ class Home extends React.Component {
     NavigationService.navigateTo('Room', {
       roomName: joinRoomName,
       roomID: joinRoomID,
-      returnData: this.returnData.bind(this),
     });
 
     this.setState({
@@ -897,7 +891,6 @@ class Home extends React.Component {
                     NavigationService.navigateTo('Room', {
                       roomName: rowData.name,
                       roomID: rowData.roomID,
-                      returnData: this.returnData.bind(this),
                     });
                     BackHandler.removeEventListener(
                       'hardwareBackPress',
