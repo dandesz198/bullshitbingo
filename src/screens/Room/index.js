@@ -20,6 +20,8 @@ import { Images } from '@assets';
 import styles from './styles';
 import I18n from '../../i18n';
 import NavigationService from '../../config/navigationService';
+import { createMatch } from '../../actions';
+import { newId } from '../../services';
 
 const initialLayout = {
   height: 0,
@@ -31,7 +33,10 @@ const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 class Room extends React.Component {
   constructor(props) {
     super(props);
-    const { navigation } = this.props;
+    const { roomID } = props.navigation.state.params;
+    const { name, master, matches, members } = props.rooms.find(
+      room => room.roomID === roomID
+    );
     this.state = {
       index: 0,
       routes: [
@@ -40,13 +45,11 @@ class Room extends React.Component {
       ],
       value: 0,
 
-      roomName: navigation.state.params.roomName,
-      roomID: navigation.state.params.roomID,
-      roomMaster: '',
-
-      matches: [],
-
-      roomMembers: [],
+      roomID,
+      roomName: name,
+      roomMaster: master,
+      matches: matches && matches.length > 0 ? matches : [],
+      roomMembers: members,
 
       newMatchText: '',
     };
@@ -55,6 +58,8 @@ class Room extends React.Component {
   static propTypes = {
     navigation: PropTypes.any.isRequired,
     user: PropTypes.object.isRequired,
+    createMatch: PropTypes.func.isRequired,
+    rooms: PropTypes.array.isRequired,
   };
 
   componentDidMount() {
@@ -67,25 +72,16 @@ class Room extends React.Component {
   }
 
   createMatch = () => {
-    const { newMatchText, matches } = this.state;
-    const { user } = this.props;
+    const { newMatchText, roomID } = this.state;
+    const { user, createMatch } = this.props;
     const { myName } = user;
-    if (newMatchText.length > 0) {
-      // Declare variables
-      const newMatch = {
-        name: newMatchText,
-        master: myName,
-        cards: [],
-      };
-
-      // Add new card to the start of the array
-      matches.unshift(newMatch);
-
-      this.setState({ matches });
-      this.setState({ newMatchText: '' });
-
-      this.syncToDatabase();
-    }
+    const match = {
+      name: newMatchText,
+      master: myName,
+      cards: [],
+      matchID: `room${roomID}_match${newId()}`,
+    };
+    createMatch(roomID, match);
   };
 
   quitKick = rowData => {
@@ -131,6 +127,7 @@ class Room extends React.Component {
                           .database()
                           .ref(`rooms/${roomID}`)
                           .remove();
+
                         navigation.state.params.returnData(roomName);
                         navigation.goBack();
                       },
@@ -167,6 +164,7 @@ class Room extends React.Component {
                 .update({
                   members: memb,
                 });
+
               navigation.state.params.returnData(roomName);
               navigation.goBack();
             } else {
@@ -360,7 +358,7 @@ class Room extends React.Component {
                     NavigationService.navigateTo('Match', {
                       matchName: rowData.name,
                       roomID,
-                      matchID: matches.indexOf(rowData),
+                      matchID: rowData.matchID,
                       matchMaster: rowData.master,
                       roomMaster,
                       returnData: this.returnData.bind(this),
@@ -520,7 +518,6 @@ class Room extends React.Component {
   };
 
   render() {
-    // return <View />;
     const { index, routes, value } = this.state;
     return (
       <TabViewAnimated
@@ -541,5 +538,7 @@ const mapStateToProps = ({ rooms, user }) => ({
 
 export default connect(
   mapStateToProps,
-  null
+  {
+    createMatch,
+  }
 )(Room);

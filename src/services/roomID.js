@@ -1,7 +1,9 @@
 import * as firebase from 'firebase';
 
+export const newId = () =>
+  Math.floor(Math.random() * 899999 + 100000).toString();
+
 export const createId = () => {
-  const newId = () => Math.floor(Math.random() * 899999 + 100000).toString();
   let newRoomID = newId();
   const checkId = () => {
     firebase

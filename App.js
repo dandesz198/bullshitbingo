@@ -19,26 +19,8 @@ const onBeforeLift = () => {
 };
 
 export default class App extends Component {
-  static propTypes = {
-    deleteRoom: PropTypes.func.isRequired,
-    user: PropTypes.object.isRequired,
-  };
-
   componentDidMount = async () => {
     firebase.initializeApp({ ...Environment });
-    const { deleteRoom, user } = this.props;
-    const { myName } = user;
-
-    // Add the user kicker listener
-    firebase
-      .database()
-      .ref(`users/${myName}/rooms`)
-      .on('child_removed', async snap => {
-        deleteRoom(snap().val);
-        NavigationService.navigateTo('Home');
-        Alert.alert(I18n.t('kicked'), I18n.t('kicked_desc'));
-      });
-
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
   };
 

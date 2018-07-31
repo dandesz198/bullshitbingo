@@ -84,7 +84,7 @@ const Card = ({
       </View>
     </View>
     <View style={styles.buttonBoxStyle}>
-      {isBingo && (
+      {!isBingo && (
         <Button
           onPress={() => {
             onVotePress();
@@ -95,8 +95,8 @@ const Card = ({
           text={isMatch ? I18n.t('join') : I18n.t('vote')}
         />
       )}
-      {isMaster ||
-        (isBingo && (
+      {!isMaster ||
+        (!isBingo && (
           <Button
             onPress={() => {
               onBingoPress();
@@ -106,7 +106,7 @@ const Card = ({
             text={isMatch ? I18n.t('delete') : I18n.t('bingo')}
           />
         ))}
-      {isMatch && (
+      {!isMatch && (
         <Text style={styles.voteNumberStyle}>
           {`${voteCount} ${I18n.t('votes')}`}
         </Text>

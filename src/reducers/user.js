@@ -3,6 +3,7 @@ import { HIDE_ONBOARDING, UPDATE_NAME } from '../actions';
 const defaultState = {
   isFirst: true,
   myName: '',
+  points: 0,
 };
 
 export default function reducer(state = defaultState, action) {

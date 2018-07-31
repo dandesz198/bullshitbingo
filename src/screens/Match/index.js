@@ -47,7 +47,7 @@ class Match extends React.Component {
 
   static propTypes = {
     navigation: PropTypes.any.isRequired,
-    // updateCards: PropTypes.func.isRequired,
+    createCard: PropTypes.func.isRequired,
     user: PropTypes.object.isRequired,
   };
 
@@ -87,7 +87,8 @@ class Match extends React.Component {
         }
 
         thus.setState({ roomCards });
-      });
+      })
+      
   };
 
   // Vote on a card and alert the user if there's more than 2 votes
@@ -122,8 +123,8 @@ class Match extends React.Component {
   };
 
   createCard = () => {
-    const { newCardText, roomCards, roomID, matchID } = this.state;
-    const { user } = this.props;
+    const { newCardText, roomID, matchID } = this.state;
+    const { user, createCard } = this.props;
     const { myName } = user;
     const card = {
       text: newCardText,
@@ -131,7 +132,7 @@ class Match extends React.Component {
       isBingo: false,
       voters: [],
     };
-    createCard(roomID, matchID, card, roomCards.unshift(card));
+    createCard(roomID, matchID, card);
     this.vote(card);
   };
 
@@ -144,7 +145,8 @@ class Match extends React.Component {
       .ref(`rooms/${roomID}/matches/${matchID}`)
       .update({
         cards: roomCards,
-      });
+      })
+      
   };
 
   render() {
@@ -335,8 +337,17 @@ class Match extends React.Component {
                                 .ref(`users/${element}/`)
                                 .update({
                                   points: snap.val() + 1,
-                                });
-                            });
+                                })
+                                .catch(reason =>
+                                  console.log(
+                                    'FIREBASE ERROR - reason:',
+                                    reason
+                                  )
+                                );
+                            })
+                            .catch(reason =>
+                              console.log('FIREBASE ERROR - reason:', reason)
+                            );
                         });
                       },
                     },
@@ -360,6 +371,6 @@ const mapStateToProps = ({ rooms, user }) => ({
 export default connect(
   mapStateToProps,
   {
-    // updateCards,
+    createCard,
   }
 )(Match);

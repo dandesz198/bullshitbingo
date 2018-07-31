@@ -1,42 +1,45 @@
 import * as firebase from 'firebase';
 
-import { CREATE_ROOM, DELETE_ROOM, CREATE_CARD } from './types';
+import { CREATE_ROOM, DELETE_ROOM, CREATE_MATCH, CREATE_CARD } from './types';
 
-export const createRoom = room => async dispatch => {
-  const { name, master, masterPw, roomID } = room;
+export const createRoom = room => async (dispatch, getState) => {
+  const { name, masterPw, roomID } = room;
+  const { user } = getState();
+  const { myName, points } = user;
 
   await firebase
     .database()
     .ref(`rooms/${roomID}`)
     .set({
       name,
-      master,
+      myName,
       masterPw,
-      members: [master],
+      members: [{ myName, points }],
     });
+
   dispatch({
     type: CREATE_ROOM,
     payload: {
       name,
-      master,
-      members: [master],
-      id: roomID,
+      myName,
+      members: [{ myName, points }],
+      roomID,
     },
   });
 };
 
-export const joinRoom = id => async (dispatch, getState) => {
+export const joinRoom = roomID => async (dispatch, getState) => {
   const { myName } = getState().user;
 
   await firebase
     .database()
-    .ref(`rooms/${id}/`)
+    .ref(`rooms/${roomID}/`)
     .once('value', snap => {
       const { members, master } = Object.values(snap.val());
       if (members.indexOf(myName) === -1) {
         firebase
           .database()
-          .ref(`rooms/${id}/members/`)
+          .ref(`rooms/${roomID}/members/`)
           .push(myName);
       }
 
@@ -46,60 +49,91 @@ export const joinRoom = id => async (dispatch, getState) => {
           name,
           master,
           members,
-          id,
+          roomID,
         },
       });
     });
 };
 
-export const deleteRoom = id => async dispatch => {
+export const deleteRoom = roomID => async dispatch => {
   dispatch({
     type: DELETE_ROOM,
-    payload: id,
+    payload: roomID,
   });
 };
 
-export const checkRoom = id => async getState => {
+export const checkRoom = roomID => async getState => {
   const { myName } = getState().user;
+
   firebase
     .database()
-    .ref(`rooms/${id}/members/`)
+    .ref(`rooms/${roomID}/members/`)
     .once('value')
     .then(snap => {
-      let count = 0;
       if (snap.val()) {
         const members = Object.values(snap.val());
-        members.forEach(lm => {
-          if (lm === myName) {
-            count += 1;
-          }
-        });
         // If member even exists
         if (members) {
           // If room doesn't exist or player is kicked
-          if (members.length < 0 || count <= 0) {
-            deleteRoom(id);
+          if (members.length < 0 || members.indexOf(myName) === -1) {
+            deleteRoom(roomID);
           }
         } else {
-          deleteRoom(id);
+          deleteRoom(roomID);
         }
       } else {
-        deleteRoom(id);
+        deleteRoom(roomID);
       }
     });
 };
 
-export const createCard = (roomID, matchID, card, cards) => async dispatch => {
+export const createMatch = (roomID, match) => async (dispatch, getState) => {
+  const { rooms } = getState();
+  const room = rooms.find(room => room.roomID === roomID);
+
+  if (!room.matches) {
+    room.matches = [match];
+  } else {
+    room.matches.unshift(match);
+  }
+
+  firebase
+    .database()
+    .ref(`rooms/${roomID}/`)
+    .update({
+      matches: room.matches,
+    });
+
+  dispatch({
+    type: CREATE_MATCH,
+    payload: { rooms },
+  });
+};
+
+export const createCard = (roomID, matchID, card) => async (
+  dispatch,
+  getState
+) => {
+  const { rooms } = getState();
+  const room = rooms.find(room => room.roomID === roomID);
+  const match = room.matches.find(match => match.matchID === matchID);
+
+  if (!match.cards) {
+    match.cards = [card];
+  } else {
+    match.cards.unshift(card);
+  }
+
   firebase
     .database()
     .ref(`rooms/${roomID}/matches/${matchID}`)
     .update({
-      cards,
+      cards: match.cards,
     });
 
   dispatch({
     type: CREATE_CARD,
-    payload: { roomID, matchID, card },
+    payload: { rooms },
   });
 };
 

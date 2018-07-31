@@ -68,21 +68,35 @@ class Home extends React.Component {
     updateName: PropTypes.func.isRequired,
     createRoom: PropTypes.func.isRequired,
     checkRoom: PropTypes.func.isRequired,
+    deleteRoom: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
     rooms: [],
   };
 
-  returnData(id) {
-    this.deleteRoom(id);
+  returnData(roomID) {
+    this.deleteRoom(roomID);
   }
 
   componentWillMount() {
     this.checkRooms();
   }
 
-  async componentDidMount() {
+  componentDidMount() {
+    const { deleteRoom, user } = this.props;
+    const { myName } = user;
+
+    // Add the user kicker listener
+    firebase
+      .database()
+      .ref(`users/${myName}/rooms`)
+      .on('child_removed', async snap => {
+        deleteRoom(snap().val);
+        NavigationService.navigateTo('Home');
+        Alert.alert(I18n.t('kicked'), I18n.t('kicked_desc'));
+      });
+
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
   }
 
@@ -97,7 +111,7 @@ class Home extends React.Component {
 
   checkRooms = async () => {
     const { rooms, checkRoom } = this.props;
-    rooms.map(element => checkRoom(element.id));
+    rooms.map(element => checkRoom(element.roomID));
   };
 
   createRoom = async () => {
@@ -134,11 +148,12 @@ class Home extends React.Component {
     }
 
     // Upload the room itself to database
-    createRoom({
+    await createRoom({
       name: newRoomName,
       master: myName,
       masterPw: sha256(pw),
       roomID: newRoomID,
+      matches: [],
     });
 
     this.setState({
@@ -149,7 +164,6 @@ class Home extends React.Component {
     NavigationService.navigateTo('Room', {
       roomName: newRoomName,
       roomID: newRoomID,
-      myName,
       returnData: this.returnData.bind(this),
     });
 
@@ -257,7 +271,6 @@ class Home extends React.Component {
     NavigationService.navigateTo('Room', {
       roomName: joinRoomName,
       roomID: joinRoomID,
-      myName,
       returnData: this.returnData.bind(this),
     });
 
@@ -882,6 +895,7 @@ class Home extends React.Component {
                   style={{ padding: 2.5, marginLeft: 20 }}
                   onPress={() => {
                     NavigationService.navigateTo('Room', {
+                      roomName: rowData.name,
                       roomID: rowData.roomID,
                       returnData: this.returnData.bind(this),
                     });
