@@ -20,7 +20,7 @@ import { Images } from '@assets';
 import styles from './styles';
 import I18n from '../../i18n';
 import NavigationService from '../../config/navigationService';
-import { createMatch } from '../../actions';
+import { createMatch, deleteRoom } from '../../actions';
 import { newId } from '../../services';
 
 const initialLayout = {
@@ -59,6 +59,7 @@ class Room extends React.Component {
     navigation: PropTypes.any.isRequired,
     user: PropTypes.object.isRequired,
     createMatch: PropTypes.func.isRequired,
+    deleteRoom: PropTypes.func.isRequired,
     rooms: PropTypes.array.isRequired,
   };
 
@@ -128,7 +129,7 @@ class Room extends React.Component {
                           .ref(`rooms/${roomID}`)
                           .remove();
 
-                        navigation.state.params.returnData(roomName);
+                        this.deleteRoom(roomID);
                         navigation.goBack();
                       },
                       style: 'destructive',
@@ -165,7 +166,6 @@ class Room extends React.Component {
                   members: memb,
                 });
 
-              navigation.state.params.returnData(roomName);
               navigation.goBack();
             } else {
               // Can't kick others
@@ -189,7 +189,8 @@ class Room extends React.Component {
   // Download match data from database
   getData = async () => {
     const { roomID } = this.state;
-    const thus = this;
+    const members = [];
+    const matches = [];
 
     // Get data and add listener
     await firebase
@@ -200,9 +201,6 @@ class Room extends React.Component {
         const snap = snapshot.val();
 
         const membersName = Object.values(snap.members);
-        const members = [];
-
-        thus.setState({ roomMaster: snap.master });
 
         membersName.forEach(element => {
           firebase
@@ -213,28 +211,14 @@ class Room extends React.Component {
             });
         });
 
-        setTimeout(() => {
-          thus.setState({ roomMembers: members });
-        }, 1000);
-
-        const matches = [];
-
         if (snap.matches) {
           snap.matches.forEach(element => {
             matches.push(element);
           });
-          thus.setState({ matches });
-        } else {
-          thus.setState({ matches: [] });
         }
       });
-  };
 
-  returnData = () => {
-    const { roomName } = this.state;
-    const { navigation } = this.props;
-    navigation.state.params.returnData(roomName);
-    navigation.goBack();
+    this.setState({ roomMembers: members, matches });
   };
 
   // Upload data to database
@@ -361,7 +345,6 @@ class Room extends React.Component {
                       matchID: rowData.matchID,
                       matchMaster: rowData.master,
                       roomMaster,
-                      returnData: this.returnData.bind(this),
                     });
                   }}
                   onBingoPress={() => {
@@ -540,5 +523,6 @@ export default connect(
   mapStateToProps,
   {
     createMatch,
+    deleteRoom,
   }
 )(Room);

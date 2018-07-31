@@ -63,7 +63,7 @@ class Match extends React.Component {
   // Download match data from Database
   getData = () => {
     const { roomID, matchID } = this.state;
-    const thus = this;
+    const roomCards = [];
 
     // Get data and add listener
     firebase
@@ -73,7 +73,6 @@ class Match extends React.Component {
         // Parse objects
         const snapshot = snap.val();
 
-        const roomCards = [];
         if (snapshot.cards !== null) {
           snapshot.cards.forEach(element => {
             if (!element.voters) {
@@ -81,16 +80,12 @@ class Match extends React.Component {
             }
             roomCards.push(element);
           });
-        } else {
-          thus.setState({ roomCards: [] });
-          return;
         }
-
-        thus.setState({ roomCards });
       });
+    this.setState({ roomCards });
   };
 
-  // Vote on a card and alert the user if there's more than 2 votes
+  // Vote on a card and alert the user if there are more than 2 votes
   vote = cardToVoteOn => {
     const { roomCards } = this.state;
     const { user } = this.props;
