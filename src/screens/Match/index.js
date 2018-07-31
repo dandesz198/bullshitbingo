@@ -330,17 +330,8 @@ class Match extends React.Component {
                                 .ref(`users/${element}/`)
                                 .update({
                                   points: snap.val() + 1,
-                                })
-                                .catch(reason =>
-                                  console.log(
-                                    'FIREBASE ERROR - reason:',
-                                    reason
-                                  )
-                                );
-                            })
-                            .catch(reason =>
-                              console.log('FIREBASE ERROR - reason:', reason)
-                            );
+                                });
+                            });
                         });
                       },
                     },
