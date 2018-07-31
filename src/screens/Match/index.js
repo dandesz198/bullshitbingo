@@ -87,8 +87,7 @@ class Match extends React.Component {
         }
 
         thus.setState({ roomCards });
-      })
-      
+      });
   };
 
   // Vote on a card and alert the user if there's more than 2 votes
@@ -145,8 +144,7 @@ class Match extends React.Component {
       .ref(`rooms/${roomID}/matches/${matchID}`)
       .update({
         cards: roomCards,
-      })
-      
+      });
   };
 
   render() {

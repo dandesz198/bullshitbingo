@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
-import { Alert, BackHandler } from 'react-native';
+import { BackHandler } from 'react-native';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/es/integration/react';
 import * as firebase from 'firebase';
-import PropTypes from 'prop-types';
 
 import configureStore from './src/config/setupStore';
 import NavigationService from './src/config/navigationService';
 import Routes from './src/Routes';
-import I18n from './src/i18n';
 
 const Environment = require('./src/config/environment');
 
