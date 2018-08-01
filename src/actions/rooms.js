@@ -12,17 +12,17 @@ export const createRoom = room => async (dispatch, getState) => {
     .ref(`rooms/${roomID}`)
     .set({
       name,
-      myName,
+      master: myName,
       masterPw,
-      members: [{ myName, points }],
+      members: [{ name: myName, points }],
     });
 
   dispatch({
     type: CREATE_ROOM,
     payload: {
       name,
-      myName,
-      members: [{ myName, points }],
+      master: myName,
+      members: [{ name: myName, points }],
       roomID,
     },
   });

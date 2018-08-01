@@ -168,7 +168,6 @@ class Home extends React.Component {
 
     // Navigate to the new room's screen
     NavigationService.navigateTo('Room', {
-      roomName: newRoomName,
       roomID: newRoomID,
     });
 
@@ -274,7 +273,6 @@ class Home extends React.Component {
 
     // Navigate to the room
     NavigationService.navigateTo('Room', {
-      roomName: joinRoomName,
       roomID: joinRoomID,
     });
 
@@ -899,7 +897,6 @@ class Home extends React.Component {
                   style={{ padding: 2.5, marginLeft: 20 }}
                   onPress={() => {
                     NavigationService.navigateTo('Room', {
-                      roomName: rowData.name,
                       roomID: rowData.roomID,
                     });
                     BackHandler.removeEventListener(
