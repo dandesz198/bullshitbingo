@@ -237,7 +237,7 @@ class Home extends React.Component {
   };
 
   joinRoom = async () => {
-    const { joinMaster, roomPw, joinPw, joinRoomID, joinRoomName } = this.state;
+    const { joinMaster, roomPw, joinPw, joinRoomID } = this.state;
     const { user, joinRoom } = this.props;
     const { myName } = user;
     if (myName.length === 0) {
