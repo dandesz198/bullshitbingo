@@ -52,6 +52,11 @@ class Match extends React.Component {
     vote: PropTypes.func.isRequired,
     unvote: PropTypes.func.isRequired,
     user: PropTypes.object.isRequired,
+    error: PropTypes.object,
+  };
+
+  static defaultProps = {
+    error: null,
   };
 
   componentDidMount() {
@@ -61,6 +66,14 @@ class Match extends React.Component {
     setTimeout(() => {
       this.scrollView.scrollTo({ x: 0, y: 120, animated: false });
     }, 1);
+  }
+
+  componentDidUpdate(prevProps) {
+    const { error } = this.props;
+    if (prevProps.error !== error && error) {
+      Alert.alert(I18n.t(error.title), I18n.t(error.details));
+      // show the alert
+    }
   }
 
   // Download match data from Database
@@ -149,7 +162,7 @@ class Match extends React.Component {
       roomID,
       matchID,
     } = this.state;
-    const { user, unvote } = this.props;
+    const { user, unvote, deleteCard } = this.props;
     const { myName } = user;
     return (
       <ScrollView
@@ -265,14 +278,7 @@ class Match extends React.Component {
                     {
                       text: I18n.t('delete_it'),
                       onPress: () => {
-                        // Declare variables
-                        const cards = roomCards;
-                        const card = rowData;
-
-                        cards.splice(cards.indexOf(card), 1);
-
-                        this.setState({ roomCards: cards });
-                        this.syncToDatabase();
+                        deleteCard(roomID, matchID, rowData);
                       },
                       style: 'destructive',
                     },
@@ -302,18 +308,6 @@ class Match extends React.Component {
                         this.setState({ roomCards: cards });
                         this.syncToDatabase();
 
-                        if (
-                          rowData.voters.length === 1 &&
-                          rowData.voters[0] === myName
-                        ) {
-                          Alert.alert(I18n.t('error'), I18n.t('one_voter'));
-                          return;
-                        }
-
-                        if (rowData.voters.length <= 0) {
-                          return;
-                        }
-
                         rowData.voters.forEach(element => {
                           firebase
                             .database()
@@ -342,9 +336,10 @@ class Match extends React.Component {
   }
 }
 
-const mapStateToProps = ({ rooms, user }) => ({
+const mapStateToProps = ({ rooms, user, error }) => ({
   rooms,
   user,
+  error,
 });
 
 export default connect(

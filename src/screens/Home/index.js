@@ -69,10 +69,12 @@ class Home extends React.Component {
     createRoom: PropTypes.func.isRequired,
     checkRoom: PropTypes.func.isRequired,
     deleteRoom: PropTypes.func.isRequired,
+    error: PropTypes.object,
   };
 
   static defaultProps = {
     rooms: [],
+    error: null,
   };
 
   componentWillMount() {
@@ -94,6 +96,14 @@ class Home extends React.Component {
       });
 
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
+  }
+
+  componentDidUpdate(prevProps) {
+    const { error } = this.props;
+    if (prevProps.error !== error && error) {
+      Alert.alert(I18n.t(error.title), I18n.t(error.details));
+      // show the alert
+    }
   }
 
   onBackPress = () => {
@@ -916,9 +926,10 @@ class Home extends React.Component {
   }
 }
 
-const mapStateToProps = ({ rooms, user }) => ({
+const mapStateToProps = ({ rooms, user, error }) => ({
   rooms,
   user,
+  error,
 });
 
 export default connect(
