@@ -9,10 +9,7 @@ import {
   ERROR,
 } from './types';
 
-export const createCard = (roomID, matchID, card) => async (
-  dispatch,
-  getState
-) => {
+export const createCard = (roomID, matchID, card) => (dispatch, getState) => {
   const { rooms } = getState();
   const room = rooms.find(room => room.roomID === roomID);
   let { cards } = room.matches.find(match => match.matchID === matchID);
@@ -32,14 +29,11 @@ export const createCard = (roomID, matchID, card) => async (
 
   dispatch({
     type: CREATE_CARD,
-    payload: { rooms },
+    payload: [...rooms],
   });
 };
 
-export const deleteCard = (roomID, matchID, card) => async (
-  dispatch,
-  getState
-) => {
+export const deleteCard = (roomID, matchID, card) => (dispatch, getState) => {
   const { rooms } = getState();
   const room = rooms.find(room => room.roomID === roomID);
   const { cards } = room.matches.find(match => match.matchID === matchID);
@@ -55,11 +49,11 @@ export const deleteCard = (roomID, matchID, card) => async (
 
   dispatch({
     type: DELETE_CARD,
-    payload: { rooms },
+    payload: [...rooms],
   });
 };
 
-export const vote = (roomID, matchID, card) => async (dispatch, getState) => {
+export const vote = (roomID, matchID, card) => (dispatch, getState) => {
   const { rooms, user } = getState();
   const { myName } = user;
   const room = rooms.find(room => room.roomID === roomID);
@@ -79,11 +73,11 @@ export const vote = (roomID, matchID, card) => async (dispatch, getState) => {
 
   dispatch({
     type: VOTE_CARD,
-    payload: { rooms },
+    payload: [...rooms],
   });
 };
 
-export const unvote = (roomID, matchID, card) => async (dispatch, getState) => {
+export const unvote = (roomID, matchID, card) => (dispatch, getState) => {
   const { rooms, user } = getState();
   const { myName } = user;
   const room = rooms.find(room => room.roomID === roomID);
@@ -104,11 +98,11 @@ export const unvote = (roomID, matchID, card) => async (dispatch, getState) => {
 
   dispatch({
     type: UNVOTE_CARD,
-    payload: { rooms },
+    payload: [...rooms],
   });
 };
 
-export const bingo = (roomID, matchID, card) => async (dispatch, getState) => {
+export const bingo = (roomID, matchID, card) => (dispatch, getState) => {
   const { rooms, user } = getState();
   const { myName } = user;
   const room = rooms.find(room => room.roomID === roomID);
@@ -155,7 +149,7 @@ export const bingo = (roomID, matchID, card) => async (dispatch, getState) => {
 
   dispatch({
     type: BINGO_CARD,
-    payload: { rooms },
+    payload: [...rooms],
   });
 };
 

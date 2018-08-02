@@ -11,7 +11,6 @@ import {
   StatusBar,
 } from 'react-native';
 import { TabViewAnimated, TabBar } from 'react-native-tab-view';
-import * as firebase from 'firebase';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Button, Card, Text } from '@components';
@@ -20,7 +19,14 @@ import { Images } from '@assets';
 import styles from './styles';
 import I18n from '../../i18n';
 import NavigationService from '../../config/navigationService';
-import { createMatch, deleteRoom } from '../../actions';
+import {
+  createMatch,
+  deleteRoom,
+  deleteMatch,
+  deleteRoomFromDb,
+  kick,
+  quitRoom,
+} from '../../actions';
 import { newId } from '../../services';
 
 const initialLayout = {
@@ -46,10 +52,10 @@ class Room extends React.Component {
       value: 0,
 
       roomID,
-      roomName: name,
-      roomMaster: master,
+      name,
+      master,
       matches: matches && matches.length > 0 ? matches : [],
-      roomMembers: members,
+      members,
 
       newMatchText: '',
     };
@@ -60,6 +66,10 @@ class Room extends React.Component {
     user: PropTypes.object.isRequired,
     createMatch: PropTypes.func.isRequired,
     deleteRoom: PropTypes.func.isRequired,
+    deleteRoomFromDb: PropTypes.func.isRequired,
+    deleteMatch: PropTypes.func.isRequired,
+    kick: PropTypes.func.isRequired,
+    quitRoom: PropTypes.func.isRequired,
     rooms: PropTypes.array.isRequired,
     error: PropTypes.object,
   };
@@ -69,18 +79,16 @@ class Room extends React.Component {
   };
 
   componentDidMount() {
-    // Database sync
-    this.getData();
-
     setTimeout(() => {
       this.scrollView.scrollTo({ x: 0, y: 120, animated: false });
     }, 1);
   }
 
   componentDidUpdate(prevProps) {
-    const { error } = this.props;
-    if (prevProps.error !== error && error) {
-      Alert.alert(I18n.t(error.title), I18n.t(error.details));
+    console.log('componentDidUpdate');
+    const { props } = this;
+    if (prevProps.error !== props.error && props.error) {
+      Alert.alert(I18n.t(props.error.title), I18n.t(props.error.details));
       // show the alert
     }
   }
@@ -99,15 +107,15 @@ class Room extends React.Component {
   };
 
   quitKick = rowData => {
-    const { roomName, roomMaster, roomID, roomMembers } = this.state;
-    const { user, navigation } = this.props;
+    const { name, master, roomID } = this.state;
+    const { user, navigation, kick, quitRoom } = this.props;
     const { myName } = user;
     const thus = this;
     Vibration.vibrate();
     Alert.alert(
       I18n.t('are_you_sure'),
       myName === rowData.name
-        ? `${I18n.t('really_quit')} ${roomName}? ${I18n.t('rejoin')}`
+        ? `${I18n.t('really_quit')} ${name}? ${I18n.t('rejoin')}`
         : `${I18n.t('really_kick')} ${rowData.name}? ${I18n.t('rejoin_kick')}`,
       [
         {
@@ -119,7 +127,7 @@ class Room extends React.Component {
           text: I18n.t('yes'),
           onPress: async () => {
             // Determine if the player is the match master
-            if (myName === roomMaster) {
+            if (myName === master) {
               // If match master AND kicking itself
               if (myName === rowData.name) {
                 // But you are the match master - quitting will delete the match
@@ -136,7 +144,7 @@ class Room extends React.Component {
                     {
                       text: I18n.t('matchmaster_quit_ok'),
                       onPress: () => {
-                        this.deleteRoom(roomID);
+                        this.deleteRoomFromDb(roomID);
                         navigation.goBack();
                       },
                       style: 'destructive',
@@ -145,34 +153,11 @@ class Room extends React.Component {
                 );
               } else {
                 // Since it's not kicking itself, they can kick the player
-                const members = roomMembers;
-                const memb = [];
-                await members.forEach(element => {
-                  memb.push(element.name);
-                });
-                memb.splice(memb.indexOf(rowData.name), 1);
-                firebase
-                  .database()
-                  .ref(`rooms/${roomID}`)
-                  .update({
-                    members: memb,
-                  });
+                kick(roomID, rowData.name);
               }
             } else if (rowData.name === myName) {
               // Quit room
-              const members = roomMembers;
-              const memb = [];
-              await members.forEach(element => {
-                memb.push(element.name);
-              });
-              memb.splice(memb.indexOf(rowData.name));
-              firebase
-                .database()
-                .ref(`rooms/${roomID}`)
-                .update({
-                  members: memb,
-                });
-
+              quitRoom(roomID);
               navigation.goBack();
             } else {
               // Can't kick others
@@ -185,59 +170,11 @@ class Room extends React.Component {
                 },
               ]);
             }
-            thus.syncToDatabase();
           },
           style: 'destructive',
         },
       ]
     );
-  };
-
-  // Download match data from database
-  getData = async () => {
-    const { roomID } = this.state;
-    const members = [];
-    const matches = [];
-
-    // Get data and add listener
-    await firebase
-      .database()
-      .ref(`rooms/${roomID}/`)
-      .on('value', async snapshot => {
-        // Parse objects
-        const snap = snapshot.val();
-
-        const membersName = Object.values(snap.members);
-
-        membersName.forEach(element => {
-          firebase
-            .database()
-            .ref(`users/${element}/`)
-            .once('value', snp => {
-              members.push(snp.val());
-            });
-        });
-
-        if (snap.matches) {
-          snap.matches.forEach(element => {
-            matches.push(element);
-          });
-        }
-      });
-
-    this.setState({ roomMembers: members, matches });
-  };
-
-  // Upload data to database
-  syncToDatabase = () => {
-    const { roomID, matches } = this.state;
-    // Upload every card to database
-    firebase
-      .database()
-      .ref(`rooms/${roomID}/`)
-      .update({
-        matches,
-      });
   };
 
   handleIndexChange = index => this.setState({ index });
@@ -256,15 +193,8 @@ class Room extends React.Component {
   );
 
   renderScene = ({ route }) => {
-    const {
-      newMatchText,
-      matches,
-      roomName,
-      roomID,
-      roomMaster,
-      roomMembers,
-    } = this.state;
-    const { user } = this.props;
+    const { newMatchText, matches, name, roomID, master, members } = this.state;
+    const { user, deleteMatch } = this.props;
     const { myName } = user;
     switch (route.key) {
       case '1':
@@ -338,20 +268,18 @@ class Room extends React.Component {
               renderRow={rowData => (
                 <Card
                   isMatch
-                  matchName={roomName}
+                  matchName={name}
                   cardText={rowData.name}
                   creatorName={rowData.master}
                   bgColor="white"
-                  isMaster={
-                    !!(rowData.master === myName || roomMaster === myName)
-                  }
+                  isMaster={!!(rowData.master === myName || master === myName)}
                   onVotePress={() => {
                     NavigationService.navigateTo('Match', {
                       matchName: rowData.name,
                       roomID,
                       matchID: rowData.matchID,
                       matchMaster: rowData.master,
-                      roomMaster,
+                      master,
                     });
                   }}
                   onBingoPress={() => {
@@ -365,13 +293,7 @@ class Room extends React.Component {
                         {
                           text: I18n.t('delete_it'),
                           onPress: () => {
-                            matches.splice(matches.indexOf(rowData), 1);
-                            firebase
-                              .database()
-                              .ref(`rooms/${roomID}`)
-                              .update({
-                                matches,
-                              });
+                            deleteMatch(roomID, rowData);
                           },
                         },
                         { text: I18n.t('cancel'), style: 'cancel' },
@@ -393,7 +315,7 @@ class Room extends React.Component {
                   {`${I18n.t('room_name')}: `}
                 </Text>
                 <Text isBold style={styles.h2}>
-                  {roomName}
+                  {name}
                 </Text>
               </View>
               <Image
@@ -410,7 +332,7 @@ class Room extends React.Component {
               {`${I18n.t('room_master')}: `}
             </Text>
             <Text isBold style={styles.h2}>
-              {roomMaster}
+              {master}
             </Text>
             <View
               style={{
@@ -438,7 +360,7 @@ class Room extends React.Component {
             </Text>
             <ListView
               dataSource={ds.cloneWithRows(
-                roomMembers.sort(
+                members.sort(
                   (a, b) =>
                     a.points < b.points ? 1 : b.points < a.points ? -1 : 0
                 )
@@ -470,7 +392,7 @@ class Room extends React.Component {
                     >
                       {`${rowData.name} | ${rowData.points} XP`}
                     </Text>
-                    {myName === roomMaster &&
+                    {myName === master &&
                       myName === rowData.name && (
                         <Button
                           onPress={() => {
@@ -532,5 +454,9 @@ export default connect(
   {
     createMatch,
     deleteRoom,
+    deleteMatch,
+    deleteRoomFromDb,
+    kick,
+    quitRoom,
   }
 )(Room);

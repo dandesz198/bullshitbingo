@@ -4,7 +4,12 @@ import {
   CREATE_MATCH,
   DELETE_MATCH,
   CREATE_CARD,
+  VOTE_CARD,
+  UNVOTE_CARD,
+  BINGO_CARD,
   DELETE_CARD,
+  FETCH,
+  KICK,
 } from '../actions';
 
 export default function reducer(state = [], action) {
@@ -47,8 +52,16 @@ export default function reducer(state = [], action) {
         voters: [ id -> voter ]
       }
     */
-    case (CREATE_MATCH, DELETE_MATCH, CREATE_CARD, DELETE_CARD): {
-      return [action.payload];
+    case (CREATE_MATCH,
+    DELETE_MATCH,
+    CREATE_CARD,
+    VOTE_CARD,
+    UNVOTE_CARD,
+    BINGO_CARD,
+    DELETE_CARD,
+    FETCH,
+    KICK): {
+      return [...action.payload];
     }
     default:
       return state;

@@ -10,7 +10,6 @@ import {
   Image,
   StatusBar,
 } from 'react-native';
-import * as firebase from 'firebase';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Button, Card, Text } from '@components';
@@ -18,7 +17,7 @@ import { Images } from '@assets';
 
 import styles from './styles';
 import I18n from '../../i18n';
-import { createCard, deleteCard, vote, unvote } from '../../actions';
+import { createCard, deleteCard, vote, unvote, bingo } from '../../actions';
 
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
@@ -49,6 +48,7 @@ class Match extends React.Component {
     navigation: PropTypes.any.isRequired,
     createCard: PropTypes.func.isRequired,
     deleteCard: PropTypes.func.isRequired,
+    bingo: PropTypes.func.isRequired,
     vote: PropTypes.func.isRequired,
     unvote: PropTypes.func.isRequired,
     user: PropTypes.object.isRequired,
@@ -60,9 +60,6 @@ class Match extends React.Component {
   };
 
   componentDidMount() {
-    // Sync Database
-    this.getData();
-
     setTimeout(() => {
       this.scrollView.scrollTo({ x: 0, y: 120, animated: false });
     }, 1);
@@ -75,31 +72,6 @@ class Match extends React.Component {
       // show the alert
     }
   }
-
-  // Download match data from Database
-  getData = () => {
-    const { roomID, matchID } = this.state;
-    const roomCards = [];
-
-    // Get data and add listener
-    firebase
-      .database()
-      .ref(`rooms/${roomID}/matches/${matchID}/`)
-      .on('value', async snap => {
-        // Parse objects
-        const snapshot = snap.val();
-
-        if (snapshot.cards !== null) {
-          snapshot.cards.forEach(element => {
-            if (!element.voters) {
-              element.voters = [];
-            }
-            roomCards.push(element);
-          });
-        }
-      });
-    this.setState({ roomCards });
-  };
 
   // Vote on a card
   vote = cardToModify => {
@@ -140,18 +112,6 @@ class Match extends React.Component {
     this.vote(card);
   };
 
-  // Upload data to Database
-  syncToDatabase = () => {
-    const { roomID, matchID, roomCards } = this.state;
-    // Upload every card to Database
-    firebase
-      .database()
-      .ref(`rooms/${roomID}/matches/${matchID}`)
-      .update({
-        cards: roomCards,
-      });
-  };
-
   render() {
     const {
       newCardText,
@@ -162,7 +122,7 @@ class Match extends React.Component {
       roomID,
       matchID,
     } = this.state;
-    const { user, unvote, deleteCard } = this.props;
+    const { user, unvote, deleteCard, bingo } = this.props;
     const { myName } = user;
     return (
       <ScrollView
@@ -301,27 +261,7 @@ class Match extends React.Component {
                       text: I18n.t('its_bingo'),
                       onPress: () => {
                         // Declare variables
-                        const cards = roomCards;
-
-                        rowData.isBingo = true;
-
-                        this.setState({ roomCards: cards });
-                        this.syncToDatabase();
-
-                        rowData.voters.forEach(element => {
-                          firebase
-                            .database()
-                            .ref(`users/${element}/points`)
-                            .once('value')
-                            .then(snap => {
-                              firebase
-                                .database()
-                                .ref(`users/${element}/`)
-                                .update({
-                                  points: snap.val() + 1,
-                                });
-                            });
-                        });
+                        bingo(rowData);
                       },
                     },
                     { text: I18n.t('cancel'), style: 'cancel' },
@@ -349,5 +289,6 @@ export default connect(
     deleteCard,
     vote,
     unvote,
+    bingo,
   }
 )(Match);

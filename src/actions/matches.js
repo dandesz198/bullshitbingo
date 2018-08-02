@@ -1,27 +1,52 @@
 import * as firebase from 'firebase';
 
-import { CREATE_MATCH } from './types';
+import { CREATE_MATCH, DELETE_MATCH } from './types';
 
-export const createMatch = (roomID, match) => async (dispatch, getState) => {
+export const createMatch = (roomID, match) => (dispatch, getState) => {
   const { rooms } = getState();
-  let { matches } = rooms.find(room => room.roomID === roomID);
+  const room = rooms.find(room => room.roomID === roomID);
+  const index = rooms.indexOf(room);
 
-  if (!matches) {
-    matches = [match];
+  if (!room.matches) {
+    room.matches = [match];
   } else {
-    matches.unshift(match);
+    room.matches.unshift(match);
   }
 
   firebase
     .database()
     .ref(`rooms/${roomID}/`)
     .update({
-      matches,
+      matches: room.matches,
     });
+
+  rooms[index] = room;
 
   dispatch({
     type: CREATE_MATCH,
-    payload: { rooms },
+    payload: [...rooms],
+  });
+};
+
+export const deleteMatch = (roomID, match) => (dispatch, getState) => {
+  const { rooms } = getState();
+  const room = rooms.find(room => room.roomID === roomID);
+  const index = rooms.indexOf(room);
+
+  room.matches.splice(room.matches.indexOf(match));
+
+  firebase
+    .database()
+    .ref(`rooms/${roomID}/`)
+    .update({
+      matches: room.matches,
+    });
+
+  rooms[index] = room;
+
+  dispatch({
+    type: DELETE_MATCH,
+    payload: [...rooms],
   });
 };
 

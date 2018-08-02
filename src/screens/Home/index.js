@@ -23,11 +23,11 @@ import { Images } from '@assets';
 import styles from './styles';
 import I18n from '../../i18n';
 import {
+  fetchFromDb,
   createRoom,
+  deleteRoom,
   hideOnboarding,
   updateName,
-  deleteRoom,
-  checkRoom,
 } from '../../actions';
 import { createId } from '../../services';
 import NavigationService from '../../config/navigationService';
@@ -67,7 +67,7 @@ class Home extends React.Component {
     hideOnboarding: PropTypes.func.isRequired,
     updateName: PropTypes.func.isRequired,
     createRoom: PropTypes.func.isRequired,
-    checkRoom: PropTypes.func.isRequired,
+    fetchFromDb: PropTypes.func.isRequired,
     deleteRoom: PropTypes.func.isRequired,
     error: PropTypes.object,
   };
@@ -116,8 +116,8 @@ class Home extends React.Component {
   };
 
   checkRooms = async () => {
-    const { rooms, checkRoom } = this.props;
-    rooms.map(element => checkRoom(element.roomID));
+    const { rooms, fetchFromDb } = this.props;
+    rooms.map(element => fetchFromDb(element.roomID));
   };
 
   createRoom = async () => {
@@ -936,6 +936,6 @@ export default connect(
     createRoom,
     updateName,
     deleteRoom,
-    checkRoom,
+    fetchFromDb,
   }
 )(Home);
