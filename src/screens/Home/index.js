@@ -265,7 +265,7 @@ class Home extends React.Component {
     }
 
     // Add the user to database
-    joinRoom(joinRoomID);
+    await joinRoom(joinRoomID);
 
     this.setState({
       joinRoomModalVisible: false,
@@ -413,6 +413,7 @@ class Home extends React.Component {
                   if (myNameWB.length > 0) {
                     await updateName(myNameWB);
                     await this.setState({
+                      myName: myNameWB,
                       myNameWB: '',
                     });
                   }
@@ -546,6 +547,7 @@ class Home extends React.Component {
                 <Button
                   onPress={async () => {
                     if (myNameWB.length > 0) {
+                      await updateName(myNameWB);
                       await this.setState({
                         myName: myNameWB,
                         myNameWB: '',
