@@ -13,6 +13,7 @@ export const createCard = (roomID, matchID, card) => (dispatch, getState) => {
   const { rooms } = getState();
   const room = rooms.find(room => room.roomID === roomID);
   let { cards } = room.matches.find(match => match.matchID === matchID);
+  const index = rooms.indexOf(room);
 
   if (!cards) {
     cards = [card];
@@ -27,6 +28,8 @@ export const createCard = (roomID, matchID, card) => (dispatch, getState) => {
       cards,
     });
 
+  rooms[index] = room;
+
   dispatch({
     type: CREATE_CARD,
     payload: [...rooms],
@@ -37,6 +40,7 @@ export const deleteCard = (roomID, matchID, card) => (dispatch, getState) => {
   const { rooms } = getState();
   const room = rooms.find(room => room.roomID === roomID);
   const { cards } = room.matches.find(match => match.matchID === matchID);
+  const index = rooms.indexOf(room);
 
   cards.splice(cards.indexOf(card), 1);
 
@@ -46,6 +50,8 @@ export const deleteCard = (roomID, matchID, card) => (dispatch, getState) => {
     .update({
       cards,
     });
+
+  rooms[index] = room;
 
   dispatch({
     type: DELETE_CARD,
@@ -59,6 +65,7 @@ export const vote = (roomID, matchID, card) => (dispatch, getState) => {
   const room = rooms.find(room => room.roomID === roomID);
   const { cards } = room.matches.find(match => match.matchID === matchID);
   const cardToModify = cards.find(cardFromState => cardFromState === card);
+  const index = rooms.indexOf(room);
 
   cardToModify.voters.push(myName);
 
@@ -70,6 +77,8 @@ export const vote = (roomID, matchID, card) => (dispatch, getState) => {
     .update({
       cards,
     });
+
+  rooms[index] = room;
 
   dispatch({
     type: VOTE_CARD,
@@ -83,6 +92,7 @@ export const unvote = (roomID, matchID, card) => (dispatch, getState) => {
   const room = rooms.find(room => room.roomID === roomID);
   const { cards } = room.matches.find(match => match.matchID === matchID);
   const cardToModify = cards.find(cardFromState => cardFromState === card);
+  const index = rooms.indexOf(room);
 
   card.voters.splice(cardToModify.voters.indexOf(myName), 1);
   cards[cards.indexOf(card)] = cardToModify;
@@ -96,6 +106,8 @@ export const unvote = (roomID, matchID, card) => (dispatch, getState) => {
       cards,
     });
 
+  rooms[index] = room;
+
   dispatch({
     type: UNVOTE_CARD,
     payload: [...rooms],
@@ -108,6 +120,7 @@ export const bingo = (roomID, matchID, card) => (dispatch, getState) => {
   const room = rooms.find(room => room.roomID === roomID);
   const { cards } = room.matches.find(match => match.matchID === matchID);
   const cardToModify = cards.find(cardFromState => cardFromState === card);
+  const index = rooms.indexOf(room);
 
   cardToModify.isBingo = true;
 
@@ -119,6 +132,8 @@ export const bingo = (roomID, matchID, card) => (dispatch, getState) => {
     .update({
       cards,
     });
+
+  rooms[index] = room;
 
   if (card.voters.length === 1 && card.voters[0] === myName) {
     dispatch({
