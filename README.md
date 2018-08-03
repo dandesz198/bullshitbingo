@@ -1,6 +1,6 @@
 ## Bullshit Bingo
 
-If you came here to review my skills, please check the Redux branch instead, this branch is messy AF. Thank you.
+**If you came here to review my skills, please check the Redux branch instead, this branch is messy AF. Thank you.**
 
 Download it from [Google Play](https://play.google.com/store/apps/details?id=com.funbyte.bullshitbingo). For TestFlight link, contact me.
 
