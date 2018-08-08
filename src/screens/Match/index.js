@@ -75,7 +75,7 @@ class Match extends React.Component {
   }
 
   // Vote on a card
-  vote = card => {
+  votePrep = card => {
     const { roomID, matchID } = this.state;
     const { user, cards, vote } = this.props;
     const { myName } = user;
@@ -112,8 +112,7 @@ class Match extends React.Component {
       isBingo: false,
       voters: [],
     };
-    await createCard(roomID, matchID, card);
-    this.vote(cardID);
+    createCard(roomID, matchID, card);
   };
 
   render() {
@@ -128,7 +127,7 @@ class Match extends React.Component {
     const { user, cards, unvote, deleteCard, bingo } = this.props;
     const { myName } = user;
     const roomCards = cards.filter(card => card.matchID === matchID);
-    console.log('cards', cards);
+    console.log('roomCards', roomCards);
     console.log('matchID', matchID);
     return (
       <ScrollView
@@ -221,16 +220,13 @@ class Match extends React.Component {
               bgColor="white"
               isMaster={!!(matchMaster === myName || roomMaster === myName)}
               onVotePress={() => {
-                // Declare variables
-                const card = rowData;
-
                 // Check if user already voted to the card
                 if (rowData.voters.indexOf(myName) > -1) {
                   // Delete the vote
-                  unvote(roomID, matchID, card.cardID);
+                  unvote(roomID, matchID, rowData.cardID);
                 } else {
                   // Vote, because the user didn't vote on the card
-                  this.vote(card.cardID);
+                  this.votePrep(rowData);
                 }
               }}
               onDeletePress={() => {

@@ -14,7 +14,7 @@ export const createMatch = match => (dispatch, getState) => {
     .database()
     .ref(`rooms/${match.roomID}/`)
     .update({
-      matches: [roomMatches],
+      matches: roomMatches,
     });
 
   dispatch({
@@ -24,10 +24,9 @@ export const createMatch = match => (dispatch, getState) => {
 };
 
 export const deleteMatch = (roomID, matchID) => (dispatch, getState) => {
-  const { rooms } = getState();
-  const { matches } = rooms.find(room => room.roomID === roomID);
+  let { matches } = getState();
 
-  matches.splice(matches.indexOf(matchID));
+  matches = matches.filter(match => match.matchID !== matchID);
 
   firebase
     .database()

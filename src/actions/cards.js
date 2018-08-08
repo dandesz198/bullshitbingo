@@ -32,27 +32,22 @@ export const createCard = (roomID, matchID, card) => (dispatch, getState) => {
   });
 };
 
-// CHECK NEEDED
 export const deleteCard = (roomID, matchID, card) => (dispatch, getState) => {
-  const { rooms } = getState();
-  const room = rooms.find(room => room.roomID === roomID);
-  const { cards } = room.matches.find(match => match.matchID === matchID);
-  const index = rooms.indexOf(room);
+  const { cards } = getState();
+  const filteredCards = cards.filter(card => card.matchID === matchID);
 
-  cards.splice(cards.indexOf(card), 1);
+  filteredCards.splice(filteredCards.indexOf(card), 1);
 
   firebase
     .database()
     .ref(`rooms/${roomID}/matches/${matchID}`)
     .update({
-      cards,
+      cards: filteredCards,
     });
-
-  rooms[index] = room;
 
   dispatch({
     type: DELETE_CARD,
-    payload: [...rooms],
+    payload: card.cardID,
   });
 };
 
@@ -74,7 +69,7 @@ export const vote = (roomID, matchID, cardID) => (dispatch, getState) => {
 
   dispatch({
     type: VOTE_CARD,
-    payload: { cardToModify },
+    payload: { cardID, myName },
   });
 };
 
@@ -85,7 +80,7 @@ export const unvote = (roomID, matchID, cardID) => (dispatch, getState) => {
     cardFromState => cardFromState.cardID === cardID
   );
 
-  cardToModify.voters.splice(cardToModify.indexOf(myName));
+  cardToModify.voters = cardToModify.voters.filter(name => name !== myName);
 
   firebase
     .database()
@@ -96,33 +91,28 @@ export const unvote = (roomID, matchID, cardID) => (dispatch, getState) => {
 
   dispatch({
     type: UNVOTE_CARD,
-    payload: { cardToModify },
+    payload: { cardID, myName },
   });
 };
 
 // CHECK NEEDED
 export const bingo = (roomID, matchID, card) => (dispatch, getState) => {
-  const { rooms, user } = getState();
+  const { cards, user } = getState();
   const { myName } = user;
-  const room = rooms.find(room => room.roomID === roomID);
-  const { cards } = room.matches.find(match => match.matchID === matchID);
-  const cardToModify = cards.find(cardFromState => cardFromState === card);
-  const index = rooms.indexOf(room);
+  const cardToModify = cards.find(
+    cardFromState => cardFromState.cardID === card.cardID
+  );
 
   cardToModify.isBingo = true;
-
-  console.log('action - vote - cards', cards);
 
   firebase
     .database()
     .ref(`rooms/${roomID}/matches/${matchID}`)
     .update({
-      cards,
+      cards: [cardToModify, ...cards],
     });
 
-  rooms[index] = room;
-
-  if (card.voters.length === 1 && card.voters[0] === myName) {
+  if (card.voters.length === 1 && card.voters === [myName]) {
     dispatch({
       type: ERROR,
       payload: { title: 'error', details: 'one_voter' },
@@ -151,7 +141,7 @@ export const bingo = (roomID, matchID, card) => (dispatch, getState) => {
 
   dispatch({
     type: BINGO_CARD,
-    payload: [...rooms],
+    payload: card.cardID,
   });
 };
 
