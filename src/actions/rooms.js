@@ -53,7 +53,8 @@ const deleteRoom = roomID => ({
   payload: roomID,
 });
 
-export const deleteRoomDispatcher = roomID => dispatch => dispatch(deleteRoom(roomID));
+export const deleteRoomDispatcher = roomID => dispatch =>
+  dispatch(deleteRoom(roomID));
 
 export const deleteRoomFromDb = roomID => dispatch => {
   console.log('deleteRoomFromDb ran');

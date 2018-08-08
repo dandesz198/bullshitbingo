@@ -106,10 +106,6 @@ class Home extends React.Component {
     }
   }
 
-  kickerLister = dispatch => {
-    
-  }
-
   onBackPress = () => {
     this.setState({
       joinRoomModalVisible: false,
