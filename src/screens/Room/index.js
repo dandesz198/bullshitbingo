@@ -101,7 +101,6 @@ class Room extends React.Component {
       roomID,
       name: newMatchText,
       master: myName,
-      cards: [],
       matchID: `room${roomID}_match${newId()}`,
     };
     createMatch(match);
@@ -109,7 +108,7 @@ class Room extends React.Component {
 
   quitKick = rowData => {
     const { name, master, roomID } = this.state;
-    const { user, navigation, kick, quitRoom } = this.props;
+    const { user, navigation, kick, quitRoom, deleteRoomFromDb } = this.props;
     const { myName } = user;
     Vibration.vibrate();
     Alert.alert(
@@ -134,7 +133,7 @@ class Room extends React.Component {
                 Vibration.vibrate();
                 Alert.alert(
                   I18n.t('are_you_sure'),
-                  I18n.t('matchmaster_quit'),
+                  I18n.t('matchmaster_delete'),
                   [
                     {
                       text: I18n.t('cancel'),
@@ -144,7 +143,7 @@ class Room extends React.Component {
                     {
                       text: I18n.t('matchmaster_quit_ok'),
                       onPress: () => {
-                        this.deleteRoomFromDb(roomID);
+                        deleteRoomFromDb(roomID);
                         navigation.goBack();
                       },
                       style: 'destructive',
@@ -294,7 +293,7 @@ class Room extends React.Component {
                         {
                           text: I18n.t('delete_it'),
                           onPress: () => {
-                            deleteMatch(roomID, rowData);
+                            deleteMatch(roomID, rowData.matchID);
                           },
                         },
                         { text: I18n.t('cancel'), style: 'cancel' },

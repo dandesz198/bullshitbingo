@@ -25,7 +25,7 @@ import I18n from '../../i18n';
 import {
   fetchFromDb,
   createRoom,
-  deleteRoom,
+  deleteRoomDispatcher,
   hideOnboarding,
   updateName,
 } from '../../actions';
@@ -68,7 +68,7 @@ class Home extends React.Component {
     updateName: PropTypes.func.isRequired,
     createRoom: PropTypes.func.isRequired,
     fetchFromDb: PropTypes.func.isRequired,
-    deleteRoom: PropTypes.func.isRequired,
+    deleteRoomDispatcher: PropTypes.func.isRequired,
     error: PropTypes.object,
   };
 
@@ -82,7 +82,7 @@ class Home extends React.Component {
   }
 
   componentDidMount() {
-    const { deleteRoom, user } = this.props;
+    const { deleteRoomDispatcher, user } = this.props;
     const { myName } = user;
 
     // Add the user kicker listener
@@ -90,7 +90,7 @@ class Home extends React.Component {
       .database()
       .ref(`users/${myName}/rooms`)
       .on('child_removed', async snap => {
-        deleteRoom(snap().val);
+        deleteRoomDispatcher(snap().val);
         NavigationService.navigateTo('Home');
         Alert.alert(I18n.t('kicked'), I18n.t('kicked_desc'));
       });
@@ -104,6 +104,10 @@ class Home extends React.Component {
       Alert.alert(I18n.t(error.title), I18n.t(error.details));
       // show the alert
     }
+  }
+
+  kickerLister = dispatch => {
+    
   }
 
   onBackPress = () => {
@@ -937,7 +941,7 @@ export default connect(
     hideOnboarding,
     createRoom,
     updateName,
-    deleteRoom,
+    deleteRoomDispatcher,
     fetchFromDb,
   }
 )(Home);

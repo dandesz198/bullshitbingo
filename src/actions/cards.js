@@ -9,31 +9,26 @@ import {
   ERROR,
 } from './types';
 
-// CHECK NEEDED
 export const createCard = (roomID, matchID, card) => (dispatch, getState) => {
-  const { rooms } = getState();
-  const room = rooms.find(room => room.roomID === roomID);
-  let { cards } = room.matches.find(match => match.matchID === matchID);
-  const index = rooms.indexOf(room);
+  const { cards } = getState();
+  let filteredCards = cards.filter(card => card.matchID === matchID);
 
-  if (!cards) {
-    cards = [card];
+  if (!filteredCards) {
+    filteredCards = [card];
   } else {
-    cards.unshift(card);
+    filteredCards.unshift(card);
   }
 
   firebase
     .database()
     .ref(`rooms/${roomID}/matches/${matchID}`)
     .update({
-      cards,
+      cards: filteredCards,
     });
-
-  rooms[index] = room;
 
   dispatch({
     type: CREATE_CARD,
-    payload: [...rooms],
+    payload: { ...card },
   });
 };
 
@@ -61,60 +56,47 @@ export const deleteCard = (roomID, matchID, card) => (dispatch, getState) => {
   });
 };
 
-// CHECK NEEDED
-export const vote = (roomID, matchID, card) => (dispatch, getState) => {
-  const { rooms, user } = getState();
+export const vote = (roomID, matchID, cardID) => (dispatch, getState) => {
+  const { cards, user } = getState();
   const { myName } = user;
-  const room = rooms.find(room => room.roomID === roomID);
-  const { cards } = room.matches.find(match => match.matchID === matchID);
-  const cardToModify = cards.find(cardFromState => cardFromState === card);
-  const index = rooms.indexOf(room);
+  const cardToModify = cards.find(
+    cardFromState => cardFromState.cardID === cardID
+  );
 
   cardToModify.voters.push(myName);
 
-  console.log('action - vote - cards', cards);
-
   firebase
     .database()
     .ref(`rooms/${roomID}/matches/${matchID}`)
     .update({
-      cards,
+      cards: [cardToModify, ...cards],
     });
-
-  rooms[index] = room;
 
   dispatch({
     type: VOTE_CARD,
-    payload: [...rooms],
+    payload: { cardToModify },
   });
 };
 
-// CHECK NEEDED
-export const unvote = (roomID, matchID, card) => (dispatch, getState) => {
-  const { rooms, user } = getState();
+export const unvote = (roomID, matchID, cardID) => (dispatch, getState) => {
+  const { cards, user } = getState();
   const { myName } = user;
-  const room = rooms.find(room => room.roomID === roomID);
-  const { cards } = room.matches.find(match => match.matchID === matchID);
-  const cardToModify = cards.find(cardFromState => cardFromState === card);
-  const index = rooms.indexOf(room);
+  const cardToModify = cards.find(
+    cardFromState => cardFromState.cardID === cardID
+  );
 
-  card.voters.splice(cardToModify.voters.indexOf(myName), 1);
-  cards[cards.indexOf(card)] = cardToModify;
-
-  console.log('action - unvote - cards', cards);
+  cardToModify.voters.splice(cardToModify.indexOf(myName));
 
   firebase
     .database()
     .ref(`rooms/${roomID}/matches/${matchID}`)
     .update({
-      cards,
+      cards: [cardToModify, ...cards],
     });
-
-  rooms[index] = room;
 
   dispatch({
     type: UNVOTE_CARD,
-    payload: [...rooms],
+    payload: { cardToModify },
   });
 };
 

@@ -2,7 +2,6 @@ import * as firebase from 'firebase';
 
 import { FETCH, CREATE_ROOM, DELETE_ROOM, KICK } from './types';
 
-// CHECK NEEDED
 export const createRoom = roomPlain => (dispatch, getState) => {
   const { name, masterPw, roomID } = roomPlain;
   const { user } = getState();
@@ -13,7 +12,6 @@ export const createRoom = roomPlain => (dispatch, getState) => {
     master: myName,
     masterPw,
     members: [{ name: myName, points }],
-    matches: [],
   };
 
   firebase
@@ -50,22 +48,22 @@ export const joinRoom = roomID => (dispatch, getState) => {
     });
 };
 
-// CHECK NEEDED
-export const deleteRoom = roomID => dispatch => {
-  dispatch({
-    type: DELETE_ROOM,
-    payload: [...roomID],
-  });
-};
+const deleteRoom = roomID => ({
+  type: DELETE_ROOM,
+  payload: roomID,
+});
 
-// CHECK NEEDED
-export const deleteRoomFromDb = roomID => () => {
+export const deleteRoomDispatcher = roomID => dispatch => dispatch(deleteRoom(roomID));
+
+export const deleteRoomFromDb = roomID => dispatch => {
+  console.log('deleteRoomFromDb ran');
+
   firebase
     .database()
     .ref(`rooms/${roomID}`)
     .remove();
 
-  deleteRoom(roomID);
+  dispatch(deleteRoom(roomID));
 };
 
 // CHECK NEEDED
@@ -111,7 +109,7 @@ export const quitRoom = roomID => (dispatch, getState) => {
 
   console.log('quitRoom - AFTER - rooms', rooms);
 
-  deleteRoom(roomID);
+  dispatch(deleteRoom(roomID));
 };
 
 // CHECK NEEDED
@@ -133,13 +131,13 @@ export const fetchFromDb = roomID => async (dispatch, getState) => {
         if (members) {
           // If room doesn't exist or player is kicked
           if (members.length < 0 || members.indexOf(myName) === -1) {
-            deleteRoom(roomID);
+            dispatch(deleteRoom(roomID));
           }
         } else {
-          deleteRoom(roomID);
+          dispatch(deleteRoom(roomID));
         }
       } else {
-        deleteRoom(roomID);
+        dispatch(deleteRoom(roomID));
       }
     });
 

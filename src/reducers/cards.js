@@ -10,14 +10,13 @@ import {
 export default function reducer(state = [], action) {
   switch (action.type) {
     case CREATE_CARD:
-      return [{ ...action.payload }, ...state];
+      return [action.payload, ...state];
     case DELETE_CARD: {
       const cards = state.filter(card => card !== action.payload);
       return [...cards];
     }
-    case (VOTE_CARD, UNVOTE_CARD, BINGO_CARD): {
-      return [...action.payload];
-    }
+    case (VOTE_CARD, UNVOTE_CARD, BINGO_CARD):
+      return state;
     // HANDLE FETCH AND KICK
     default:
       return state;

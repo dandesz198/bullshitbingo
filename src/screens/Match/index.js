@@ -18,6 +18,7 @@ import { Images } from '@assets';
 import styles from './styles';
 import I18n from '../../i18n';
 import { createCard, deleteCard, vote, unvote, bingo } from '../../actions';
+import { newId } from '../../services';
 
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
@@ -39,8 +40,6 @@ class Match extends React.Component {
       matchID,
       roomID,
 
-      roomCards: [],
-
       newCardText: '',
     };
   }
@@ -54,6 +53,7 @@ class Match extends React.Component {
     unvote: PropTypes.func.isRequired,
     user: PropTypes.object.isRequired,
     error: PropTypes.object,
+    cards: PropTypes.array.isRequired,
   };
 
   static defaultProps = {
@@ -75,13 +75,13 @@ class Match extends React.Component {
   }
 
   // Vote on a card
-  vote = cardToModify => {
-    const { roomCards, roomID, matchID } = this.state;
-    const { user, vote } = this.props;
+  vote = card => {
+    const { roomID, matchID } = this.state;
+    const { user, cards, vote } = this.props;
     const { myName } = user;
+    const roomCards = cards.filter(card => card.matchID === matchID);
 
     let votes = 0;
-    const card = cardToModify;
 
     // Check every card for votes
     roomCards.forEach(element => {
@@ -95,36 +95,41 @@ class Match extends React.Component {
       Vibration.vibrate();
       Alert.alert(I18n.t('error'), I18n.t('too_many_votes'));
     } else {
-      vote(roomID, matchID, card);
+      vote(roomID, matchID, card.cardID);
     }
   };
 
-  createCard = () => {
+  createCard = async () => {
     const { newCardText, roomID, matchID } = this.state;
     const { user, createCard } = this.props;
     const { myName } = user;
+    const cardID = `${matchID}_card${newId()}`;
     const card = {
+      cardID,
+      matchID,
       text: newCardText,
       creator: myName,
       isBingo: false,
       voters: [],
     };
-    createCard(roomID, matchID, card);
-    this.vote(card);
+    await createCard(roomID, matchID, card);
+    this.vote(cardID);
   };
 
   render() {
     const {
       newCardText,
       matchName,
-      roomCards,
       matchMaster,
       roomMaster,
       roomID,
       matchID,
     } = this.state;
-    const { user, unvote, deleteCard, bingo } = this.props;
+    const { user, cards, unvote, deleteCard, bingo } = this.props;
     const { myName } = user;
+    const roomCards = cards.filter(card => card.matchID === matchID);
+    console.log('cards', cards);
+    console.log('matchID', matchID);
     return (
       <ScrollView
         style={styles.container}
@@ -222,10 +227,10 @@ class Match extends React.Component {
                 // Check if user already voted to the card
                 if (rowData.voters.indexOf(myName) > -1) {
                   // Delete the vote
-                  unvote(roomID, matchID, card);
+                  unvote(roomID, matchID, card.cardID);
                 } else {
                   // Vote, because the user didn't vote on the card
-                  this.vote(rowData);
+                  this.vote(card.cardID);
                 }
               }}
               onDeletePress={() => {
@@ -277,8 +282,8 @@ class Match extends React.Component {
   }
 }
 
-const mapStateToProps = ({ rooms, user, error }) => ({
-  rooms,
+const mapStateToProps = ({ cards, user, error }) => ({
+  cards,
   user,
   error,
 });
