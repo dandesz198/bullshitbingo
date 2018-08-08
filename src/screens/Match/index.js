@@ -31,6 +31,7 @@ class Match extends React.Component {
       matchID,
       roomID,
     } = props.navigation.state.params;
+
     this.state = {
       roomMaster,
       matchName,

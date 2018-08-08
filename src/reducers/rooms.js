@@ -1,68 +1,14 @@
-import {
-  CREATE_ROOM,
-  DELETE_ROOM,
-  CREATE_MATCH,
-  DELETE_MATCH,
-  CREATE_CARD,
-  VOTE_CARD,
-  UNVOTE_CARD,
-  BINGO_CARD,
-  DELETE_CARD,
-  FETCH,
-  KICK,
-} from '../actions';
+import { CREATE_ROOM, DELETE_ROOM /* , FETCH, KICK */ } from '../actions';
 
 export default function reducer(state = [], action) {
   switch (action.type) {
     case CREATE_ROOM:
-      return [...state, action.payload];
+      return [action.payload, ...state];
     case DELETE_ROOM: {
       const rooms = state.filter(room => room.roomID !== action.payload);
       return [...rooms];
     }
-    /*
-      FIXME: this is nowhere near optimal, it's a shitty hack. Remove this ASAP!
-
-      TODO: create a flat store with ID's and 'normalizr',
-      Then create the normal reducers for these action types
-
-      Currently, the store is a multi-dimensional array, looking like this:
-      {
-        user: { ... },
-        rooms: [
-          {
-            matches: [
-              cards: [
-                {
-                  voters: [ '' ], ...
-                }
-              ], ...
-            ], ...
-          },
-        ]
-      }
-
-      While the ultimate goal is this:
-
-      {
-        user: { ... },
-        rooms: [ id -> room ],
-        matches: [ id -> match ],
-        cards: [ id -> card ],
-        voters: [ id -> voter ]
-      }
-    */
-    case (CREATE_MATCH,
-    DELETE_MATCH,
-    CREATE_CARD,
-    VOTE_CARD,
-    UNVOTE_CARD,
-    BINGO_CARD,
-    DELETE_CARD,
-    FETCH,
-    KICK): {
-      return [...action.payload];
-    }
+    // HANDLE FETCH AND KICK
     default:
       return state;
   }

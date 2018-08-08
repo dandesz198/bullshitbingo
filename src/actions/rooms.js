@@ -2,11 +2,13 @@ import * as firebase from 'firebase';
 
 import { FETCH, CREATE_ROOM, DELETE_ROOM, KICK } from './types';
 
+// CHECK NEEDED
 export const createRoom = roomPlain => (dispatch, getState) => {
   const { name, masterPw, roomID } = roomPlain;
   const { user } = getState();
   const { myName, points } = user;
   const room = {
+    roomID,
     name,
     master: myName,
     masterPw,
@@ -25,6 +27,7 @@ export const createRoom = roomPlain => (dispatch, getState) => {
   });
 };
 
+// CHECK NEEDED
 export const joinRoom = roomID => (dispatch, getState) => {
   const { myName } = getState().user;
 
@@ -47,6 +50,7 @@ export const joinRoom = roomID => (dispatch, getState) => {
     });
 };
 
+// CHECK NEEDED
 export const deleteRoom = roomID => dispatch => {
   dispatch({
     type: DELETE_ROOM,
@@ -54,6 +58,7 @@ export const deleteRoom = roomID => dispatch => {
   });
 };
 
+// CHECK NEEDED
 export const deleteRoomFromDb = roomID => () => {
   firebase
     .database()
@@ -63,6 +68,7 @@ export const deleteRoomFromDb = roomID => () => {
   deleteRoom(roomID);
 };
 
+// CHECK NEEDED
 export const kick = (roomID, username) => async (getState, dispatch) => {
   const { rooms } = getState();
   const room = rooms.find(room => room.roomID === roomID);
@@ -84,6 +90,7 @@ export const kick = (roomID, username) => async (getState, dispatch) => {
   });
 };
 
+// CHECK NEEDED
 export const quitRoom = roomID => (dispatch, getState) => {
   const { user, rooms } = getState();
   const { myName } = user;
@@ -107,6 +114,7 @@ export const quitRoom = roomID => (dispatch, getState) => {
   deleteRoom(roomID);
 };
 
+// CHECK NEEDED
 export const fetchFromDb = roomID => async (dispatch, getState) => {
   const { rooms, user } = getState();
   const { myName } = user;

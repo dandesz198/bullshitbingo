@@ -40,7 +40,7 @@ class Room extends React.Component {
   constructor(props) {
     super(props);
     const { roomID } = props.navigation.state.params;
-    const { name, master, matches, members } = props.rooms.find(
+    const { name, master, members } = props.rooms.find(
       room => room.roomID === roomID
     );
     this.state = {
@@ -54,7 +54,6 @@ class Room extends React.Component {
       roomID,
       name,
       master,
-      matches: matches && matches.length > 0 ? matches : [],
       members,
 
       newMatchText: '',
@@ -71,11 +70,13 @@ class Room extends React.Component {
     kick: PropTypes.func.isRequired,
     quitRoom: PropTypes.func.isRequired,
     rooms: PropTypes.array.isRequired,
+    matches: PropTypes.array,
     error: PropTypes.object,
   };
 
   static defaultProps = {
     error: null,
+    matches: [],
   };
 
   componentDidMount() {
@@ -85,7 +86,6 @@ class Room extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log('componentDidUpdate');
     const { props } = this;
     if (prevProps.error !== props.error && props.error) {
       Alert.alert(I18n.t(props.error.title), I18n.t(props.error.details));
@@ -98,19 +98,19 @@ class Room extends React.Component {
     const { user, createMatch } = this.props;
     const { myName } = user;
     const match = {
+      roomID,
       name: newMatchText,
       master: myName,
       cards: [],
       matchID: `room${roomID}_match${newId()}`,
     };
-    createMatch(roomID, match);
+    createMatch(match);
   };
 
   quitKick = rowData => {
     const { name, master, roomID } = this.state;
     const { user, navigation, kick, quitRoom } = this.props;
     const { myName } = user;
-    const thus = this;
     Vibration.vibrate();
     Alert.alert(
       I18n.t('are_you_sure'),
@@ -193,9 +193,10 @@ class Room extends React.Component {
   );
 
   renderScene = ({ route }) => {
-    const { newMatchText, matches, name, roomID, master, members } = this.state;
-    const { user, deleteMatch } = this.props;
+    const { newMatchText, name, roomID, master, members } = this.state;
+    const { user, matches, deleteMatch } = this.props;
     const { myName } = user;
+    const filteredMatches = matches.filter(match => match.roomID === roomID);
     switch (route.key) {
       case '1':
         return (
@@ -259,7 +260,7 @@ class Room extends React.Component {
               </Text>
             </View>
             <ListView
-              dataSource={ds.cloneWithRows(matches)}
+              dataSource={ds.cloneWithRows(filteredMatches)}
               enableEmptySections
               style={[
                 styles.membersList,
@@ -443,8 +444,9 @@ class Room extends React.Component {
   }
 }
 
-const mapStateToProps = ({ rooms, user, error }) => ({
+const mapStateToProps = ({ rooms, matches, user, error }) => ({
   rooms,
+  matches,
   user,
   error,
 });

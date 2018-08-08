@@ -9,6 +9,7 @@ import {
   ERROR,
 } from './types';
 
+// CHECK NEEDED
 export const createCard = (roomID, matchID, card) => (dispatch, getState) => {
   const { rooms } = getState();
   const room = rooms.find(room => room.roomID === roomID);
@@ -36,6 +37,7 @@ export const createCard = (roomID, matchID, card) => (dispatch, getState) => {
   });
 };
 
+// CHECK NEEDED
 export const deleteCard = (roomID, matchID, card) => (dispatch, getState) => {
   const { rooms } = getState();
   const room = rooms.find(room => room.roomID === roomID);
@@ -59,6 +61,7 @@ export const deleteCard = (roomID, matchID, card) => (dispatch, getState) => {
   });
 };
 
+// CHECK NEEDED
 export const vote = (roomID, matchID, card) => (dispatch, getState) => {
   const { rooms, user } = getState();
   const { myName } = user;
@@ -86,6 +89,7 @@ export const vote = (roomID, matchID, card) => (dispatch, getState) => {
   });
 };
 
+// CHECK NEEDED
 export const unvote = (roomID, matchID, card) => (dispatch, getState) => {
   const { rooms, user } = getState();
   const { myName } = user;
@@ -114,6 +118,7 @@ export const unvote = (roomID, matchID, card) => (dispatch, getState) => {
   });
 };
 
+// CHECK NEEDED
 export const bingo = (roomID, matchID, card) => (dispatch, getState) => {
   const { rooms, user } = getState();
   const { myName } = user;

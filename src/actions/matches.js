@@ -2,32 +2,29 @@ import * as firebase from 'firebase';
 
 import { CREATE_MATCH, DELETE_MATCH } from './types';
 
-export const createMatch = (roomID, match) => (dispatch, getState) => {
-  const { rooms } = getState();
-  const room = rooms.find(room => room.roomID === roomID);
-  const index = rooms.indexOf(room);
+// NEW
+export const createMatch = match => (dispatch, getState) => {
+  const { matches } = getState();
+  let roomMatches = matches.filter(
+    matchFromState => matchFromState.roomID === match.roomID
+  );
 
-  if (!room.matches) {
-    room.matches = [match];
-  } else {
-    room.matches.unshift(match);
-  }
+  roomMatches = roomMatches.length > 0 ? [...roomMatches, match] : [match];
 
   firebase
     .database()
-    .ref(`rooms/${roomID}/`)
+    .ref(`rooms/${match.roomID}/`)
     .update({
-      matches: room.matches,
+      matches: [roomMatches],
     });
-
-  rooms[index] = room;
 
   dispatch({
     type: CREATE_MATCH,
-    payload: [...rooms],
+    payload: match,
   });
 };
 
+// CHECK NEEDED
 export const deleteMatch = (roomID, match) => (dispatch, getState) => {
   const { rooms } = getState();
   const room = rooms.find(room => room.roomID === roomID);
