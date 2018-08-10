@@ -21,7 +21,6 @@ import I18n from '../../i18n';
 import NavigationService from '../../config/navigationService';
 import {
   createMatch,
-  deleteRoom,
   deleteMatch,
   deleteRoomFromDb,
   kick,
@@ -64,7 +63,6 @@ class Room extends React.Component {
     navigation: PropTypes.any.isRequired,
     user: PropTypes.object.isRequired,
     createMatch: PropTypes.func.isRequired,
-    deleteRoom: PropTypes.func.isRequired,
     deleteRoomFromDb: PropTypes.func.isRequired,
     deleteMatch: PropTypes.func.isRequired,
     kick: PropTypes.func.isRequired,
@@ -453,7 +451,6 @@ export default connect(
   mapStateToProps,
   {
     createMatch,
-    deleteRoom,
     deleteMatch,
     deleteRoomFromDb,
     kick,

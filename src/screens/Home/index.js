@@ -184,10 +184,9 @@ class Home extends React.Component {
 
   preJoin = () => {
     const { joinRoomID } = this.state;
-    let { newRoomName } = this.state;
     const thus = this;
 
-    if (joinRoomID.length < 6) {
+    if (joinRoomID.length !== 6) {
       this.setState({
         isNewRoomIDCorrect: false,
       });
@@ -212,20 +211,14 @@ class Home extends React.Component {
           return;
         }
 
+        const { name, master, masterPw } = snap.val();
+
         // Check if the room exists
-        if (newRoomName.length > 1 && newRoomName !== 'null') {
-          let masterName = JSON.stringify(snap.val().master);
-          let masterPw = JSON.stringify(snap.val().masterPw);
-
-          // Remove "
-          newRoomName = newRoomName.slice(1, -1);
-          masterName = masterName.slice(1, -1);
-          masterPw = masterPw.slice(1, -1);
-
+        if (name.length > 1 && name !== 'null') {
           // Open the connection modal
           thus.setState({
-            joinRoomName: newRoomName,
-            joinMaster: masterName,
+            joinRoomName: name,
+            joinMaster: master,
             roomPw: masterPw,
             joinRoomModalVisible: true,
           });
@@ -551,6 +544,7 @@ class Home extends React.Component {
                       await this.setState({
                         myName: myNameWB,
                         myNameWB: '',
+                        joinRoomModalVisible: false,
                       });
                     }
                     this.joinRoom();

@@ -25,7 +25,6 @@ export const createRoom = roomPlain => (dispatch, getState) => {
   });
 };
 
-// CHECK NEEDED
 export const joinRoom = roomID => (dispatch, getState) => {
   const { myName } = getState().user;
 
