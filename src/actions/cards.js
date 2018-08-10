@@ -95,7 +95,6 @@ export const unvote = (roomID, matchID, cardID) => (dispatch, getState) => {
   });
 };
 
-// CHECK NEEDED
 export const bingo = (roomID, matchID, card) => (dispatch, getState) => {
   const { cards, user } = getState();
   const { myName } = user;
@@ -120,6 +119,11 @@ export const bingo = (roomID, matchID, card) => (dispatch, getState) => {
     return;
   }
 
+  dispatch({
+    type: BINGO_CARD,
+    payload: card.cardID,
+  });
+
   if (card.voters.length <= 0) {
     return;
   }
@@ -137,11 +141,6 @@ export const bingo = (roomID, matchID, card) => (dispatch, getState) => {
             points: snap.val() + 1,
           });
       });
-  });
-
-  dispatch({
-    type: BINGO_CARD,
-    payload: card.cardID,
   });
 };
 

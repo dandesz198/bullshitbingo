@@ -12,13 +12,13 @@ export default function reducer(state = [], action) {
     case CREATE_CARD:
       return [action.payload, ...state];
     case DELETE_CARD: {
-      const cards = state.filter(card => card !== action.payload);
+      const cards = state.filter(card => card.cardID !== action.payload);
       return [...cards];
     }
     case VOTE_CARD: {
       const cards = state.map(card => {
         if (card.cardID === action.payload.cardID) {
-          card.voters.push(action.payload.myName);
+          // card.voters.push(action.payload.myName);
         }
         return card;
       });
@@ -27,14 +27,15 @@ export default function reducer(state = [], action) {
     case UNVOTE_CARD: {
       const cards = state.map(card => {
         if (card.cardID === action.payload.cardID) {
-          card.voters.splice(card.voters.indexOf(action.payload.myName));
+          // card.voters.splice(card.voters.indexOf(action.payload.myName));
         }
         return card;
       });
       return cards;
     }
     case BINGO_CARD: {
-      const cards = state.map(card => {
+      const cards = state.map(item => {
+        const card = item;
         if (card.cardID === action.payload) {
           card.isBingo = true;
         }

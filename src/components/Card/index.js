@@ -18,7 +18,7 @@ const Card = ({
   creatorName,
   cardText,
   isMaster,
-  isMatch,
+  isVoteable,
   isBingo,
   onVotePress,
   onDeletePress,
@@ -64,23 +64,22 @@ const Card = ({
         >
           {cardText}
         </Text>
-        {isMaster &&
-          !isMatch && (
-            <TouchableOpacity
-              style={{
-                marginRight: 0,
-                marginLeft: 'auto',
-              }}
-              onPress={() => {
-                onDeletePress();
-              }}
-            >
-              <Image
-                source={Images.trash}
-                style={{ height: 30, width: 21, marginVertical: 'auto' }}
-              />
-            </TouchableOpacity>
-          )}
+        {isMaster && (
+          <TouchableOpacity
+            style={{
+              marginRight: 0,
+              marginLeft: 'auto',
+            }}
+            onPress={() => {
+              onDeletePress();
+            }}
+          >
+            <Image
+              source={Images.trash}
+              style={{ height: 30, width: 21, marginVertical: 'auto' }}
+            />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
     <View style={styles.buttonBoxStyle}>
@@ -91,22 +90,22 @@ const Card = ({
           }}
           isSmall
           style={{ marginRight: 10 }}
-          isFilled={!isMatch && voted}
-          text={isMatch ? I18n.t('join') : I18n.t('vote')}
+          isFilled={isVoteable && voted}
+          text={!isVoteable ? I18n.t('join') : I18n.t('vote')}
         />
       )}
-      {!isMaster ||
-        (!isBingo && (
+      {isVoteable &&
+        (isBingo || isMaster) && (
           <Button
             onPress={() => {
               onBingoPress();
             }}
             isSmall
             isFilled={isBingo}
-            text={isMatch ? I18n.t('delete') : I18n.t('bingo')}
+            text={I18n.t('bingo')}
           />
-        ))}
-      {!isMatch && (
+        )}
+      {isVoteable && (
         <Text style={styles.voteNumberStyle}>
           {`${voteCount} ${I18n.t('votes')}`}
         </Text>
@@ -120,7 +119,7 @@ Card.propTypes = {
   creatorName: PropTypes.string,
   cardText: PropTypes.string,
   isMaster: PropTypes.bool,
-  isMatch: PropTypes.bool,
+  isVoteable: PropTypes.bool,
   isBingo: PropTypes.bool,
   onVotePress: PropTypes.func,
   onBingoPress: PropTypes.func,
@@ -134,7 +133,7 @@ Card.defaultProps = {
   creatorName: '',
   cardText: '',
   isMaster: false,
-  isMatch: false,
+  isVoteable: false,
   isBingo: false,
   onVotePress: () => {},
   onBingoPress: () => {},

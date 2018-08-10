@@ -267,12 +267,11 @@ class Room extends React.Component {
               ]}
               renderRow={rowData => (
                 <Card
-                  isMatch
                   matchName={name}
                   cardText={rowData.name}
                   creatorName={rowData.master}
                   bgColor="white"
-                  isMaster={!!(rowData.master === myName || master === myName)}
+                  isMaster={rowData.master === myName || master === myName}
                   onVotePress={() => {
                     NavigationService.navigateTo('Match', {
                       matchName: rowData.name,
@@ -282,7 +281,7 @@ class Room extends React.Component {
                       master,
                     });
                   }}
-                  onBingoPress={() => {
+                  onDeletePress={() => {
                     Vibration.vibrate();
                     Alert.alert(
                       I18n.t('are_you_sure'),

@@ -210,7 +210,7 @@ class Match extends React.Component {
           ]}
           renderRow={rowData => (
             <Card
-              isMatch={false}
+              isVoteable
               matchName={matchName}
               cardText={rowData.text}
               voteCount={rowData.voters.length}
@@ -263,7 +263,7 @@ class Match extends React.Component {
                       text: I18n.t('its_bingo'),
                       onPress: () => {
                         // Declare variables
-                        bingo(rowData);
+                        bingo(roomID, matchID, rowData);
                       },
                     },
                     { text: I18n.t('cancel'), style: 'cancel' },
