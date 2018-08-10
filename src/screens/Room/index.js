@@ -427,6 +427,7 @@ class Room extends React.Component {
   };
 
   render() {
+    console.log('ROOM - RENDERING');
     const { index, routes, value } = this.state;
     return (
       <TabViewAnimated

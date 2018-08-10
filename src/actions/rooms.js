@@ -1,4 +1,5 @@
 import * as firebase from 'firebase';
+import NavigationService from '../config/navigationService';
 
 import { FETCH, CREATE_ROOM, DELETE_ROOM, KICK } from './types';
 
@@ -26,24 +27,45 @@ export const createRoom = roomPlain => (dispatch, getState) => {
 };
 
 export const joinRoom = roomID => (dispatch, getState) => {
-  const { myName } = getState().user;
+  console.log('joinRoom action ran');
+
+  const { user } = getState();
+  let room;
 
   firebase
     .database()
     .ref(`rooms/${roomID}/`)
-    .once('value', snap => {
-      const room = Object.values(snap.val());
-      if (room.members.indexOf(myName) === -1) {
+    .once('value', async snap => {
+      const value = snap.val();
+      room = {
+        name: value.name,
+        master: value.master,
+        masterPw: value.masterPw,
+        members: Object.values(value.members),
+        matches: value.matches ? Object.values(value.matches) : [],
+        roomID: value.roomID,
+      };
+
+      if (room.members.indexOf(user) === -1) {
         firebase
           .database()
           .ref(`rooms/${roomID}/members/`)
-          .push(myName);
+          .push(user);
       }
 
-      dispatch({
+      await dispatch({
         type: CREATE_ROOM,
         payload: { ...room },
       });
+
+      console.log('BEFORE NAVIGATING');
+
+      // Navigate to the room
+      NavigationService.navigateTo('Room', {
+        roomID,
+      });
+
+      console.log('AFTER NAVIGATING');
     });
 };
 
@@ -114,9 +136,21 @@ export const quitRoom = roomID => (dispatch, getState) => {
 
 // CHECK NEEDED
 export const fetchFromDb = roomID => async (dispatch, getState) => {
-  const { rooms, user } = getState();
-  const { myName } = user;
+  const { rooms /* , user */ } = getState();
+  // const { myName } = user;
+  const members = [];
   const room = rooms.find(room => room.roomID === roomID);
+  await room.members.forEach(async element => {
+    await firebase
+      .database()
+      .ref(`users/${element}/`)
+      .once('value', snap => {
+        members.push(snap.val());
+        room.members = members;
+      });
+  });
+
+  /*
   let roomFromDb;
 
   await firebase
@@ -142,6 +176,9 @@ export const fetchFromDb = roomID => async (dispatch, getState) => {
     });
 
   rooms[rooms.indexOf(room)] = Object.assign(room, roomFromDb);
+
+  
+  */
 
   dispatch({
     type: FETCH,

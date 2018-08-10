@@ -23,6 +23,7 @@ import { Images } from '@assets';
 import styles from './styles';
 import I18n from '../../i18n';
 import {
+  joinRoom,
   fetchFromDb,
   createRoom,
   deleteRoomDispatcher,
@@ -64,6 +65,7 @@ class Home extends React.Component {
   static propTypes = {
     user: PropTypes.object.isRequired,
     rooms: PropTypes.array,
+    joinRoom: PropTypes.func.isRequired,
     hideOnboarding: PropTypes.func.isRequired,
     updateName: PropTypes.func.isRequired,
     createRoom: PropTypes.func.isRequired,
@@ -229,16 +231,47 @@ class Home extends React.Component {
       });
   };
 
-  joinRoom = async () => {
-    const { joinMaster, roomPw, joinPw, joinRoomID } = this.state;
-    const { user, joinRoom } = this.props;
+  joinRoomFinal = async () => {
+    const { joinMaster, roomPw, joinPw, joinRoomID, myNameWB } = this.state;
+    const { user, joinRoom, updateName } = this.props;
     const { myName } = user;
+
+    console.log('BEFORE MYNAME CHECK');
+
     if (myName.length === 0) {
+      if (myNameWB.length > 0) {
+        await updateName(myNameWB);
+        await this.setState({
+          myName: myNameWB,
+          myNameWB: '',
+        });
+      } else {
+        this.setState({
+          joinRoomModalVisible: false,
+        });
+        Vibration.vibrate();
+        Alert.alert(I18n.t('error'), I18n.t('empty_fields'), [
+          {
+            text: I18n.t('ok'),
+            onPress: () =>
+              this.setState({
+                joinRoomModalVisible: true,
+              }),
+          },
+        ]);
+        return;
+      }
+    }
+
+    console.log('BEFORE PASSWORD CHECK');
+
+    // Check the password
+    if (myName === joinMaster && roomPw !== sha256(joinPw)) {
       this.setState({
         joinRoomModalVisible: false,
       });
       Vibration.vibrate();
-      Alert.alert(I18n.t('error'), I18n.t('empty_fields'), [
+      Alert.alert(I18n.t('error'), I18n.t('wrong_password'), [
         {
           text: I18n.t('ok'),
           onPress: () =>
@@ -250,23 +283,13 @@ class Home extends React.Component {
       return;
     }
 
-    // Check the password
-    if (myName === joinMaster && roomPw !== sha256(joinPw)) {
-      Vibration.vibrate();
-      Alert.alert(I18n.t('error'), I18n.t('wrong_password'));
-      return;
-    }
+    console.log('BEFORE ADDING USER TO DATABASE');
 
     // Add the user to database
-    await joinRoom(joinRoomID);
+    joinRoom(joinRoomID);
 
     this.setState({
       joinRoomModalVisible: false,
-    });
-
-    // Navigate to the room
-    NavigationService.navigateTo('Room', {
-      roomID: joinRoomID,
     });
 
     this.setState({
@@ -539,15 +562,7 @@ class Home extends React.Component {
               <View style={[styles.button, { flex: 1, marginRight: 25 }]}>
                 <Button
                   onPress={async () => {
-                    if (myNameWB.length > 0) {
-                      await updateName(myNameWB);
-                      await this.setState({
-                        myName: myNameWB,
-                        myNameWB: '',
-                        joinRoomModalVisible: false,
-                      });
-                    }
-                    this.joinRoom();
+                    this.joinRoomFinal();
                   }}
                   text={I18n.t('join')}
                 />
@@ -930,6 +945,7 @@ export default connect(
   {
     hideOnboarding,
     createRoom,
+    joinRoom,
     updateName,
     deleteRoomDispatcher,
     fetchFromDb,
