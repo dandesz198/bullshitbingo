@@ -27,7 +27,7 @@ export default StyleSheet.create({
     fontSize: 30,
     textAlign: 'center',
   },
-  gameList: {
+  roomList: {
     fontSize: 30,
     marginVertical: 5,
   },

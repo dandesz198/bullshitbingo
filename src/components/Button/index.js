@@ -30,7 +30,6 @@ const Button = ({
           width,
           height,
           justifyContent: 'center',
-          textAlign: 'center',
           opacity: isDisabled ? 0.5 : 1,
         }}
       >

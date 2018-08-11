@@ -6,7 +6,6 @@ import {
   ListView,
   Modal,
   Alert,
-  AsyncStorage,
   Image,
   Dimensions,
   Linking,
@@ -16,227 +15,117 @@ import {
 } from 'react-native';
 import * as firebase from 'firebase';
 import sha256 from 'crypto-js/sha256';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import { Button, Text, TextInput, Link } from '@components';
 import { Images } from '@assets';
+
 import styles from './styles';
 import I18n from '../../i18n';
-
-const Environment = require('../../config/environment');
-
-const config = {
-  apiKey: Environment.apiKey,
-  authDomain: Environment.authDomain,
-  databaseURL: Environment.databaseURL,
-  projectId: Environment.projectId,
-  storageBucket: Environment.storageBucket,
-  messagingSenderId: Environment.messagingSenderId,
-};
+import {
+  joinRoom,
+  fetchFromDb,
+  createRoom,
+  hideOnboarding,
+  updateName,
+} from '../../actions';
+import { createId } from '../../services';
+import NavigationService from '../../config/navigationService';
 
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
-export default class Home extends React.Component {
-  state = {
-    games: [],
+class Home extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      // Data for the new room
+      newRoomModalVisible: false,
+      newRoomName: '',
+      newRoomID: createId(),
+      pw: '',
+      pwAgain: '',
 
-    // Data for the new room
-    newGameModalVisible: false,
-    newGameName: '',
-    newGameID: Math.floor(Math.random() * 899999 + 100000).toString(),
-    pw: '',
-    pwAgain: '',
+      // Data for joining room
+      joinRoomModalVisible: false,
+      joinRoomName: '',
+      joinRoomID: '',
+      joinMaster: '',
+      roomPw: '',
+      isNewRoomIDCorrect: true,
+      joinPw: '',
 
-    // Data for joining game
-    joinGameModalVisible: false,
-    joinGameName: '',
-    joingameId: '',
-    joinMaster: '',
-    roomPw: '',
-    isNewGameIDCorrect: true,
-    joinPw: '',
+      myName: props.user.myName,
+      myNameWB: '',
 
-    myName: '',
-    myNameWB: '',
+      infoModalVisible: false,
+    };
+  }
 
-    infoModalVisible: false,
-
-    isFirstOpen: false,
+  static propTypes = {
+    user: PropTypes.object.isRequired,
+    rooms: PropTypes.array,
+    joinRoom: PropTypes.func.isRequired,
+    hideOnboarding: PropTypes.func.isRequired,
+    updateName: PropTypes.func.isRequired,
+    createRoom: PropTypes.func.isRequired,
+    fetchFromDb: PropTypes.func.isRequired,
+    error: PropTypes.object,
   };
 
-  returnData(id) {
-    this.deleteGame(id);
-  }
+  static defaultProps = {
+    rooms: [],
+    error: null,
+  };
 
   componentWillMount() {
-    // Initialize Firebase
-    firebase.initializeApp(config);
-    this.newId();
-    this.loadGames();
+    this.checkRooms();
   }
 
-  async componentDidMount() {
-    try {
-      const value = await AsyncStorage.getItem('@MySuperStore:isFirst');
-      if (value !== null) {
-        // We have data
-        this.setState({
-          isFirstOpen: false,
-        });
-      } else {
-        this.setState({
-          isFirstOpen: true,
-        });
-      }
-    } catch (error) {
-      // Error retrieving data
-      console.log(error);
-    }
-
+  componentDidMount() {
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
-
-    // Save the games with 2s delay
-    setTimeout(() => {
-      this.saveGames();
-    }, 2000);
   }
 
-  newId = () => {
-    const { newGameId } = this.state;
-    const thus = this;
-    firebase
-      .database()
-      .ref(`games/${newGameId}`)
-      .once('value', snap => {
-        // Check if the game exists
-        if (typeof snap.val() !== 'undefined' && snap.val() !== null) {
-          thus.setState({
-            newGameID: Math.floor(Math.random() * 899999 + 100000).toString(),
-          });
-          thus.newId();
-        }
-      });
-  };
+  componentDidUpdate(prevProps) {
+    const { error } = this.props;
+    if (prevProps.error !== error && error) {
+      Alert.alert(I18n.t(error.title), I18n.t(error.details));
+      // show the alert
+    }
+  }
 
   onBackPress = () => {
     this.setState({
-      joinGameModalVisible: false,
-      newGameModalVisible: false,
+      joinRoomModalVisible: false,
+      newRoomModalVisible: false,
       infoModalVisible: false,
     });
     return true;
   };
 
-  // Save data to the AsyncStorage
-  saveGames = async () => {
-    const { games } = this.state;
-    // Save games to AsyncStorage
-    try {
-      await AsyncStorage.setItem('@MySuperStore:games', JSON.stringify(games));
-    } catch (error) {
-      // Error saving data
-      console.log(error);
-    }
-  };
-
-  // Load data from the AsyncStorage
-  loadGames = async () => {
-    const { members, myName } = this.state;
-    // Get name from AsyncStorage
-    try {
-      const value = await AsyncStorage.getItem('@MySuperStore:name');
-      if (value !== null) {
-        // We have data
-        this.setState({
-          myName: value,
-        });
-      }
-    } catch (error) {
-      // Error retrieving data
-      console.log(error);
-    }
-
-    setTimeout(async () => {
-      // Get games from AsyncStorage
-      try {
-        const value = await AsyncStorage.getItem('@MySuperStore:games');
-        if (value !== null) {
-          // We have data
-          const array = JSON.parse(value);
-          const thus = this;
-
-          array.forEach(async element => {
-            // Remove the " from the start and end of the string
-            if (element.name[0] === '"') {
-              element.name = element.name.slice(1, -1);
-            }
-
-            // Check if room still exists
-            firebase
-              .database()
-              .ref(`games/${element.id}/members/`)
-              .once('value')
-              .then(snap => {
-                let count = 0;
-                if (snap.val()) {
-                  const members = Object.values(snap.val());
-                  members.forEach(lm => {
-                    if (lm === myName) {
-                      count += 1;
-                    }
-                  });
-                } else {
-                  thus.deleteGame(element.name);
-                }
-
-                // If member even exists
-                if (members) {
-                  // If room doesn't exist or player is kicked
-                  if (members.length < 0 || count <= 0) {
-                    thus.deleteGame(element.name);
-                  }
-                } else {
-                  thus.deleteGame(element.name);
-                }
-              });
-          });
-          this.setState({
-            games: array,
-          });
-        }
-      } catch (error) {
-        // Error retrieving data
-        console.log(error);
-      }
-    }, 500);
+  checkRooms = () => {
+    const { rooms, fetchFromDb } = this.props;
+    rooms.map(element => fetchFromDb(element.roomID));
   };
 
   createRoom = async () => {
-    const {
-      myNameWB,
-      myName,
-      pw,
-      pwAgain,
-      newGameName,
-      newGameID,
-      games,
-    } = this.state;
-    const { navigation } = this.props;
+    const { myNameWB, pw, pwAgain, newRoomName, newRoomID } = this.state;
+    const { createRoom, user } = this.props;
+    const { myName } = user;
 
     if (
       (myNameWB.length === 0 && myName.length === 0) ||
       pw.length === 0 ||
       pwAgain.length === 0 ||
-      newGameName.length === 0
+      newRoomName.length === 0
     ) {
       Vibration.vibrate();
       return;
     }
 
-    this.saveName();
-
     // Check the password
     if (pw !== pwAgain) {
       this.setState({
-        newGameModalVisible: false,
+        newRoomModalVisible: false,
       });
       Vibration.vibrate();
       Alert.alert(I18n.t('error'), I18n.t('password_error'), [
@@ -244,66 +133,49 @@ export default class Home extends React.Component {
           text: I18n.t('ok'),
           onPress: () =>
             this.setState({
-              newGameModalVisible: true,
+              newRoomModalVisible: true,
             }),
         },
       ]);
       return;
     }
 
-    // Upload the game itself to Firebase
-    await firebase
-      .database()
-      .ref(`games/${newGameID}`)
-      .set({
-        name: newGameName,
-        master: myName,
-        masterPw: sha256(pw),
-        members: [myName],
-      });
-
-    // Add the new game to the Games array (rendered in 'My rooms' section)
-    const game = {
-      id: newGameID,
-      name: newGameName,
-    };
-
-    games.push(game);
+    // Upload the room itself to database
+    await createRoom({
+      name: newRoomName,
+      master: myName,
+      masterPw: sha256(pw),
+      roomID: newRoomID,
+      matches: [],
+    });
 
     this.setState({
-      games,
-      newGameModalVisible: false,
+      newRoomModalVisible: false,
     });
 
-    // Navigate to the new game's screen
-    navigation.navigate('Room', {
-      gameName: newGameName,
-      gameId: newGameID,
-      myName,
-      returnData: this.returnData.bind(this),
+    // Navigate to the new room's screen
+    NavigationService.navigateTo('Room', {
+      roomID: newRoomID,
     });
+
     BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
 
-    // Save the new game to AsyncStorage
-    this.saveGames();
-
-    // Create new game ID for the next game, empty the screen
+    // Create new room ID for the next room, empty the screen
     this.setState({
       pw: '',
       pwAgain: '',
-      newGameName: '',
-      newGameID: Math.floor(Math.random() * 899999 + 100000).toString(),
+      newRoomName: '',
+      newRoomID: createId(),
     });
   };
 
   preJoin = () => {
-    const { joingameId } = this.state;
-    let { newGameName } = this.state;
+    const { joinRoomID } = this.state;
     const thus = this;
 
-    if (joingameId.length < 6) {
+    if (joinRoomID.length !== 6) {
       this.setState({
-        isNewGameIDCorrect: false,
+        isNewRoomIDCorrect: false,
       });
       Vibration.vibrate();
       return;
@@ -312,7 +184,7 @@ export default class Home extends React.Component {
     // Get the name and the master's name of the new room
     firebase
       .database()
-      .ref(`games/${joingameId}`)
+      .ref(`rooms/${joinRoomID}`)
       .once('value', snap => {
         if (
           snap.val() === null ||
@@ -320,28 +192,22 @@ export default class Home extends React.Component {
           typeof snap.val() === 'undefined'
         ) {
           thus.setState({
-            isNewGameIDCorrect: false,
+            isNewRoomIDCorrect: false,
           });
           Vibration.vibrate();
           return;
         }
 
-        // Check if the game exists
-        if (newGameName.length > 1 && newGameName !== 'null') {
-          let masterName = JSON.stringify(snap.val().master);
-          let masterPw = JSON.stringify(snap.val().masterPw);
+        const { name, master, masterPw } = snap.val();
 
-          // Remove "
-          newGameName = newGameName.slice(1, -1);
-          masterName = masterName.slice(1, -1);
-          masterPw = masterPw.slice(1, -1);
-
+        // Check if the room exists
+        if (name.length > 1 && name !== 'null') {
           // Open the connection modal
           thus.setState({
-            joinGameName: newGameName,
-            joinMaster: masterName,
+            joinRoomName: name,
+            joinMaster: master,
             roomPw: masterPw,
-            joinGameModalVisible: true,
+            joinRoomModalVisible: true,
           });
         } else {
           Alert.alert(I18n.t('error'), I18n.t('prejoin_error'));
@@ -350,158 +216,95 @@ export default class Home extends React.Component {
       });
   };
 
-  joinRoom = async () => {
-    const {
-      myName,
-      joinMaster,
-      roomPw,
-      joinPw,
-      joingameId,
-      joinGameName,
-      games,
-    } = this.state;
-    const { navigation } = this.props;
+  joinRoomFinal = async () => {
+    const { joinMaster, roomPw, joinPw, joinRoomID, myNameWB } = this.state;
+    const { user, joinRoom, fetchFromDb, updateName } = this.props;
+    const { myName } = user;
+
     if (myName.length === 0) {
+      if (myNameWB.length > 0) {
+        await updateName(myNameWB);
+        await this.setState({
+          myName: myNameWB,
+          myNameWB: '',
+        });
+      } else {
+        this.setState({
+          joinRoomModalVisible: false,
+        });
+        Vibration.vibrate();
+        Alert.alert(I18n.t('error'), I18n.t('empty_fields'), [
+          {
+            text: I18n.t('ok'),
+            onPress: () =>
+              this.setState({
+                joinRoomModalVisible: true,
+              }),
+          },
+        ]);
+        return;
+      }
+    }
+
+    // Check the password
+    if (myName === joinMaster && roomPw !== sha256(joinPw)) {
       this.setState({
-        joinGameModalVisible: false,
+        joinRoomModalVisible: false,
       });
       Vibration.vibrate();
-      Alert.alert(I18n.t('error'), I18n.t('empty_fields'), [
+      Alert.alert(I18n.t('error'), I18n.t('wrong_password'), [
         {
           text: I18n.t('ok'),
           onPress: () =>
             this.setState({
-              joinGameModalVisible: true,
+              joinRoomModalVisible: true,
             }),
         },
       ]);
       return;
     }
 
-    this.saveName();
-
-    // Check the password
-    if (myName === joinMaster && roomPw !== sha256(joinPw)) {
-      Vibration.vibrate();
-      Alert.alert(I18n.t('error'), I18n.t('wrong_password'));
-      return;
-    }
-
-    // Add the user to Firebase
-    await firebase
-      .database()
-      .ref(`games/${joingameId}/members/`)
-      .once('value', snap => {
-        const members = Object.values(snap.val());
-        if (members.indexOf(myName) === -1) {
-          firebase
-            .database()
-            .ref(`games/${joingameId}/members/`)
-            .push(myName);
-        }
-      });
-
-    // Add the new game to the games array (rendered in the 'My rooms' section in Home.js)
-    const game = {
-      id: joingameId,
-      name: joinGameName,
-    };
-    let alreadyAdded = false;
-
-    games.forEach(element => {
-      if (element.id === joingameId) {
-        alreadyAdded = true;
-      }
-    });
-
-    if (!alreadyAdded) {
-      games.push(game);
-    }
+    // Add the user to database
+    joinRoom(joinRoomID);
+    setTimeout(() => {
+      fetchFromDb(joinRoomID);
+    }, 1250);
 
     this.setState({
-      joinGameModalVisible: false,
-      games,
-    });
-
-    // Navigate to the game
-    navigation.navigate('Room', {
-      gameName: joinGameName,
-      gameId: joingameId,
-      myName,
-      returnData: this.returnData.bind(this),
+      joinRoomModalVisible: false,
     });
 
     this.setState({
-      joingameId: '',
+      joinRoomID: '',
       joinPw: '',
       roomPw: '',
     });
 
     BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
-
-    // Save to AsyncStorage
-    this.saveGames();
-  };
-
-  saveName = async () => {
-    const { myName } = this.state;
-    firebase
-      .database()
-      .ref(`users/${myName}`)
-      .once('value', snap => {
-        if (typeof snap.val() === 'undefined' || snap.val() === null) {
-          firebase
-            .database()
-            .ref(`users/${myName}`)
-            .set({
-              name: myName,
-              points: 0,
-            });
-        }
-      });
-
-    if (myName.length > 0) {
-      // Save name to AsyncStorage
-      try {
-        await AsyncStorage.setItem('@MySuperStore:name', myName);
-      } catch (error) {
-        // Error saving data
-        console.log(error);
-      }
-    }
   };
 
   componentWillReceiveProps() {
-    // this.deleteGame(delete);
+    // this.deleteRoom(delete);
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
   }
 
-  // Delete a game from the 'My rooms' list
-  deleteGame = async name => {
-    const { games } = this.state;
-    games.splice(games.indexOf(name), 1);
-    this.setState({
-      games,
-    });
-    this.saveGames();
-  };
-
-  renderNewGameModal = () => {
+  renderNewRoomModal = () => {
     const {
-      newGameModalVisible,
-      myName,
+      newRoomModalVisible,
       myNameWB,
-      newGameName,
+      newRoomName,
       pw,
       pwAgain,
-      newGameID,
+      newRoomID,
     } = this.state;
+    const { updateName, user } = this.props;
+    const { myName } = user;
     return (
       <Modal
         animationType="slide"
         transparent={false}
-        onRequestClose={() => this.setState({ newGameModalVisible: false })}
-        visible={newGameModalVisible}
+        onRequestClose={() => this.setState({ newRoomModalVisible: false })}
+        visible={newRoomModalVisible}
       >
         <ScrollView style={{ flex: 1, padding: 20, backgroundColor: 'white' }}>
           <Text
@@ -510,48 +313,48 @@ export default class Home extends React.Component {
           >
             {I18n.t('create_room')}
           </Text>
-          <View
-            style={{
-              display: myName.length === 0 ? 'flex' : 'none',
-            }}
-          >
-            <TextInput
-              style={{ padding: 10 }}
-              placeholder={I18n.t('your_name')}
-              onChangeText={myNameWB => this.setState({ myNameWB })}
-              value={myNameWB}
-            />
-            <Image source={Images.line_long} />
+          {myName.length < 1 && (
+            <View>
+              <TextInput
+                style={{ padding: 10 }}
+                placeholder={I18n.t('your_name')}
+                onChangeText={myNameWB => this.setState({ myNameWB })}
+                value={myNameWB}
+              />
+              <Image source={Images.line_long} />
+              {myNameWB.length < 1 && (
+                <Text
+                  isBold
+                  style={{
+                    fontSize: 16,
+                    color: '#ee5253',
+                    marginTop: 7.5,
+                  }}
+                >
+                  {I18n.t('no_empty_please')}
+                </Text>
+              )}
+            </View>
+          )}
+          <TextInput
+            style={{ padding: 10 }}
+            placeholder={I18n.t('name_of_room')}
+            onChangeText={newRoomName => this.setState({ newRoomName })}
+            value={newRoomName}
+          />
+          <Image source={Images.line_long} />
+          {newRoomName.length === 0 && (
             <Text
               isBold
               style={{
-                fontSize: 16,
                 color: '#ee5253',
+                fontSize: 16,
                 marginTop: 7.5,
-                display: myNameWB.length === 0 ? 'flex' : 'none',
               }}
             >
               {I18n.t('no_empty_please')}
             </Text>
-          </View>
-          <TextInput
-            style={{ padding: 10 }}
-            placeholder={I18n.t('name_of_room')}
-            onChangeText={newGameName => this.setState({ newGameName })}
-            value={newGameName}
-          />
-          <Image source={Images.line_long} />
-          <Text
-            isBold
-            style={{
-              color: '#ee5253',
-              fontSize: 16,
-              marginTop: 7.5,
-              display: newGameName.length === 0 ? 'flex' : 'none',
-            }}
-          >
-            {I18n.t('no_empty_please')}
-          </Text>
+          )}
           <Text isBold style={[styles.p, { marginTop: 20 }]}>
             {I18n.t('password_lock')}
           </Text>
@@ -571,22 +374,23 @@ export default class Home extends React.Component {
             value={pwAgain}
           />
           <Image source={Images.line_long} />
-          <Text
-            isBold
-            style={{
-              color: '#ee5253',
-              fontSize: 16,
-              display: pw !== pwAgain ? 'flex' : 'none',
-            }}
-          >
-            {I18n.t('password_error')}
-          </Text>
+          {pw !== pwAgain && (
+            <Text
+              isBold
+              style={{
+                color: '#ee5253',
+                fontSize: 16,
+              }}
+            >
+              {I18n.t('password_error')}
+            </Text>
+          )}
           <View style={{ flexDirection: 'column' }}>
             <Text isBold style={[styles.p, { marginTop: 20 }]}>
               {I18n.t('room_pin')}
             </Text>
             <Text isBold style={styles.h2}>
-              {newGameID}
+              {newRoomID}
             </Text>
           </View>
           <View
@@ -605,6 +409,7 @@ export default class Home extends React.Component {
               <Button
                 onPress={async () => {
                   if (myNameWB.length > 0) {
+                    await updateName(myNameWB);
                     await this.setState({
                       myName: myNameWB,
                       myNameWB: '',
@@ -617,7 +422,7 @@ export default class Home extends React.Component {
                     (myNameWB.length === 0 && myName.length === 0) ||
                     pw.length === 0 ||
                     pwAgain.length === 0 ||
-                    newGameName.length === 0
+                    newRoomName.length === 0
                   )
                 }
                 text={I18n.t('create')}
@@ -625,7 +430,7 @@ export default class Home extends React.Component {
             </View>
             <Button
               onPress={() => {
-                this.setState({ newGameModalVisible: false });
+                this.setState({ newRoomModalVisible: false });
               }}
               style={{ marginTop: 99.5 }}
               text={I18n.t('cancel')}
@@ -636,12 +441,12 @@ export default class Home extends React.Component {
     );
   };
 
-  renderJoinGameModal = () => {
+  renderJoinRoomModal = () => {
     const {
-      joinGameModalVisible,
+      joinRoomModalVisible,
       myName,
       myNameWB,
-      joinGameName,
+      joinRoomName,
       joinMaster,
       joinPw,
     } = this.state;
@@ -649,69 +454,73 @@ export default class Home extends React.Component {
       <Modal
         animationType="slide"
         transparent={false}
-        onRequestClose={() => this.setState({ joinGameModalVisible: false })}
-        visible={joinGameModalVisible}
+        onRequestClose={() => this.setState({ joinRoomModalVisible: false })}
+        visible={joinRoomModalVisible}
       >
         <ScrollView style={{ flex: 1, backgroundColor: 'white', padding: 20 }}>
           <Text
             isBold
             style={[styles.heading, { fontSize: 40, marginBottom: 20 }]}
           >
-            {`${I18n.t('join')} "${joinGameName}"?`}
+            {`${I18n.t('join')} "${joinRoomName}"?`}
           </Text>
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'column' }}>
-              <View
-                style={{
-                  marginLeft: 20,
-                  display: myName.length === 0 ? 'flex' : 'none',
-                }}
-              >
-                <TextInput
-                  style={{ padding: 10 }}
-                  placeholder={I18n.t('your_name')}
-                  onChangeText={myNameWB => this.setState({ myNameWB })}
-                  value={myNameWB}
-                />
-                <Image source={Images.line_long} />
-                <Text
-                  isBold
+              {myName.length === 0 && (
+                <View
                   style={{
-                    color: '#ee5253',
-                    fontSize: 16,
-                    marginTop: 7.5,
-                    display: myNameWB.length === 0 ? 'flex' : 'none',
+                    marginLeft: 20,
                   }}
                 >
-                  {I18n.t('no_empty_please')}
-                </Text>
-              </View>
-              <View
-                style={{
-                  marginLeft: 20,
-                  display: myName === joinMaster ? 'flex' : 'none',
-                }}
-              >
-                <TextInput
-                  style={{ padding: 10 }}
-                  secureTextEntry
-                  placeholder={I18n.t('room_master_password')}
-                  onChangeText={joinPw => this.setState({ joinPw })}
-                  value={joinPw}
-                />
-                <Image source={Images.line_long} />
-                <Text
-                  isBold
+                  <TextInput
+                    style={{ padding: 10 }}
+                    placeholder={I18n.t('your_name')}
+                    onChangeText={myNameWB => this.setState({ myNameWB })}
+                    value={myNameWB}
+                  />
+                  <Image source={Images.line_long} />
+                  {myNameWB.length === 0 && (
+                    <Text
+                      isBold
+                      style={{
+                        color: '#ee5253',
+                        fontSize: 16,
+                        marginTop: 7.5,
+                      }}
+                    >
+                      {I18n.t('no_empty_please')}
+                    </Text>
+                  )}
+                </View>
+              )}
+              {myName === joinMaster && (
+                <View
                   style={{
-                    color: '#ee5253',
-                    fontSize: 16,
-                    marginTop: 7.5,
-                    display: joinPw.length === 0 ? 'flex' : 'none',
+                    marginLeft: 20,
                   }}
                 >
-                  {I18n.t('no_empty_please')}
-                </Text>
-              </View>
+                  <TextInput
+                    style={{ padding: 10 }}
+                    secureTextEntry
+                    placeholder={I18n.t('room_master_password')}
+                    onChangeText={joinPw => this.setState({ joinPw })}
+                    value={joinPw}
+                  />
+                  <Image source={Images.line_long} />
+                  {joinPw.length === 0 && (
+                    <Text
+                      isBold
+                      style={{
+                        color: '#ee5253',
+                        fontSize: 16,
+                        marginTop: 7.5,
+                      }}
+                    >
+                      {I18n.t('no_empty_please')}
+                    </Text>
+                  )}
+                </View>
+              )}
             </View>
             <Image
               source={Images.join_bg}
@@ -735,20 +544,14 @@ export default class Home extends React.Component {
               <View style={[styles.button, { flex: 1, marginRight: 25 }]}>
                 <Button
                   onPress={async () => {
-                    if (myNameWB.length > 0) {
-                      await this.setState({
-                        myName: myNameWB,
-                        myNameWB: '',
-                      });
-                    }
-                    this.joinRoom();
+                    this.joinRoomFinal();
                   }}
                   text={I18n.t('join')}
                 />
               </View>
               <Button
                 onPress={() => {
-                  this.setState({ joinGameModalVisible: false });
+                  this.setState({ joinRoomModalVisible: false });
                 }}
                 text={I18n.t('cancel')}
               />
@@ -868,131 +671,122 @@ export default class Home extends React.Component {
     );
   };
 
-  renderOnboarding = () => (
-    <ScrollView style={{ flex: 1 }} pagingEnabled horizontal vertical={false}>
-      <StatusBar barStyle="dark-content" />
-      <View style={styles.onboardContainter}>
-        <Image
-          source={Images.icon}
-          style={{ width: 125, height: 125, marginBottom: 20 }}
-        />
-        <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-          {I18n.t('onboard_welcome')}
-        </Text>
-        <Text
-          isBold
-          style={{ fontSize: 20, textAlign: 'center', marginTop: 5 }}
-        >
-          {I18n.t('onboard_welcome_desc')}
-        </Text>
-        <Text
-          isBold={false}
-          style={{ fontSize: 30, textAlign: 'center', marginTop: 20 }}
-        >
-          {I18n.t('onboard_welcome_swipe')}
-        </Text>
-      </View>
-      <View style={styles.onboardContainter}>
-        <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-          {I18n.t('onboard_rooms')}
-        </Text>
-        <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
-          {I18n.t('onboard_rooms_desc')}
-        </Text>
-      </View>
-      <View style={[styles.onboardContainter, { padding: 0 }]}>
-        <View
-          style={[
-            styles.onboardContainter,
-            { marginTop: 'auto', marginBottom: 'auto' },
-          ]}
-        >
+  renderOnboarding = () => {
+    const { hideOnboarding } = this.props;
+    return (
+      <ScrollView style={{ flex: 1 }} pagingEnabled horizontal vertical={false}>
+        <StatusBar barStyle="dark-content" />
+        <View style={styles.onboardContainter}>
+          <Image
+            source={Images.icon}
+            style={{ width: 125, height: 125, marginBottom: 20 }}
+          />
           <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-            {I18n.t('onboard_matches')}
+            {I18n.t('onboard_welcome')}
           </Text>
-          <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
-            {I18n.t('onboard_matches_desc')}
+          <Text
+            isBold
+            style={{ fontSize: 20, textAlign: 'center', marginTop: 5 }}
+          >
+            {I18n.t('onboard_welcome_desc')}
+          </Text>
+          <Text
+            isBold={false}
+            style={{ fontSize: 30, textAlign: 'center', marginTop: 20 }}
+          >
+            {I18n.t('onboard_welcome_swipe')}
           </Text>
         </View>
-        <Image
-          source={Images.create_child}
-          style={{
-            width: 120,
-            height: 87,
-            marginTop: 'auto',
-            marginBottom: 0,
-          }}
-        />
-      </View>
-      <View style={styles.onboardContainter}>
-        <Image
-          source={Images.tutorial_card}
-          style={{ width: 300, height: 125, marginBottom: 20 }}
-        />
-        <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-          {I18n.t('onboard_cards')}
-        </Text>
-        <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
-          {I18n.t('onboard_cards_desc')}
-        </Text>
-      </View>
-      <View style={styles.onboardContainter}>
-        <Image
-          source={Images.firework}
-          style={{ width: 125, height: 125, marginBottom: 20 }}
-        />
-        <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-          {I18n.t('onboard_bingo')}
-        </Text>
-        <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
-          {I18n.t('onboard_bingo_desc')}
-        </Text>
-      </View>
-      <View style={styles.onboardContainter}>
-        <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-          {I18n.t('onboard_start')}
-        </Text>
-        <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
-          {I18n.t('onboard_start_desc')}
-        </Text>
-        <Button
-          onPress={async () => {
-            this.setState({ isFirstOpen: false });
-            try {
-              await AsyncStorage.setItem('@MySuperStore:isFirst', 'false');
-            } catch (error) {
-              // Error saving data
-              console.log(error);
-            }
-          }}
-          style={{ marginTop: 15 }}
-          text={I18n.t('onboard_start_btn')}
-        />
-        <Image
-          source={Images.add_child}
-          style={{ width: 70, height: 59, marginTop: -2.5 }}
-        />
-      </View>
-    </ScrollView>
-  );
+        <View style={styles.onboardContainter}>
+          <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+            {I18n.t('onboard_rooms')}
+          </Text>
+          <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
+            {I18n.t('onboard_rooms_desc')}
+          </Text>
+        </View>
+        <View style={[styles.onboardContainter, { padding: 0 }]}>
+          <View
+            style={[
+              styles.onboardContainter,
+              { marginTop: 'auto', marginBottom: 'auto' },
+            ]}
+          >
+            <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+              {I18n.t('onboard_matches')}
+            </Text>
+            <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
+              {I18n.t('onboard_matches_desc')}
+            </Text>
+          </View>
+          <Image
+            source={Images.create_child}
+            style={{
+              width: 120,
+              height: 87,
+              marginTop: 'auto',
+              marginBottom: 0,
+            }}
+          />
+        </View>
+        <View style={styles.onboardContainter}>
+          <Image
+            source={Images.tutorial_card}
+            style={{ width: 300, height: 125, marginBottom: 20 }}
+          />
+          <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+            {I18n.t('onboard_cards')}
+          </Text>
+          <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
+            {I18n.t('onboard_cards_desc')}
+          </Text>
+        </View>
+        <View style={styles.onboardContainter}>
+          <Image
+            source={Images.firework}
+            style={{ width: 125, height: 125, marginBottom: 20 }}
+          />
+          <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+            {I18n.t('onboard_bingo')}
+          </Text>
+          <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
+            {I18n.t('onboard_bingo_desc')}
+          </Text>
+        </View>
+        <View style={styles.onboardContainter}>
+          <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
+            {I18n.t('onboard_start')}
+          </Text>
+          <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
+            {I18n.t('onboard_start_desc')}
+          </Text>
+          <Button
+            onPress={() => {
+              hideOnboarding();
+            }}
+            style={{ marginTop: 15 }}
+            text={I18n.t('onboard_start_btn')}
+          />
+          <Image
+            source={Images.add_child}
+            style={{ width: 70, height: 59, marginTop: -2.5 }}
+          />
+        </View>
+      </ScrollView>
+    );
+  };
 
   render() {
-    const {
-      isFirstOpen,
-      myName,
-      games,
-      isNewGameIDCorrect,
-      joingameId,
-    } = this.state;
-    const { navigation } = this.props;
-    if (isFirstOpen) {
+    const { isNewRoomIDCorrect, joinRoomID } = this.state;
+    const { user, rooms } = this.props;
+    if (user.isFirst) {
       return this.renderOnboarding();
     }
     return (
       <View style={[styles.container, { backgroundColor: 'white' }]}>
         <StatusBar barStyle="dark-content" />
-        {this.renderNewGameModal()}
-        {this.renderJoinGameModal()}
+        {this.renderNewRoomModal()}
+        {this.renderJoinRoomModal()}
         {this.renderInfoModal()}
         <ScrollView style={{ flex: 1 }}>
           <View style={{ marginTop: 20, flexDirection: 'row' }}>
@@ -1017,7 +811,7 @@ export default class Home extends React.Component {
           </View>
           <Button
             onPress={() => {
-              this.setState({ newGameModalVisible: true });
+              this.setState({ newRoomModalVisible: true });
             }}
             style={{ marginTop: 10 }}
             isWide
@@ -1059,21 +853,22 @@ export default class Home extends React.Component {
                   style={{ fontSize: 24 }}
                   placeholder={I18n.t('room_pin')}
                   keyboardType="numeric"
-                  onChangeText={joingameId => this.setState({ joingameId })}
-                  value={joingameId}
+                  onChangeText={joinRoomID => this.setState({ joinRoomID })}
+                  value={joinRoomID}
                 />
                 <Image source={Images.line_short} style={{ width: 140 }} />
               </View>
-              <Text
-                isBold
-                style={{
-                  color: '#ee5253',
-                  fontSize: 16,
-                  display: isNewGameIDCorrect ? 'none' : 'flex',
-                }}
-              >
-                {I18n.t('check_pin')}
-              </Text>
+              {!isNewRoomIDCorrect && (
+                <Text
+                  isBold
+                  style={{
+                    color: '#ee5253',
+                    fontSize: 16,
+                  }}
+                >
+                  {I18n.t('check_pin')}
+                </Text>
+              )}
               <Button
                 onPress={() => {
                   this.preJoin();
@@ -1088,17 +883,14 @@ export default class Home extends React.Component {
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <ListView
-              dataSource={ds.cloneWithRows(games)}
+              dataSource={ds.cloneWithRows(rooms)}
               enableEmptySections
               renderRow={rowData => (
                 <TouchableOpacity
                   style={{ padding: 2.5, marginLeft: 20 }}
                   onPress={() => {
-                    navigation.navigate('Room', {
-                      gameName: rowData.name,
-                      gameId: rowData.id,
-                      myName,
-                      returnData: this.returnData.bind(this),
+                    NavigationService.navigateTo('Room', {
+                      roomID: rowData.roomID,
                     });
                     BackHandler.removeEventListener(
                       'hardwareBackPress',
@@ -1106,7 +898,7 @@ export default class Home extends React.Component {
                     );
                   }}
                 >
-                  <Text isBold style={styles.gameList}>
+                  <Text isBold style={styles.roomList}>
                     {rowData.name}
                   </Text>
                   <Image source={Images.line_short} />
@@ -1123,3 +915,20 @@ export default class Home extends React.Component {
     );
   }
 }
+
+const mapStateToProps = ({ rooms, user, error }) => ({
+  rooms,
+  user,
+  error,
+});
+
+export default connect(
+  mapStateToProps,
+  {
+    hideOnboarding,
+    createRoom,
+    joinRoom,
+    updateName,
+    fetchFromDb,
+  }
+)(Home);

@@ -13,14 +13,12 @@ import { Images } from '@assets';
 import { Button } from '@components';
 import I18n from '../../i18n';
 
-const Environment = require('../../config/environment');
-
 const Card = ({
   matchName,
   creatorName,
   cardText,
   isMaster,
-  isMatch,
+  isVoteable,
   isBingo,
   onVotePress,
   onDeletePress,
@@ -66,47 +64,52 @@ const Card = ({
         >
           {cardText}
         </Text>
-        <TouchableOpacity
-          style={{
-            marginRight: 0,
-            marginLeft: 'auto',
-            display: isMaster && !isMatch ? 'flex' : 'none',
-          }}
-          onPress={() => {
-            onDeletePress();
-          }}
-        >
-          <Image
-            source={Images.trash}
-            style={{ height: 30, width: 21, marginVertical: 'auto' }}
-          />
-        </TouchableOpacity>
+        {isMaster && (
+          <TouchableOpacity
+            style={{
+              marginRight: 0,
+              marginLeft: 'auto',
+            }}
+            onPress={() => {
+              onDeletePress();
+            }}
+          >
+            <Image
+              source={Images.trash}
+              style={{ height: 30, width: 21, marginVertical: 'auto' }}
+            />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
     <View style={styles.buttonBoxStyle}>
-      <Button
-        onPress={() => {
-          onVotePress();
-        }}
-        isSmall
-        style={{ display: isBingo ? 'none' : 'flex', marginRight: 10 }}
-        isFilled={!isMatch && voted}
-        text={isMatch ? I18n.t('join') : I18n.t('vote')}
-      />
-      <Button
-        onPress={() => {
-          onBingoPress();
-        }}
-        isSmall
-        style={{ display: isMaster ? 'flex' : isBingo ? 'flex' : 'none', }}
-        isFilled={isBingo}
-        text={isMatch ? I18n.t('delete') : I18n.t('bingo')}
-      />
-      <Text
-        style={[styles.voteNumberStyle, { display: isMatch ? 'none' : 'flex' }]}
-      >
-        {`${voteCount} ${I18n.t('votes')}`}
-      </Text>
+      {!isBingo && (
+        <Button
+          onPress={() => {
+            onVotePress();
+          }}
+          isSmall
+          style={{ marginRight: 10 }}
+          isFilled={isVoteable && voted}
+          text={!isVoteable ? I18n.t('join') : I18n.t('vote')}
+        />
+      )}
+      {isVoteable &&
+        (isBingo || isMaster) && (
+          <Button
+            onPress={() => {
+              onBingoPress();
+            }}
+            isSmall
+            isFilled={isBingo}
+            text={I18n.t('bingo')}
+          />
+        )}
+      {isVoteable && (
+        <Text style={styles.voteNumberStyle}>
+          {`${voteCount} ${I18n.t('votes')}`}
+        </Text>
+      )}
     </View>
   </ImageBackground>
 );
@@ -116,7 +119,7 @@ Card.propTypes = {
   creatorName: PropTypes.string,
   cardText: PropTypes.string,
   isMaster: PropTypes.bool,
-  isMatch: PropTypes.bool,
+  isVoteable: PropTypes.bool,
   isBingo: PropTypes.bool,
   onVotePress: PropTypes.func,
   onBingoPress: PropTypes.func,
@@ -130,7 +133,7 @@ Card.defaultProps = {
   creatorName: '',
   cardText: '',
   isMaster: false,
-  isMatch: false,
+  isVoteable: false,
   isBingo: false,
   onVotePress: () => {},
   onBingoPress: () => {},
