@@ -1,4 +1,4 @@
-import { CREATE_ROOM, DELETE_ROOM, FETCH /* , KICK */ } from '../actions';
+import { CREATE_ROOM, DELETE_ROOM, FETCH_ROOMS, KICK } from '../actions';
 
 export default function reducer(state = [], action) {
   switch (action.type) {
@@ -8,10 +8,11 @@ export default function reducer(state = [], action) {
       const rooms = state.filter(room => room.roomID !== action.payload);
       return [...rooms];
     }
-    case FETCH: {
+    case FETCH_ROOMS:
       return [...action.payload];
-    }
-    // HANDLE FETCH AND KICK
+    case KICK:
+      return [...state];
+    // HANDLE KICK
     default:
       return state;
   }

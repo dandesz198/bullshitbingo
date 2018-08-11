@@ -54,44 +54,44 @@ export const deleteCard = (roomID, matchID, card) => (dispatch, getState) => {
 export const vote = (roomID, matchID, cardID) => (dispatch, getState) => {
   const { cards, user } = getState();
   const { myName } = user;
-  const cardToModify = cards.find(
-    cardFromState => cardFromState.cardID === cardID
-  );
+  const matchCards = cards.filter(card => card.matchID === matchID);
+  const card = matchCards.find(card => card.cardID === cardID);
+  const index = matchCards.indexOf(card);
 
-  cardToModify.voters.push(myName);
+  card.voters.push(myName);
 
   firebase
     .database()
-    .ref(`rooms/${roomID}/matches/${matchID}`)
+    .ref(`rooms/${roomID}/matches/${matchID}/cards/${index}`)
     .update({
-      cards: [cardToModify, ...cards],
+      ...card,
     });
+
+  console.log('FIR UPDATED W/ VOTE');
 
   dispatch({
     type: VOTE_CARD,
-    payload: { cardID, myName },
   });
 };
 
 export const unvote = (roomID, matchID, cardID) => (dispatch, getState) => {
   const { cards, user } = getState();
   const { myName } = user;
-  const cardToModify = cards.find(
-    cardFromState => cardFromState.cardID === cardID
-  );
+  const matchCards = cards.filter(card => card.matchID === matchID);
+  const card = matchCards.find(card => card.cardID === cardID);
+  const index = matchCards.indexOf(card);
 
-  cardToModify.voters = cardToModify.voters.filter(name => name !== myName);
+  card.voters = card.voters.filter(name => name !== myName);
 
   firebase
     .database()
-    .ref(`rooms/${roomID}/matches/${matchID}`)
+    .ref(`rooms/${roomID}/matches/${matchID}/cards/${index}`)
     .update({
-      cards: [cardToModify, ...cards],
+      ...card,
     });
 
   dispatch({
     type: UNVOTE_CARD,
-    payload: { cardID, myName },
   });
 };
 

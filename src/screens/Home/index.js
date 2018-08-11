@@ -26,7 +26,6 @@ import {
   joinRoom,
   fetchFromDb,
   createRoom,
-  deleteRoomDispatcher,
   hideOnboarding,
   updateName,
 } from '../../actions';
@@ -70,7 +69,6 @@ class Home extends React.Component {
     updateName: PropTypes.func.isRequired,
     createRoom: PropTypes.func.isRequired,
     fetchFromDb: PropTypes.func.isRequired,
-    deleteRoomDispatcher: PropTypes.func.isRequired,
     error: PropTypes.object,
   };
 
@@ -84,19 +82,6 @@ class Home extends React.Component {
   }
 
   componentDidMount() {
-    const { deleteRoomDispatcher, user } = this.props;
-    const { myName } = user;
-
-    // Add the user kicker listener
-    firebase
-      .database()
-      .ref(`users/${myName}/rooms`)
-      .on('child_removed', async snap => {
-        deleteRoomDispatcher(snap().val);
-        NavigationService.navigateTo('Home');
-        Alert.alert(I18n.t('kicked'), I18n.t('kicked_desc'));
-      });
-
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
   }
 
@@ -117,7 +102,7 @@ class Home extends React.Component {
     return true;
   };
 
-  checkRooms = async () => {
+  checkRooms = () => {
     const { rooms, fetchFromDb } = this.props;
     rooms.map(element => fetchFromDb(element.roomID));
   };
@@ -236,8 +221,6 @@ class Home extends React.Component {
     const { user, joinRoom, updateName } = this.props;
     const { myName } = user;
 
-    console.log('BEFORE MYNAME CHECK');
-
     if (myName.length === 0) {
       if (myNameWB.length > 0) {
         await updateName(myNameWB);
@@ -263,8 +246,6 @@ class Home extends React.Component {
       }
     }
 
-    console.log('BEFORE PASSWORD CHECK');
-
     // Check the password
     if (myName === joinMaster && roomPw !== sha256(joinPw)) {
       this.setState({
@@ -282,8 +263,6 @@ class Home extends React.Component {
       ]);
       return;
     }
-
-    console.log('BEFORE ADDING USER TO DATABASE');
 
     // Add the user to database
     joinRoom(joinRoomID);
@@ -947,7 +926,6 @@ export default connect(
     createRoom,
     joinRoom,
     updateName,
-    deleteRoomDispatcher,
     fetchFromDb,
   }
 )(Home);

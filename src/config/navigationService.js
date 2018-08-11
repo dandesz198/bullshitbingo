@@ -19,9 +19,15 @@ const navigateBack = () => {
   navigator.dispatch(NavigationActions.back);
 };
 
+const popToTop = () => {
+  navigator.dispatch(NavigationActions.back());
+  navigator.dispatch(NavigationActions.back());
+};
+
 // add other navigation functions that you need and export them
 
 export default {
+  popToTop,
   navigateTo,
   navigateBack,
   setTopLevelNavigator,

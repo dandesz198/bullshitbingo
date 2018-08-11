@@ -79,12 +79,12 @@ class Match extends React.Component {
     const { roomID, matchID } = this.state;
     const { user, cards, vote } = this.props;
     const { myName } = user;
-    const roomCards = cards.filter(card => card.matchID === matchID);
+    const matchCards = cards.filter(card => card.matchID === matchID);
 
     let votes = 0;
 
     // Check every card for votes
-    roomCards.forEach(element => {
+    matchCards.forEach(element => {
       if (element.voters.indexOf(myName) > -1 && !element.isBingo) {
         // Already voted for an active card
         votes += 1;
@@ -126,9 +126,7 @@ class Match extends React.Component {
     } = this.state;
     const { user, cards, unvote, deleteCard, bingo } = this.props;
     const { myName } = user;
-    const roomCards = cards.filter(card => card.matchID === matchID);
-    console.log('roomCards', roomCards);
-    console.log('matchID', matchID);
+    const matchCards = cards.filter(card => card.matchID === matchID);
     return (
       <ScrollView
         style={styles.container}
@@ -199,7 +197,7 @@ class Match extends React.Component {
         </Text>
         <ListView
           dataSource={ds.cloneWithRows(
-            roomCards.sort(
+            matchCards.sort(
               (a, b) => (a.voters < b.voters ? 1 : b.voters < a.voters ? -1 : 0)
             )
           )}

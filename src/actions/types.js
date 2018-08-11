@@ -15,4 +15,8 @@ export const UPDATE_NAME = 'update_name';
 export const HIDE_ONBOARDING = 'update_is_first';
 
 export const FETCH = 'fetch';
+export const FETCH_ROOMS = 'fetch_rooms';
+export const FETCH_MATCHES = 'fetch_matches';
+export const FETCH_CARDS = 'fetch_cards';
+
 export const ERROR = 'error';

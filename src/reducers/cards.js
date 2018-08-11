@@ -1,37 +1,28 @@
 import {
+  FETCH,
   CREATE_CARD,
   VOTE_CARD,
   UNVOTE_CARD,
   BINGO_CARD,
   DELETE_CARD,
-  // FETCH, KICK
+  FETCH_CARDS,
+  // KICK
 } from '../actions';
 
 export default function reducer(state = [], action) {
   switch (action.type) {
+    case FETCH:
+      return [];
+    case FETCH_CARDS:
+      return [...action.payload, ...state];
     case CREATE_CARD:
       return [action.payload, ...state];
     case DELETE_CARD: {
       const cards = state.filter(card => card.cardID !== action.payload);
       return [...cards];
     }
-    case VOTE_CARD: {
-      const cards = state.map(card => {
-        if (card.cardID === action.payload.cardID) {
-          // card.voters.push(action.payload.myName);
-        }
-        return card;
-      });
-      return cards;
-    }
-    case UNVOTE_CARD: {
-      const cards = state.map(card => {
-        if (card.cardID === action.payload.cardID) {
-          // card.voters.splice(card.voters.indexOf(action.payload.myName));
-        }
-        return card;
-      });
-      return cards;
+    case (VOTE_CARD, UNVOTE_CARD): {
+      return state;
     }
     case BINGO_CARD: {
       const cards = state.map(item => {
@@ -43,7 +34,6 @@ export default function reducer(state = [], action) {
       });
       return cards;
     }
-    // HANDLE FETCH AND KICK
     default:
       return state;
   }

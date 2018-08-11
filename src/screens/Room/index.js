@@ -39,9 +39,7 @@ class Room extends React.Component {
   constructor(props) {
     super(props);
     const { roomID } = props.navigation.state.params;
-    const { name, master, members } = props.rooms.find(
-      room => room.roomID === roomID
-    );
+    const { name, master } = props.rooms.find(room => room.roomID === roomID);
     this.state = {
       index: 0,
       routes: [
@@ -53,7 +51,6 @@ class Room extends React.Component {
       roomID,
       name,
       master,
-      members,
 
       newMatchText: '',
     };
@@ -190,10 +187,11 @@ class Room extends React.Component {
   );
 
   renderScene = ({ route }) => {
-    const { newMatchText, name, roomID, master, members } = this.state;
-    const { user, matches, deleteMatch } = this.props;
+    const { newMatchText, name, roomID, master } = this.state;
+    const { user, matches, rooms, deleteMatch } = this.props;
     const { myName } = user;
     const filteredMatches = matches.filter(match => match.roomID === roomID);
+    const { members } = rooms.find(room => room.roomID === roomID);
     switch (route.key) {
       case '1':
         return (
@@ -389,28 +387,29 @@ class Room extends React.Component {
                     >
                       {`${rowData.name} | ${rowData.points} XP`}
                     </Text>
-                    {myName === master &&
-                      myName === rowData.name && (
-                        <Button
-                          onPress={() => {
-                            this.quitKick(rowData);
-                          }}
-                          style={{
-                            alignSelf: 'flex-end',
-                            marginRight: 0,
-                            marginLeft: 'auto',
-                            marginTop: 'auto',
-                            marginBottom: 'auto',
-                            justifyContent: 'center',
-                          }}
-                          isSmall
-                          text={
-                            myName === rowData.name
-                              ? I18n.t('quit')
-                              : I18n.t('kick')
-                          }
-                        />
-                      )}
+                    <Button
+                      onPress={() => {
+                        this.quitKick(rowData);
+                      }}
+                      style={{
+                        alignSelf: 'flex-end',
+                        display:
+                          myName === master || myName === rowData.name
+                            ? 'flex'
+                            : 'none',
+                        marginRight: 0,
+                        marginLeft: 'auto',
+                        marginTop: 'auto',
+                        marginBottom: 'auto',
+                        justifyContent: 'center',
+                      }}
+                      isSmall
+                      text={
+                        myName === rowData.name
+                          ? I18n.t('quit')
+                          : I18n.t('kick')
+                      }
+                    />
                   </View>
                   <Image
                     style={{ marginTop: 2.5, width: 200 }}
@@ -427,7 +426,6 @@ class Room extends React.Component {
   };
 
   render() {
-    console.log('ROOM - RENDERING');
     const { index, routes, value } = this.state;
     return (
       <TabViewAnimated
