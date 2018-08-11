@@ -2,7 +2,6 @@ import { Alert } from 'react-native';
 import * as firebase from 'firebase';
 import I18n from '../i18n';
 import NavigationService from '../config/navigationService';
-
 import { CREATE_ROOM, DELETE_ROOM, KICK } from './types';
 
 export const createRoom = roomPlain => (dispatch, getState) => {

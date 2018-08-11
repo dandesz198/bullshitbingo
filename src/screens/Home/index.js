@@ -218,7 +218,7 @@ class Home extends React.Component {
 
   joinRoomFinal = async () => {
     const { joinMaster, roomPw, joinPw, joinRoomID, myNameWB } = this.state;
-    const { user, joinRoom, updateName } = this.props;
+    const { user, joinRoom, fetchFromDb, updateName } = this.props;
     const { myName } = user;
 
     if (myName.length === 0) {
@@ -266,6 +266,9 @@ class Home extends React.Component {
 
     // Add the user to database
     joinRoom(joinRoomID);
+    setTimeout(() => {
+      fetchFromDb(joinRoomID);
+    }, 1250);
 
     this.setState({
       joinRoomModalVisible: false,
