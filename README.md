@@ -27,7 +27,3 @@ Create a match, share it with your friends, and play together freely.
 * Both the kicked players and the quitters can rejoin every match
 * Once the room master exits, the game is going to be deleted, permanently.
 * Have fun! ;)
-
-## Contributors
-* @Razor97
-All contributions are welcome!
