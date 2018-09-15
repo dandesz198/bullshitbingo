@@ -569,7 +569,7 @@ class Home extends React.Component {
               }}
             >
               <Text isBold style={{ fontSize: 16 }}>
-                0.15 [i]
+                0.16 [i]
               </Text>
             </TouchableOpacity>
           </View>
