@@ -8,7 +8,6 @@ import {
   Alert,
   Image,
   Dimensions,
-  Linking,
   BackHandler,
   Vibration,
   StatusBar,
@@ -17,7 +16,7 @@ import * as firebase from 'firebase';
 import sha256 from 'crypto-js/sha256';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Button, Text, TextInput, Link } from '@components';
+import { Button, Text, TextInput, Onboarding, About } from '@components';
 import { Images } from '@assets';
 
 import styles from './styles';
@@ -107,6 +106,7 @@ class Home extends React.Component {
     rooms.map(element => fetchFromDb(element.roomID));
   };
 
+  // NEEDS TO BE REFACTORED - NTBR
   createRoom = async () => {
     const { myNameWB, pw, pwAgain, newRoomName, newRoomID } = this.state;
     const { createRoom, user } = this.props;
@@ -169,6 +169,7 @@ class Home extends React.Component {
     });
   };
 
+  // NEEDS TO BE REFACTORED - NTBR
   preJoin = () => {
     const { joinRoomID } = this.state;
     const thus = this;
@@ -216,6 +217,7 @@ class Home extends React.Component {
       });
   };
 
+  // NEEDS TO BE REFACTORED - NTBR
   joinRoomFinal = async () => {
     const { joinMaster, roomPw, joinPw, joinRoomID, myNameWB } = this.state;
     const { user, joinRoom, fetchFromDb, updateName } = this.props;
@@ -572,215 +574,16 @@ class Home extends React.Component {
         onRequestClose={() => this.setState({ infoModalVisible: false })}
         visible={infoModalVisible}
       >
-        <ScrollView style={{ flex: 1, padding: 25 }}>
-          <Text isBold style={{ fontSize: 40, marginTop: 20 }}>
-            {I18n.t('bullshit_bingo')}
-          </Text>
-          <Text isBold={false} style={{ fontSize: 20 }}>
-            {`${I18n.t('desc_1')}${'\n'}${'\n'}${I18n.t(
-              'desc_2'
-            )}${'\n'}${I18n.t('desc_3')}`}
-          </Text>
-          <Text isBold style={{ fontSize: 40, marginTop: 15 }}>
-            {I18n.t('rules')}
-          </Text>
-          <Text isBold={false} style={{ fontSize: 20 }}>
-            {`• ${I18n.t('rule_1')}${'\n'}• ${I18n.t(
-              'rule_2'
-            )}${'\n'}• ${I18n.t('rule_3')}${'\n'}• ${I18n.t(
-              'rule_4'
-            )}${'\n'}• ${I18n.t('rule_5')}${'\n'}• ${I18n.t('rule_6')}`}
-          </Text>
-          <Text isBold style={{ fontSize: 40, marginTop: 15 }}>
-            {I18n.t('creator')}
-          </Text>
-          <Text isBold style={{ fontSize: 20 }}>
-            {I18n.t('open_source')}
-          </Text>
-          <Link
-            text={I18n.t('github')}
-            url="https://github.com/dandesz198/bullshitbingo"
-          />
-          <Text isBold style={{ fontSize: 20, marginTop: 10 }}>
-            {I18n.t('daniel_g')}
-          </Text>
-          <Link text="GitHub" url="https://github.com/dandesz198" />
-          <Link text="Facebook" url="https://fb.me/dandesz198" />
-          <Link text="Twitter" url="https://twitter.com/dandesz198" />
-          <Link text="LinkedIn" url="https://linkedin.com/in/dandesz198" />
-          <Text isBold style={{ fontSize: 40, marginTop: 15 }}>
-            {I18n.t('contributors')}
-          </Text>
-          <Text isBold style={{ fontSize: 20 }}>
-            {I18n.t('peter_h')}
-          </Text>
-          <Link text="GitHub" url="https://github.com/razor97" />
-          <Link text="Facebook" url="https://fb.me/hajdupetke" />
-          <Link text="Twitter" url="https://twitter.com/hajdupetke" />
-          <Text isBold style={{ fontSize: 40, marginTop: 15 }}>
-            {I18n.t('legal')}
-          </Text>
-          <Text isBold={false} style={{ fontSize: 16 }}>
-            {`${I18n.t('font_family')}: Cabin Sketch${'\n'}${I18n.t(
-              'illustrator'
-            )} : Freepik`}
-          </Text>
-          <Link
-            text={I18n.t('link_to_vector')}
-            url="https://www.flaticon.com/free-icon/poo_720965"
-          />
-          <Text isBold={false} style={{ fontSize: 16 }}>
-            {`${I18n.t('poop')}: Flaticon (by Freepik)`}
-          </Text>
-          <Link
-            text={I18n.t('link_to_poop')}
-            url="https://www.freepik.com/free-vector/sketchy-children_797063.htm"
-          />
-          <TouchableOpacity
-            style={{ marginLeft: 'auto', marginRight: 'auto', marginTop: 15 }}
-            onPress={() => {
-              Linking.openURL('https://paypal.me/dandesz198');
-            }}
-          >
-            <Image source={Images.coffee} style={{ height: 45, width: 225 }} />
-          </TouchableOpacity>
-          <Text
-            isBold
-            style={[
-              styles.p,
-              { fontSize: 16, textAlign: 'center', marginTop: 5 },
-            ]}
-          >
-            {I18n.t('server_donate')}
-          </Text>
-          <Button
-            onPress={() => {
-              this.setState({ infoModalVisible: false });
-            }}
-            style={{
-              marginTop: 20,
-              marginBottom: 40,
-              marginLeft: 'auto',
-              marginRight: 'auto',
-            }}
-            isWide
-            text={I18n.t('close')}
-          />
-        </ScrollView>
+        <About close={() => this.setState({ infoModalVisible: false })} />
       </Modal>
-    );
-  };
-
-  renderOnboarding = () => {
-    const { hideOnboarding } = this.props;
-    return (
-      <ScrollView style={{ flex: 1 }} pagingEnabled horizontal vertical={false}>
-        <StatusBar barStyle="dark-content" />
-        <View style={styles.onboardContainter}>
-          <Image
-            source={Images.icon}
-            style={{ width: 125, height: 125, marginBottom: 20 }}
-          />
-          <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-            {I18n.t('onboard_welcome')}
-          </Text>
-          <Text
-            isBold
-            style={{ fontSize: 20, textAlign: 'center', marginTop: 5 }}
-          >
-            {I18n.t('onboard_welcome_desc')}
-          </Text>
-          <Text
-            isBold={false}
-            style={{ fontSize: 30, textAlign: 'center', marginTop: 20 }}
-          >
-            {I18n.t('onboard_welcome_swipe')}
-          </Text>
-        </View>
-        <View style={styles.onboardContainter}>
-          <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-            {I18n.t('onboard_rooms')}
-          </Text>
-          <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
-            {I18n.t('onboard_rooms_desc')}
-          </Text>
-        </View>
-        <View style={[styles.onboardContainter, { padding: 0 }]}>
-          <View
-            style={[
-              styles.onboardContainter,
-              { marginTop: 'auto', marginBottom: 'auto' },
-            ]}
-          >
-            <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-              {I18n.t('onboard_matches')}
-            </Text>
-            <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
-              {I18n.t('onboard_matches_desc')}
-            </Text>
-          </View>
-          <Image
-            source={Images.create_child}
-            style={{
-              width: 120,
-              height: 87,
-              marginTop: 'auto',
-              marginBottom: 0,
-            }}
-          />
-        </View>
-        <View style={styles.onboardContainter}>
-          <Image
-            source={Images.tutorial_card}
-            style={{ width: 300, height: 125, marginBottom: 20 }}
-          />
-          <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-            {I18n.t('onboard_cards')}
-          </Text>
-          <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
-            {I18n.t('onboard_cards_desc')}
-          </Text>
-        </View>
-        <View style={styles.onboardContainter}>
-          <Image
-            source={Images.firework}
-            style={{ width: 125, height: 125, marginBottom: 20 }}
-          />
-          <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-            {I18n.t('onboard_bingo')}
-          </Text>
-          <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
-            {I18n.t('onboard_bingo_desc')}
-          </Text>
-        </View>
-        <View style={styles.onboardContainter}>
-          <Text isBold style={{ fontSize: 30, textAlign: 'center' }}>
-            {I18n.t('onboard_start')}
-          </Text>
-          <Text isBold style={{ fontSize: 20, textAlign: 'center' }}>
-            {I18n.t('onboard_start_desc')}
-          </Text>
-          <Button
-            onPress={() => {
-              hideOnboarding();
-            }}
-            style={{ marginTop: 15 }}
-            text={I18n.t('onboard_start_btn')}
-          />
-          <Image
-            source={Images.add_child}
-            style={{ width: 70, height: 59, marginTop: -2.5 }}
-          />
-        </View>
-      </ScrollView>
     );
   };
 
   render() {
     const { isNewRoomIDCorrect, joinRoomID } = this.state;
-    const { user, rooms } = this.props;
+    const { user, rooms, hideOnboarding } = this.props;
     if (user.isFirst) {
-      return this.renderOnboarding();
+      return <Onboarding hideOnboarding={() => hideOnboarding()} />;
     }
     return (
       <View style={[styles.container, { backgroundColor: 'white' }]}>

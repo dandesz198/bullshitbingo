@@ -61,7 +61,6 @@ export default {
   open_source: 'A projekt nyílt forráskódú.',
   github: 'Bullshit Bingo a GitHub-on',
   daniel_g: 'Gergely Dániel',
-  peter_h: 'Hajdú Péter',
   legal: 'Jogi cuccok',
   font_family: 'Fontcsalád',
   illustrator: 'Rajzolt illusztrációk',

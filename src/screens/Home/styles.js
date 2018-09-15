@@ -37,14 +37,6 @@ export default StyleSheet.create({
   p: {
     fontSize: 24,
   },
-  onboardContainter: {
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 30,
-    backgroundColor: 'white',
-  },
   card: {
     width: Dimensions.get('window').width * 0.9,
     marginHorizontal: Dimensions.get('window').width * 0.05,

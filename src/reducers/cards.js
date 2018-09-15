@@ -6,7 +6,6 @@ import {
   BINGO_CARD,
   DELETE_CARD,
   FETCH_CARDS,
-  // KICK
 } from '../actions';
 
 export default function reducer(state = [], action) {

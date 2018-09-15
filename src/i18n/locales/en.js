@@ -63,7 +63,6 @@ export default {
   open_source: 'This project is fully open-source.',
   github: 'Bullshit Bingo on GitHub',
   daniel_g: 'Daniel Gergely',
-  peter_h: 'Peter Hajdu',
   legal: 'Legal notice',
   font_family: 'Font family',
   illustrator: 'Drawn illustrations',

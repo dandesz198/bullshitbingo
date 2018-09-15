@@ -12,7 +12,6 @@ export default function reducer(state = [], action) {
       return [...action.payload];
     case KICK:
       return [...state];
-    // HANDLE KICK
     default:
       return state;
   }
