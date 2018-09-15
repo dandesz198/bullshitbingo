@@ -9,7 +9,6 @@ import {
   Image,
   Dimensions,
   BackHandler,
-  Vibration,
   StatusBar,
 } from 'react-native';
 import * as firebase from 'firebase';
@@ -87,8 +86,9 @@ class Home extends React.Component {
   componentDidUpdate(prevProps) {
     const { error } = this.props;
     if (prevProps.error !== error && error) {
-      Alert.alert(I18n.t(error.title), I18n.t(error.details));
-      // show the alert
+      if (error.title) {
+        Alert.alert(I18n.t(error.title), I18n.t(error.details));
+      }
     }
   }
 
@@ -106,48 +106,11 @@ class Home extends React.Component {
     rooms.map(element => fetchFromDb(element.roomID));
   };
 
-  // NEEDS TO BE REFACTORED - NTBR
   createRoom = async () => {
-    const { myNameWB, pw, pwAgain, newRoomName, newRoomID } = this.state;
-    const { createRoom, user } = this.props;
-    const { myName } = user;
+    const { pw, newRoomName, newRoomID } = this.state;
+    const { createRoom } = this.props;
 
-    if (
-      (myNameWB.length === 0 && myName.length === 0) ||
-      pw.length === 0 ||
-      pwAgain.length === 0 ||
-      newRoomName.length === 0
-    ) {
-      Vibration.vibrate();
-      return;
-    }
-
-    // Check the password
-    if (pw !== pwAgain) {
-      this.setState({
-        newRoomModalVisible: false,
-      });
-      Vibration.vibrate();
-      Alert.alert(I18n.t('error'), I18n.t('password_error'), [
-        {
-          text: I18n.t('ok'),
-          onPress: () =>
-            this.setState({
-              newRoomModalVisible: true,
-            }),
-        },
-      ]);
-      return;
-    }
-
-    // Upload the room itself to database
-    await createRoom({
-      name: newRoomName,
-      master: myName,
-      masterPw: sha256(pw),
-      roomID: newRoomID,
-      matches: [],
-    });
+    await createRoom(newRoomID, newRoomName, pw);
 
     this.setState({
       newRoomModalVisible: false,
@@ -178,7 +141,6 @@ class Home extends React.Component {
       this.setState({
         isNewRoomIDCorrect: false,
       });
-      Vibration.vibrate();
       return;
     }
 
@@ -195,7 +157,6 @@ class Home extends React.Component {
           thus.setState({
             isNewRoomIDCorrect: false,
           });
-          Vibration.vibrate();
           return;
         }
 
@@ -212,7 +173,6 @@ class Home extends React.Component {
           });
         } else {
           Alert.alert(I18n.t('error'), I18n.t('prejoin_error'));
-          Vibration.vibrate();
         }
       });
   };
@@ -234,7 +194,6 @@ class Home extends React.Component {
         this.setState({
           joinRoomModalVisible: false,
         });
-        Vibration.vibrate();
         Alert.alert(I18n.t('error'), I18n.t('empty_fields'), [
           {
             text: I18n.t('ok'),
@@ -253,7 +212,6 @@ class Home extends React.Component {
       this.setState({
         joinRoomModalVisible: false,
       });
-      Vibration.vibrate();
       Alert.alert(I18n.t('error'), I18n.t('wrong_password'), [
         {
           text: I18n.t('ok'),
@@ -289,6 +247,8 @@ class Home extends React.Component {
     // this.deleteRoom(delete);
     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
   }
+
+  // ============================== VIEWS =============================================================================================
 
   renderNewRoomModal = () => {
     const {
@@ -424,7 +384,8 @@ class Home extends React.Component {
                     (myNameWB.length === 0 && myName.length === 0) ||
                     pw.length === 0 ||
                     pwAgain.length === 0 ||
-                    newRoomName.length === 0
+                    newRoomName.length === 0 ||
+                    pw !== pwAgain
                   )
                 }
                 text={I18n.t('create')}

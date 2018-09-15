@@ -6,7 +6,6 @@ import {
   ListView,
   Dimensions,
   Alert,
-  Vibration,
   Image,
   StatusBar,
 } from 'react-native';
@@ -84,7 +83,6 @@ class Room extends React.Component {
     const { props } = this;
     if (prevProps.error !== props.error && props.error) {
       Alert.alert(I18n.t(props.error.title), I18n.t(props.error.details));
-      // show the alert
     }
   }
 
@@ -105,7 +103,6 @@ class Room extends React.Component {
     const { name, master, roomID } = this.state;
     const { user, navigation, kick, quitRoom, deleteRoomFromDb } = this.props;
     const { myName } = user;
-    Vibration.vibrate();
     Alert.alert(
       I18n.t('are_you_sure'),
       myName === rowData.name
@@ -125,7 +122,6 @@ class Room extends React.Component {
               // If match master AND kicking itself
               if (myName === rowData.name) {
                 // But you are the match master - quitting will delete the match
-                Vibration.vibrate();
                 Alert.alert(
                   I18n.t('are_you_sure'),
                   I18n.t('matchmaster_delete'),
@@ -155,7 +151,6 @@ class Room extends React.Component {
               navigation.goBack();
             } else {
               // Can't kick others
-              Vibration.vibrate();
               Alert.alert(I18n.t('error'), I18n.t('kick_error'), [
                 {
                   text: I18n.t('ok'),
@@ -278,7 +273,6 @@ class Room extends React.Component {
                     });
                   }}
                   onDeletePress={() => {
-                    Vibration.vibrate();
                     Alert.alert(
                       I18n.t('are_you_sure'),
                       `${I18n.t('del_match')}: "${rowData.name}". ${I18n.t(

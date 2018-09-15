@@ -89,8 +89,6 @@ export const vote = (roomID, matchID, cardID) => (dispatch, getState) => {
       ...card,
     });
 
-  console.log('FIR UPDATED W/ VOTE');
-
   dispatch({
     type: VOTE_CARD,
   });

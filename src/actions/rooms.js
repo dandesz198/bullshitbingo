@@ -1,24 +1,25 @@
 import { Alert } from 'react-native';
 import * as firebase from 'firebase';
+import sha256 from 'crypto-js/sha256';
 import I18n from '../i18n';
 import NavigationService from '../config/navigationService';
 import { CREATE_ROOM, DELETE_ROOM, KICK } from './types';
 
-// NEEDS TO BE REFACTORED - NTBR
 /**
  * This action is dispacted when the user creates a room
  *
  * @param {object} roomPlain - The plain room object that contains the very basic data of the room
  */
-export const createRoom = roomPlain => (dispatch, getState) => {
-  const { name, masterPw, roomID } = roomPlain;
+export const createRoom = (roomID, newRoomName, pw) => (dispatch, getState) => {
   const { myName, points } = getState().user;
+
   const room = {
     roomID,
-    name,
+    name: newRoomName,
     master: myName,
-    masterPw,
+    masterPw: sha256(pw),
     members: [myName],
+    matches: [],
   };
 
   firebase
@@ -165,8 +166,6 @@ export const quitRoom = roomID => (dispatch, getState) => {
   const room = rooms.find(room => room.roomID === roomID);
   const members = room.members.map(member => member.name);
 
-  console.log('quitRoom - BEFORE - rooms', rooms);
-
   members.splice(members.indexOf(myName));
 
   firebase
@@ -177,8 +176,6 @@ export const quitRoom = roomID => (dispatch, getState) => {
     });
 
   rooms.splice(room);
-
-  console.log('quitRoom - AFTER - rooms', rooms);
 
   dispatch(deleteRoom(roomID));
 };

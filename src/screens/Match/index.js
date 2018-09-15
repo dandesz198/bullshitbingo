@@ -6,7 +6,6 @@ import {
   ListView,
   Dimensions,
   Alert,
-  Vibration,
   Image,
   StatusBar,
 } from 'react-native';
@@ -92,7 +91,6 @@ class Match extends React.Component {
     });
 
     if (votes >= 2) {
-      Vibration.vibrate();
       Alert.alert(I18n.t('error'), I18n.t('too_many_votes'));
     } else {
       vote(roomID, matchID, card.cardID);
@@ -228,7 +226,6 @@ class Match extends React.Component {
                 }
               }}
               onDeletePress={() => {
-                Vibration.vibrate();
                 Alert.alert(
                   I18n.t('are_you_sure'),
                   `${I18n.t('del_card')} "${rowData.text}"? ${I18n.t(
@@ -250,7 +247,6 @@ class Match extends React.Component {
                 if (rowData.isBingo) {
                   return;
                 }
-                Vibration.vibrate();
                 Alert.alert(
                   I18n.t('are_you_sure'),
                   `${I18n.t('give_points')} "${rowData.text}". ${I18n.t(
