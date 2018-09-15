@@ -13,7 +13,7 @@ Download it from [Google Play](https://play.google.com/store/apps/details?id=com
 
 ## TODO
 
-* Refact
+* Refact & rewrite main logic
 * Write documentation for code
 * Add user-level auth instead of room-level auth
     * Add username check

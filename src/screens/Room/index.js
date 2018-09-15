@@ -117,6 +117,7 @@ class Room extends React.Component {
         {
           text: I18n.t('yes'),
           onPress: async () => {
+            // NEEDS TO BE REFACTORED - NTBR
             // Determine if the player is the match master
             if (myName === master) {
               // If match master AND kicking itself
