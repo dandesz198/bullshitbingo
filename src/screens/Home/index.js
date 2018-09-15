@@ -132,7 +132,6 @@ class Home extends React.Component {
     });
   };
 
-  // NEEDS TO BE REFACTORED - NTBR
   preJoin = () => {
     const { joinRoomID } = this.state;
     const thus = this;
@@ -144,41 +143,31 @@ class Home extends React.Component {
       return;
     }
 
-    // Get the name and the master's name of the new room
     firebase
       .database()
-      .ref(`rooms/${joinRoomID}`)
-      .once('value', snap => {
-        if (
-          snap.val() === null ||
-          !snap.val() ||
-          typeof snap.val() === 'undefined'
-        ) {
+      .ref(`rooms/${joinRoomID}/`)
+      .once('value', async snap => {
+        const value = snap.val();
+        // Check if the room exists
+        if (value === null || !value || typeof value === 'undefined') {
           thus.setState({
             isNewRoomIDCorrect: false,
           });
-          return;
-        }
-
-        const { name, master, masterPw } = snap.val();
-
-        // Check if the room exists
-        if (name.length > 1 && name !== 'null') {
+        } else {
           // Open the connection modal
+          const { name, master, masterPw } = snap.val();
           thus.setState({
             joinRoomName: name,
             joinMaster: master,
             roomPw: masterPw,
             joinRoomModalVisible: true,
           });
-        } else {
-          Alert.alert(I18n.t('error'), I18n.t('prejoin_error'));
         }
       });
   };
 
   // NEEDS TO BE REFACTORED - NTBR
-  joinRoomFinal = async () => {
+  joinRoomConfirm = async () => {
     const { joinMaster, roomPw, joinPw, joinRoomID, myNameWB } = this.state;
     const { user, joinRoom, fetchFromDb, updateName } = this.props;
     const { myName } = user;
@@ -226,6 +215,7 @@ class Home extends React.Component {
 
     // Add the user to database
     joinRoom(joinRoomID);
+
     setTimeout(() => {
       fetchFromDb(joinRoomID);
     }, 1250);
@@ -506,9 +496,7 @@ class Home extends React.Component {
             >
               <View style={[styles.button, { flex: 1, marginRight: 25 }]}>
                 <Button
-                  onPress={async () => {
-                    this.joinRoomFinal();
-                  }}
+                  onPress={() => this.joinRoomConfirm()}
                   text={I18n.t('join')}
                 />
               </View>

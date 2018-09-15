@@ -45,11 +45,26 @@ export const joinRoom = roomID => (dispatch, getState) => {
   const { myName } = getState().user;
   let room;
 
+  // Get the name and the master's name of the new room
   firebase
     .database()
     .ref(`rooms/${roomID}/`)
     .once('value', async snap => {
-      const value = snap.val();
+      const { name, master, masterPw } = snap.val();
+
+      // Check if the room exists
+      if (name.length > 1 && name !== 'null') {
+        // Open the connection modal
+        thus.setState({
+          joinRoomName: name,
+          joinMaster: master,
+          roomPw: masterPw,
+          joinRoomModalVisible: true,
+        });
+      } else {
+        Alert.alert(I18n.t('error'), I18n.t('prejoin_error'));
+      }
+
       room = {
         name: value.name,
         master: value.master,
