@@ -3,6 +3,16 @@ import { TextInput as RNTextInput } from 'react-native';
 import PropTypes from 'prop-types';
 import styles from './styles';
 
+/**
+ * This is a modified TextInput component that uses the CabinSketch font and the custom styling
+ *
+ * @param {string} value - The value of the input
+ * @param {object} style - The style object that overrides the basic style of the component
+ * @param {string} placeholder - The placeholder text for the input
+ * @param {string} keyboardType - The type of the keyboard (e.g. default or PIN)
+ * @param {func} onChangeText - The function that runs when the text is changed
+ * @param {bool} secureTextEntry - Defines if the field is a password field or not
+ */
 const TextInput = ({
   value,
   style,

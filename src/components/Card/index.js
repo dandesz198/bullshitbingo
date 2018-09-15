@@ -13,6 +13,23 @@ import { Images } from '@assets';
 import { Button } from '@components';
 import I18n from '../../i18n';
 
+// NEEDS TO BE REFACTORED - NTBR
+/**
+ * This is card component displayed on the room and match view
+ *
+ * @param {string} matchName - The text on the upper-left of the card
+ * @param {string} creatorName - The text on the upper-right of the card
+ * @param {string} cardText - The main text of the card
+ * @param {bool} isMaster - (passed when it's a match card) Defines if the user is the master of the card in any way
+ * @param {bool} isVoteable - Defines if the card is voteable or not
+ * @param {bool} isBingo - Defines if the card is bingoed (passed down to the Button's 'isFilled' prop)
+ * @param {func} onVotePress - The function that runs when the user tries to press on the vote button
+ * @param {func} onDeletePress - The function that runs when the user tries to press on the delete button
+ * @param {func} onBingoPress - The function that runs when the user tries to press on the bingo button
+ * @param {bool} voted - Defines if the user voted on this card or not
+ * @param {number} voteCount - The text on the lower-right of the card
+ */
+
 const Card = ({
   matchName,
   creatorName,

@@ -16,7 +16,7 @@ Download it from [Google Play](https://play.google.com/store/apps/details?id=com
 * Refact
 * Write documentation for code
 * Extend prop-types for the actions
-* Add unit test with Jest
+* Add unit testing with Jest
 
 ## About the game
 

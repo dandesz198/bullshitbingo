@@ -5,6 +5,18 @@ import { Text } from '@components';
 import { Images } from '@assets';
 import styles from './styles';
 
+// NEEDS TO BE REFACTORED - NTBR
+/**
+ * This is button component with the basic background
+ *
+ * @param {func} onPress - The action that runs when the button is pressed
+ * @param {bool} isDisabled - Defines if the button is touchable/disabled
+ * @param {bool} isFilled - Defines if the button background is filled (used at BINGO-ed buttons)
+ * @param {bool} isWide - Defines if the button is a wide button
+ * @param {bool} isSmall - Defines if the button is a small/short button
+ * @param {string} text - The text that is displayed on the button
+ * @param {object} style - A style object that overrides the button's basic style
+ */
 const Button = ({
   onPress,
   isDisabled,
