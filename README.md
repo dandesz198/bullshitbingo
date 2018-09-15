@@ -11,6 +11,12 @@ Download it from [Google Play](https://play.google.com/store/apps/details?id=com
 * ESLint
 * SHA-256 encryption
 
+## TODO
+
+* Refact
+* Write documentation for code
+* Add unit test with Jest
+
 ## About the game
 
 This project is created by @dandesz198.
