@@ -1,5 +1,14 @@
 import { CREATE_ROOM, DELETE_ROOM, FETCH_ROOMS, KICK } from '../actions';
 
+/*
+export default function reducer(state = [], action) {
+  switch (action.type) {
+    default:
+      return [];
+  }
+}
+*/
+
 export default function reducer(state = [], action) {
   switch (action.type) {
     case CREATE_ROOM:
@@ -16,3 +25,4 @@ export default function reducer(state = [], action) {
       return state;
   }
 }
+

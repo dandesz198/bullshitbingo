@@ -38,7 +38,9 @@ class Room extends React.Component {
   constructor(props) {
     super(props);
     const { roomID } = props.navigation.state.params;
-    const { name, master } = props.rooms.find(room => room.roomID === roomID);
+    const { name, master, members } = props.rooms.find(
+      room => room.roomID === roomID
+    );
     this.state = {
       index: 0,
       routes: [
@@ -50,6 +52,7 @@ class Room extends React.Component {
       roomID,
       name,
       master,
+      members,
 
       newMatchText: '',
     };
@@ -129,7 +132,6 @@ class Room extends React.Component {
                   [
                     {
                       text: I18n.t('cancel'),
-                      onPress: () => console.log('Cancel'),
                       style: 'cancel',
                     },
                     {
@@ -155,7 +157,6 @@ class Room extends React.Component {
               Alert.alert(I18n.t('error'), I18n.t('kick_error'), [
                 {
                   text: I18n.t('ok'),
-                  onPress: () => console.log('Cancel'),
                   style: 'cancel',
                 },
               ]);
@@ -183,11 +184,10 @@ class Room extends React.Component {
   );
 
   renderScene = ({ route }) => {
-    const { newMatchText, name, roomID, master } = this.state;
-    const { user, matches, rooms, deleteMatch } = this.props;
+    const { newMatchText, name, roomID, master, members } = this.state;
+    const { user, matches, deleteMatch } = this.props;
     const { myName } = user;
     const filteredMatches = matches.filter(match => match.roomID === roomID);
-    const { members } = rooms.find(room => room.roomID === roomID);
     switch (route.key) {
       case '1':
         return (

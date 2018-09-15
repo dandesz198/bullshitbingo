@@ -50,28 +50,15 @@ export const joinRoom = roomID => (dispatch, getState) => {
     .database()
     .ref(`rooms/${roomID}/`)
     .once('value', async snap => {
-      const { name, master, masterPw } = snap.val();
-
-      // Check if the room exists
-      if (name.length > 1 && name !== 'null') {
-        // Open the connection modal
-        thus.setState({
-          joinRoomName: name,
-          joinMaster: master,
-          roomPw: masterPw,
-          joinRoomModalVisible: true,
-        });
-      } else {
-        Alert.alert(I18n.t('error'), I18n.t('prejoin_error'));
-      }
+      const { name, master, masterPw, members, matches } = snap.val();
 
       room = {
-        name: value.name,
-        master: value.master,
-        masterPw: value.masterPw,
-        members: Object.values(value.members),
-        matches: value.matches ? Object.values(value.matches) : [],
-        roomID: value.roomID,
+        name,
+        master,
+        masterPw,
+        members: Object.values(members),
+        matches: matches ? Object.values(matches) : [],
+        roomID,
       };
 
       if (room.members.indexOf(myName) < 0) {
@@ -81,25 +68,24 @@ export const joinRoom = roomID => (dispatch, getState) => {
           .push(myName);
       }
 
-      const members = [];
+      const localMembers = [];
 
       await room.members.forEach(async element => {
         await firebase
           .database()
           .ref(`users/${element}/`)
           .once('value', snap => {
-            members.push(snap.val());
+            localMembers.push(snap.val());
           });
       });
 
-      room.members = members;
+      const storeRoom = Object.assign(room, { members: localMembers });
 
       await dispatch({
         type: CREATE_ROOM,
-        payload: { ...room },
+        payload: { ...storeRoom },
       });
 
-      // Navigate to the room
       NavigationService.navigateTo('Room', {
         roomID,
       });

@@ -605,7 +605,9 @@ class Home extends React.Component {
                   style={{ fontSize: 24 }}
                   placeholder={I18n.t('room_pin')}
                   keyboardType="numeric"
-                  onChangeText={joinRoomID => this.setState({ joinRoomID })}
+                  onChangeText={joinRoomID =>
+                    this.setState({ joinRoomID, isNewRoomIDCorrect: true })
+                  }
                   value={joinRoomID}
                 />
                 <Image source={Images.line_short} style={{ width: 140 }} />
