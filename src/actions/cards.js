@@ -9,6 +9,14 @@ import {
   ERROR,
 } from './types';
 
+/**
+ * This action is dispacted when a new card needs to be created in a match
+ *
+ * @param {string} roomID - The ID of the room
+ * @param {string} matchID - The ID of the match
+ * @param {object} card - The card object that's created. The data of it isn't processed.
+ */
+
 export const createCard = (roomID, matchID, card) => (dispatch, getState) => {
   const { cards } = getState();
   let filteredCards = cards.filter(card => card.matchID === matchID);
@@ -32,6 +40,13 @@ export const createCard = (roomID, matchID, card) => (dispatch, getState) => {
   });
 };
 
+/**
+ * This action is dispacted when a card needs to be deleted from a match
+ *
+ * @param {string} roomID - The ID of the room
+ * @param {string} matchID - The ID of the match
+ * @param {object} card - The card object that's going to get deleted.
+ */
 export const deleteCard = (roomID, matchID, card) => (dispatch, getState) => {
   const { cards } = getState();
   const filteredCards = cards.filter(card => card.matchID === matchID);
@@ -51,6 +66,13 @@ export const deleteCard = (roomID, matchID, card) => (dispatch, getState) => {
   });
 };
 
+/**
+ * This action is dispacted when the user votes on a card
+ *
+ * @param {string} roomID - The ID of the room
+ * @param {string} matchID - The ID of the match
+ * @param {object} cardID - The ID of the card that needs to get voted
+ */
 export const vote = (roomID, matchID, cardID) => (dispatch, getState) => {
   const { cards, user } = getState();
   const { myName } = user;
@@ -74,6 +96,13 @@ export const vote = (roomID, matchID, cardID) => (dispatch, getState) => {
   });
 };
 
+/**
+ * This action is dispacted when the user removes a vote from a card
+ *
+ * @param {string} roomID - The ID of the room
+ * @param {string} matchID - The ID of the match
+ * @param {object} cardID - The ID of the card that needs to get unvoted
+ */
 export const unvote = (roomID, matchID, cardID) => (dispatch, getState) => {
   const { cards, user } = getState();
   const { myName } = user;
@@ -95,6 +124,15 @@ export const unvote = (roomID, matchID, cardID) => (dispatch, getState) => {
   });
 };
 
+// NEEDS TO BE REFACTORED - NTBR
+/**
+ * This action is dispacted when the room/match-master announces that a card is bingo
+ * It gives points to every voter and makes the card unvoteable
+ *
+ * @param {string} roomID - The ID of the room
+ * @param {string} matchID - The ID of the match
+ * @param {object} cardID - The ID of the card that needs to get bingoed
+ */
 export const bingo = (roomID, matchID, card) => (dispatch, getState) => {
   const { cards, user } = getState();
   const { myName } = user;

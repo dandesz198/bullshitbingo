@@ -4,6 +4,13 @@ import { kicked } from './rooms';
 
 import { FETCH, FETCH_ROOMS, FETCH_MATCHES, FETCH_CARDS } from './types';
 
+// NEEDS TO BE REFACTORED - NTBR
+/**
+ * This action is dispacted for every room the user is in
+ * It grabs the data from Firebase and converts it to the Redux store
+ *
+ * @param {string} roomID - The ID of the room
+ */
 export const fetchFromDb = roomID => async (dispatch, getState) => {
   const { rooms, user } = getState();
   const { myName } = user;

@@ -4,6 +4,12 @@ import I18n from '../i18n';
 import NavigationService from '../config/navigationService';
 import { CREATE_ROOM, DELETE_ROOM, KICK } from './types';
 
+// NEEDS TO BE REFACTORED - NTBR
+/**
+ * This action is dispacted when the user creates a room
+ *
+ * @param {object} roomPlain - The plain room object that contains the very basic data of the room
+ */
 export const createRoom = roomPlain => (dispatch, getState) => {
   const { name, masterPw, roomID } = roomPlain;
   const { myName, points } = getState().user;
@@ -28,6 +34,12 @@ export const createRoom = roomPlain => (dispatch, getState) => {
   });
 };
 
+// NEEDS TO BE REFACTORED - NTBR
+/**
+ * This action is dispacted when the user tries to join a room
+ *
+ * @param {string} roomID - The ID of the room the user is trying to join
+ */
 export const joinRoom = roomID => (dispatch, getState) => {
   const { myName } = getState().user;
   let room;
@@ -78,11 +90,22 @@ export const joinRoom = roomID => (dispatch, getState) => {
     });
 };
 
+/**
+ * This is a helper action dispatched when a room needs to be deleted only from the store
+ *
+ * @param {string} roomID - The ID of the room that needs to be deleted
+ */
 export const deleteRoom = roomID => ({
   type: DELETE_ROOM,
   payload: roomID,
 });
 
+/**
+ * A helper action dispatched when the user gets kicked from a room
+ * It navigates the user to the home to prevent crashing, notifies it about the kicking and deletes the room from the local store
+ *
+ * @param {string} roomID - The ID of the room that the user is kicked from
+ */
 export const kicked = roomID => dispatch => {
   NavigationService.popToTop();
   Alert.alert(I18n.t('kicked'), I18n.t('kicked_desc'));
@@ -91,6 +114,11 @@ export const kicked = roomID => dispatch => {
   }, 1250);
 };
 
+/**
+ * This action is dispatched when a room needs to be deleted from both Firebase and the store
+ *
+ * @param {string} roomID - The ID of the room that needs to be deleted
+ */
 export const deleteRoomFromDb = roomID => dispatch => {
   firebase
     .database()
@@ -100,6 +128,12 @@ export const deleteRoomFromDb = roomID => dispatch => {
   dispatch(deleteRoom(roomID));
 };
 
+/**
+ * This action is dispatched when the room master kicks someone
+ *
+ * @param {string} roomID - The ID of the room where the kicking is happening
+ * @param {string} username - The name of the user that needs to be kicked
+ */
 export const kick = (roomID, username) => (dispatch, getState) => {
   const { rooms } = getState();
   const room = rooms.find(room => room.roomID === roomID);
@@ -119,6 +153,12 @@ export const kick = (roomID, username) => (dispatch, getState) => {
   });
 };
 
+/**
+ * This action is dispatched when the room master kicks someone
+ *
+ * @param {string} roomID - The ID of the room where the kicking is happening
+ * @param {string} username - The name of the user that needs to be kicked
+ */
 export const quitRoom = roomID => (dispatch, getState) => {
   const { user, rooms } = getState();
   const { myName } = user;
